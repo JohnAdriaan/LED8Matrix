@@ -36,6 +36,7 @@
                 NAME            Main
 
                 $INCLUDE        (IE.inc)
+                $INCLUDE        (PCON.inc)
 
                 PUBLIC          ResetISR
                 PUBLIC          Timer1Hook
@@ -45,14 +46,21 @@
                 EXTERN          CODE(InitUART)
                 EXTERN          CODE(InitTimer)
                 EXTERN          CODE(InitLED)
+                EXTERN          CODE(CopyFrame)
 
 ;===============================================================================
+MainBits        SEGMENT         BIT
+                RSEG            MainBits
 
+EndFrame:       DBIT            1
+LineRXed:       DBIT            1
+
+;===============================================================================
 Main            SEGMENT         CODE
                 RSEG            Main
 
 ResetISR:
-                MOV             SP, #Stack-1      ; Better pos for the Stack!
+                MOV             SP, #Stack-1      ; Better Stack position
                 CALL            InitCPU           ; Initialise CPU SFRs
                 CALL            InitUART          ; Initialise UART2
                 CALL            InitTimer         ; Initialise Timer1
@@ -60,11 +68,26 @@ ResetISR:
 
                 SETB            EA                ; Enable all interrupts
 
-                SJMP            $
+                CLR             EndFrame
+                CLR             LineRXed
+Executive:
+                JBC             EndFrame, NextFrame
+                JBC             LineRXed, ProcessLine
+                ORL             PCON, #mIDL       ; Go to sleep...
+                SJMP            Executive         ; Start again
 
 ;-------------------------------------------------------------------------------
+NextFrame:
+                CALL            CopyFrame
+                SJMP            Executive         ; Start again
 
+;-------------------------------------------------------------------------------
+ProcessLine:
+                SJMP            Executive         ; Start again
+
+;-------------------------------------------------------------------------------
 Timer1Hook:
                 RET
 
+;===============================================================================
                 END

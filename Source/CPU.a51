@@ -15,14 +15,12 @@
                 PUBLIC          InitCPU
 
 ;===============================================================================
-
 StackSegment    SEGMENT         DATA AT 0030h
                 RSEG            StackSegment
 
 Stack:          DSB             32      ; I don't know how big this needs to be!
 
 ;===============================================================================
-
 CPUData         SEGMENT         XDATA AT 00F0h
                 RSEG            CPUData
 
@@ -31,8 +29,13 @@ ID:             DSB             7                 ; Put here at power-on
 FreqLast:       DSD             1                 ; Put here at power-on
 FreqFactory:    DSD             1                 ; Put here at power-on
 
-;===============================================================================
+;-------------------------------------------------------------------------------
+ExternalRAM     SEGMENT         XDATA AT 0400h
+                RSEG            ExternalRAM
 
+NonExistent:    DSB             0FC00h
+
+;===============================================================================
 CPU             SEGMENT         CODE
                 RSEG            CPU
 
@@ -48,4 +51,5 @@ InitCPU:
 
                 RET
 
+;===============================================================================
                 END

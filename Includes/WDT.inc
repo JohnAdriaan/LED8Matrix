@@ -4,20 +4,26 @@
 ; This file defines the WatchDog Timer SFRs and their fields
 ;
 
-                SFR WDT_CONTR = 0C1h    ; WatchDog Timer CONTrol Register
+; WatchDog Timer CONTrol Register
+                SFR WDT_CONTR = 0C1h
 
-bWDT_FLAG       EQU             7       ; Did Watchdog fire?
+; Did Watchdog fire?
+bWDT_FLAG       EQU             7
 mWDT_FLAG       EQU             1 shl bWDT_FLAG
 
-bEN_WDT         EQU             5       ; Enable WatchDog Timer
+; Enable WatchDog Timer
+bEN_WDT         EQU             5
 mEN_WDT         EQU             1 shl bEN_WDT
 
-bCLR_WDT        EQU             4       ; Clear WatchDog Timer (nice doggy!)
+; Clear WatchDog Timer (nice doggy!)
+bCLR_WDT        EQU             4
 mCLR_WDT        EQU             1 shl bCLR_WDT
 
-bIDLE_WDT       EQU             3       ; Enable WatchDog Timer during IDLE
+; Enable WatchDog Timer during IDLE
+bIDLE_WDT       EQU             3
 mIDLE_WDT       EQU             1 shl bIDLE_WDT
 
+; Watchdog frequency selector mask
 bPS2            EQU             2
 mPS2            EQU             1 shl bPS2
 
@@ -27,4 +33,5 @@ mPS1            EQU             1 shl bPS1
 bPS0            EQU             0
 mPS0            EQU             1 shl bPS0
 
-mPS210          EQU             mPS2+mPS1+mPS0 ; Watchdog frequency selector mask
+bPS210          EQU             bPS0
+mPS210          EQU             mPS2+mPS1+mPS0

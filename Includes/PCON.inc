@@ -4,28 +4,37 @@
 ; This file defines the PCON SFR and its fields
 ;
 
-                SFR    PCON  =  087h    ; Power CONtrol
+; Power CONtrol
+                SFR    PCON  =  087h
 
-bSMOD           EQU             7       ; UART1 Double speed
+; UART1 Double speed
+bSMOD           EQU             7
 mSMOD           EQU             1 shl bSMOD
 
-bSMOD0          EQU             6       ; UART1 Set Frame Error detect
+; UART1 Set Frame Error detect
+bSMOD0          EQU             6
 mSMOD0          EQU             1 shl bSMOD0
 
-bLVDF           EQU             5       ; Low Voltage Detect Flag
+; Low Voltage Detect Flag
+bLVDF           EQU             5
 mLVDF           EQU             1 shl bLVDF
 
-bPOF            EQU             4       ; Power Off Flag
+; Power Off Flag
+bPOF            EQU             4
 mPOF            EQU             1 shl bPOF
 
-bGF1            EQU             3       ; General Flag 1
+; General Flag 1
+bGF1            EQU             3
 mGF1            EQU             1 shl bGF1
 
-bGF0            EQU             2       ; General Flag 0
+; General Flag 0
+bGF0            EQU             2
 mGF0            EQU             1 shl bGF0
 
-bPD             EQU             1       ; Power Down
+; Power Down
+bPD             EQU             1
 mPD             EQU             1 shl bPD
 
-bIDL            EQU             0       ; IDLe mode
+; IDLe mode
+bIDL            EQU             0
 mIDL            EQU             1 shl bIDL

@@ -1,31 +1,40 @@
 ;
 ; AUXR.inc
 ;
-; This file defines the SFR AUXR and its bits
+; This file defines the AUXR SFR and its fields
 ;
 
-                SFR    AUXR  =  08Eh    ; AUXiliary Register
+; AUXiliary Register
+                SFR    AUXR  =  08Eh
 
-bT0x12          EQU             7       ; Timer 0 x12 speed
+; Timer 0 x12 speed
+bT0x12          EQU             7
 mT0x12          EQU             1 shl bT0x12
 
-bT1x12          EQU             6       ; Timer 1 x12 speed
+; Timer 1 x12 speed
+bT1x12          EQU             6
 mT1x12          EQU             1 shl bT1x12
 
-bUART_M0x6      EQU             5       ; UART Mode 0 x6 rate
+; UART Mode 0 x6 rate
+bUART_M0x6      EQU             5
 mUART_M0x6      EQU             1 shl bUART_M0x6
 
-bBRTR           EQU             4       ; Baud Rate Timer Run
+; Baud Rate Timer Run
+bBRTR           EQU             4
 mBRTR           EQU             1 shl bBRTR
 
-bS2SMOD         EQU             3       ; UART2 Double speed
+; UART2 Double speed
+bS2SMOD         EQU             3
 mS2SMOD         EQU             1 shl bS2SMOD
 
-bBRTx12         EQU             2       ; Baud Rate Timer x12 speed
+; Baud Rate Timer x12 speed
+bBRTx12         EQU             2
 mBRTx12         EQU             1 shl bBRTx12
 
-bEXTRAM         EQU             1       ; External RAM only
+; External RAM only
+bEXTRAM         EQU             1
 mEXTRAM         EQU             1 shl bEXTRAM
 
-bS1BRS          EQU             0       ; UART1 Use Baud Rate Timer (not Timer1)
+; UART1 Use Baud Rate Timer (not Timer1)
+bS1BRS          EQU             0
 mS1BRS          EQU             1 shl bS1BRS
