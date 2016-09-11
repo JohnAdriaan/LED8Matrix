@@ -1,15 +1,17 @@
 ;
 ; UART.a51
 ;
-; This file defines the UART interrupt handlers, and some useful functiona.
+; This file defines the UART interrupt ISRs, and some useful functiona.
 ;
 
                 NAME            UART
 
                 PUBLIC          InitUART
 
-                PUBLIC          UART1Handler
-                PUBLIC          UART2Handler
+                PUBLIC          UART1ISR
+                PUBLIC          UART2ISR
+
+;===============================================================================
 
 UART            SEGMENT         CODE
                 RSEG            UART
@@ -17,15 +19,19 @@ UART            SEGMENT         CODE
 InitUART:
                 RET
 
-                USING           2
+                USING           1
 
-UART1Handler:
-                SJMP            UARTHandler
+;-------------------------------------------------------------------------------
 
-UART2Handler:
-;               SJMP            UARTHandler
+UART1ISR:
+                SJMP            UARTISR
 
-UARTHandler:
+;-------------------------------------------------------------------------------
+
+UART2ISR:
+;               SJMP            UARTISR
+
+UARTISR:
                 RETI
 
                 END

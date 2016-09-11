@@ -6,7 +6,6 @@
 ; The matrix has 8x anodes, and 3x 8x cathodes for the different colours.
 ;
 ; That will use all 32 (standard) pins, P0 & P1-P3, leaving P4 for extra stuff.
-;
 ; Given that serial comms could be nice, that means putting UART2 onto P4...
 ;
 ; The basic design is to store 3x8x8=192 bytes for the colour values in XDATA.
@@ -36,7 +35,10 @@
 
                 NAME            Main
 
-                PUBLIC          ResetHandler
+                $INCLUDE        (IE.inc)
+
+                PUBLIC          ResetISR
+                PUBLIC          Timer1Hook
 
                 EXTERN          DATA(Stack)
                 EXTERN          CODE(InitCPU)
@@ -44,15 +46,25 @@
                 EXTERN          CODE(InitTimer)
                 EXTERN          CODE(InitLED)
 
+;===============================================================================
+
 Main            SEGMENT         CODE
                 RSEG            Main
 
-ResetHandler:
+ResetISR:
                 MOV             SP, #Stack-1      ; Better pos for the Stack!
                 CALL            InitCPU           ; Initialise CPU SFRs
                 CALL            InitUART          ; Initialise UART2
                 CALL            InitTimer         ; Initialise Timer1
                 CALL            InitLED           ; Initialise LED matrix
+
+                SETB            EA                ; Enable all interrupts
+
                 SJMP            $
+
+;-------------------------------------------------------------------------------
+
+Timer1Hook:
+                RET
 
                 END

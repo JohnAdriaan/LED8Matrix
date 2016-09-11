@@ -323,7 +323,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath></IncludePath>
+              <IncludePath>./Includes</IncludePath>
             </VariousControls>
           </Ax51>
           <Lx51>
@@ -407,6 +407,41 @@
               <FileName>LED8x8.hex</FileName>
               <FileType>5</FileType>
               <FilePath>.\Objects\LED8x8.hex</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Includes</GroupName>
+          <Files>
+            <File>
+              <FileName>AUXR.inc</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Includes\AUXR.inc</FilePath>
+            </File>
+            <File>
+              <FileName>IE.inc</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Includes\IE.inc</FilePath>
+            </File>
+            <File>
+              <FileName>PCON.inc</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Includes\PCON.inc</FilePath>
+            </File>
+            <File>
+              <FileName>WDT.inc</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Includes\WDT.inc</FilePath>
+            </File>
+            <File>
+              <FileName>TCON.inc</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Includes\TCON.inc</FilePath>
+            </File>
+            <File>
+              <FileName>PSW.inc</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Includes\PSW.inc</FilePath>
             </File>
           </Files>
         </Group>
