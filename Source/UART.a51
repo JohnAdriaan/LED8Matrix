@@ -11,6 +11,8 @@
                 PUBLIC          UART1ISR
                 PUBLIC          UART2ISR
 
+UARTBank        EQU             1
+
 ;===============================================================================
 Buffers         SEGMENT         XDATA AT 0300h
                 RSEG            Buffers
@@ -30,19 +32,19 @@ InitUART:
 
 ;-------------------------------------------------------------------------------
 UART1ISR:
-                USING           1
+                USING           UARTBank
 
                 SJMP            UARTISR
 
 ;-------------------------------------------------------------------------------
 UART2ISR:
-                USING           1
+                USING           UARTBank
 
 ;               SJMP            UARTISR
 
 ;-------------------------------------------------------------------------------
 UARTISR:
-                USING           1
+                USING           UARTBank
 
                 RETI
 

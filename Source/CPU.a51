@@ -18,7 +18,7 @@
 StackSegment    SEGMENT         DATA AT 0030h
                 RSEG            StackSegment
 
-Stack:          DSB             32      ; I don't know how big this needs to be!
+Stack:          DSB             32      ; How big should this be?
 
 ;===============================================================================
 CPUData         SEGMENT         XDATA AT 00F0h
@@ -33,21 +33,21 @@ FreqFactory:    DSD             1                 ; Put here at power-on
 ExternalRAM     SEGMENT         XDATA AT 0400h
                 RSEG            ExternalRAM
 
-NonExistent:    DSB             0FC00h
+NonExistent:    DSB             0FC00h            ; Force "overlay" error
 
 ;===============================================================================
 CPU             SEGMENT         CODE
                 RSEG            CPU
 
 InitCPU:
-;               MOV             A, PCON           ; Read Power Control
-;               MOV             R0, #Power        ; Index
-;               MOVX            @R0, A            ; Save in CPUData
-;               ANL             A, #NOT (LVDF+POF); Now turn off these bits
-;               MOV             PCON, A
+                MOV             A, rPCON          ; Read Power Control
+                MOV             R0, #Power        ; Index
+                MOVX            @R0, A            ; Save in CPUData
+                ANL             A, #NOT (mLVDF+mPOF); Now turn off these bits
+                MOV             rPCON, A
 
-;               MOV             A, WDT_CONTR      ; Get WatchDog timer
-;               ANL             A, WDT_FLAG       ; Did it fire?
+                MOV             A, rWDT_CONTR     ; Get WatchDog timer
+                ANL             A, mWDT_FLAG      ; Did it fire?
 
                 RET
 

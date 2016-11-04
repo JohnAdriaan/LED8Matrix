@@ -169,14 +169,14 @@
           <Flash1>
             <UseTargetDll>0</UseTargetDll>
             <UseExternalTool>1</UseExternalTool>
-            <RunIndependent>0</RunIndependent>
+            <RunIndependent>1</RunIndependent>
             <UpdateFlashBeforeDebugging>0</UpdateFlashBeforeDebugging>
             <Capability>0</Capability>
             <DriverSelection>-1</DriverSelection>
           </Flash1>
           <bUseTDR>0</bUseTDR>
           <Flash2></Flash2>
-          <Flash3>"" ()</Flash3>
+          <Flash3>"C:\Users\John\OneDrive\Specifications\STC\stc-isp-15xx-v6.85F.exe" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -379,14 +379,19 @@
               <FilePath>.\Source\CPU.a51</FilePath>
             </File>
             <File>
+              <FileName>UART.a51</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\Source\UART.a51</FilePath>
+            </File>
+            <File>
               <FileName>Timer.a51</FileName>
               <FileType>2</FileType>
               <FilePath>.\Source\Timer.a51</FilePath>
             </File>
             <File>
-              <FileName>UART.a51</FileName>
+              <FileName>DigiPot.a51</FileName>
               <FileType>2</FileType>
-              <FilePath>.\Source\UART.a51</FilePath>
+              <FilePath>.\Source\DigiPot.a51</FilePath>
             </File>
             <File>
               <FileName>LED.a51</FileName>
@@ -442,6 +447,31 @@
               <FileName>PSW.inc</FileName>
               <FileType>5</FileType>
               <FilePath>.\Includes\PSW.inc</FilePath>
+            </File>
+            <File>
+              <FileName>P0.inc</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Includes\P0.inc</FilePath>
+            </File>
+            <File>
+              <FileName>P1.inc</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Includes\P1.inc</FilePath>
+            </File>
+            <File>
+              <FileName>P2.inc</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Includes\P2.inc</FilePath>
+            </File>
+            <File>
+              <FileName>P3.inc</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Includes\P3.inc</FilePath>
+            </File>
+            <File>
+              <FileName>P4.inc</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Includes\P4.inc</FilePath>
             </File>
           </Files>
         </Group>

@@ -4,8 +4,11 @@
 ; This file defines the PCON SFR and its fields
 ;
 
+%DEFINE (GoToSleep) (ORL rPCON, #mIDL)
+
+
 ; Power CONtrol
-                SFR    PCON  =  087h
+                SFR   rPCON  =  087h
 
 ; UART1 Double speed
 bSMOD           EQU             7

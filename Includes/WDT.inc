@@ -5,7 +5,7 @@
 ;
 
 ; WatchDog Timer CONTrol Register
-                SFR WDT_CONTR = 0C1h
+                SFR rWDT_CONTR = 0C1h
 
 ; Did Watchdog fire?
 bWDT_FLAG       EQU             7

@@ -5,7 +5,7 @@
 ;
 
 ; AUXiliary Register
-                SFR    AUXR  =  08Eh
+                SFR   rAUXR  =  08Eh
 
 ; Timer 0 x12 speed
 bT0x12          EQU             7
