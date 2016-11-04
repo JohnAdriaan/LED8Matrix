@@ -413,6 +413,11 @@
               <FileType>5</FileType>
               <FilePath>.\Objects\LED8x8.hex</FilePath>
             </File>
+            <File>
+              <FileName>Naming.txt</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Naming.txt</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

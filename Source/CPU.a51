@@ -11,26 +11,26 @@
                 $INCLUDE        (PSW.inc)
                 $INCLUDE        (WDT.inc)
 
-                PUBLIC          Stack
+                PUBLIC          aStack
                 PUBLIC          InitCPU
 
 ;===============================================================================
-StackSegment    SEGMENT         DATA AT 0030h
+StackSegment    SEGMENT         DATA AT 00030h
                 RSEG            StackSegment
 
-Stack:          DSB             32      ; How big should this be?
+aStack:         DSB             32      ; How big should this be?
 
 ;===============================================================================
-CPUData         SEGMENT         XDATA AT 00F0h
+CPUData         SEGMENT         XDATA AT 000F0h
                 RSEG            CPUData
 
-Power:          DSB             1
-ID:             DSB             7                 ; Put here at power-on
-FreqLast:       DSD             1                 ; Put here at power-on
-FreqFactory:    DSD             1                 ; Put here at power-on
+aPower:         DSB             1
+aID:            DSB             7                 ; Put here at power-on
+aFreqLast:      DSD             1                 ; Put here at power-on
+aFreqFactory:   DSD             1                 ; Put here at power-on
 
 ;-------------------------------------------------------------------------------
-ExternalRAM     SEGMENT         XDATA AT 0400h
+ExternalRAM     SEGMENT         XDATA AT 00400h
                 RSEG            ExternalRAM
 
 NonExistent:    DSB             0FC00h            ; Force "overlay" error
@@ -41,7 +41,7 @@ CPU             SEGMENT         CODE
 
 InitCPU:
                 MOV             A, rPCON          ; Read Power Control
-                MOV             R0, #Power        ; Index
+                MOV             R0, #aPower       ; Index
                 MOVX            @R0, A            ; Save in CPUData
                 ANL             A, #NOT (mLVDF+mPOF); Now turn off these bits
                 MOV             rPCON, A

@@ -12,12 +12,13 @@
                 $INCLUDE        (P2.inc)
                 $INCLUDE        (P3.inc)
 
-LEDColours      EQU             3
-LEDCols         EQU             8
-LEDRows         EQU             8
-LEDs            EQU             LEDColours * LEDCols * LEDRows
+nLEDColours     EQU             3
+nLEDCols        EQU             8
+nLEDRows        EQU             8
+nLEDs           EQU             nLEDColours * nLEDCols * nLEDRows
 
-LEDBank         EQU             3
+LEDBank         EQU             3  ; Register bank used in LED interrupt
+mLEDBank        EQU             LEDBank shl bBank
 
 LEDIndex        EQU             R0
                 SFR rLEDIndex = LEDBank*8 + 0
@@ -26,15 +27,15 @@ LEDNum          EQU             R7
                 SFR rLEDNum   = LEDBank*8 + 7
 
 $IF (BOARD = 1) ; Static resistor board?
-                SFR rLEDAnode = rP2  ; 0xA0
-                SFR rLEDRed   = rP3  ; 0xB0
-                SFR rLEDGreen = rP0  ; 0x80
-                SFR rLEDBlue  = rP1  ; 0x90
+                SFR rLEDAnode = rP2  ; 0A0h
+                SFR rLEDRed   = rP3  ; 0B0h
+                SFR rLEDGreen = rP0  ; 080h
+                SFR rLEDBlue  = rP1  ; 090h
 $ELSEIF (BOARD = 2) ; DigiPot board?
-                SFR rLEDAnode = rP0  ; 0x80
-                SFR rLEDRed   = rP1  ; 0x90
-                SFR rLEDGreen = rP2  ; 0xA0
-                SFR rLEDBlue  = rP3  ; 0xB0
+                SFR rLEDAnode = rP0  ; 080h
+                SFR rLEDRed   = rP1  ; 090h
+                SFR rLEDGreen = rP2  ; 0A0h
+                SFR rLEDBlue  = rP3  ; 0B0h
 $ELSE
 __ERROR__ "BOARD not defined!"
 $ENDIF
@@ -44,34 +45,34 @@ $ENDIF
                 PUBLIC          Timer0ISR
 
 ;===============================================================================
-LEDPWM          SEGMENT         XDATA AT 0000h
+LEDPWM          SEGMENT         XDATA AT 00000h
                 RSEG            LEDPWM
 
-PWM:            DSB             LEDs
+aPWM:           DSB             nLEDs
 
 ;-------------------------------------------------------------------------------
-LEDFrame        SEGMENT         XDATA AT 0100h
+LEDFrame        SEGMENT         XDATA AT 00100h
                 RSEG            LEDFrame
 
-Frame:          DSB             LEDs
+aFrame:         DSB             nLEDs
 
 ;===============================================================================
 LED             SEGMENT         CODE
                 RSEG            LED
 
 InitLED:
-;                ACALL           InitLEDFrame
-;                ACALL           InitLEDVars
-;                ACALL           InitLEDIO
+                ACALL           InitLEDFrame
+                ACALL           InitLEDVars
+                ACALL           InitLEDIO
                 RET
 
 ;-------------------------------------------------------------------------------
 InitLEDFrame:
                 CLR             A                 ; Zero bytes
-                MOV             LEDIndex, #PWM    ; In the PWM area
-                MOV             DPTR, #Frame      ; In the Frame area
+                MOV             LEDIndex, #aPWM   ; In the PWM area
+                MOV             DPTR, #aFrame     ; In the Frame area
 
-                MOV             LEDNum, #LEDs     ; Number to zero
+                MOV             LEDNum, #nLEDs    ; Number to zero
 InitFrameLoop:
                 MOVX            @LEDIndex, A
                 MOVX            @DPTR, A
@@ -83,26 +84,26 @@ InitFrameLoop:
 
 ;...............................................................................
 InitLEDVars:
-                MOV             rLEDIndex, #PWM
+                MOV             rLEDIndex, #aPWM
                 MOV             rLEDNum,   #0
 
                 RET
 
 ;...............................................................................
 InitLEDIO:
-                CLR             A               ; 0x00
+                CLR             A               ; 000h
                 MOV             rLEDAnode, A
                 MOV             rLEDRed,   A
                 MOV             rLEDGreen, A
                 MOV             rLEDBlue,  A
 
-                ; Push/Pull is PxM1=0 and PxM0=1
+                ; Push/Pull is rPxM1=0 and rPxM0=1
                 MOV             rP0M1, A
                 MOV             rP1M1, A
                 MOV             rP2M1, A
                 MOV             rP3M1, A
 
-                CPL             A               ; 0xFF
+                CPL             A               ; 0FFh
                 MOV             rP0M0, A
                 MOV             rP1M0, A
                 MOV             rP2M0, A
@@ -112,10 +113,10 @@ InitLEDIO:
 
 ;-------------------------------------------------------------------------------
 CopyFrame:
-                MOV             DPTR, #Frame      ; Source area
-                MOV             R0, #PWM          ; Destination area
+                MOV             DPTR, #aFrame     ; Source area
+                MOV             R0, #aPWM         ; Destination area
 
-                MOV             LEDNum, #LEDs     ; This many LEDs
+                MOV             LEDNum, #nLEDs    ; This many LEDs
 CopyFrameLoop:
                 MOVX            A, @DPTR
                 MOVX            @R0, A
@@ -132,7 +133,7 @@ Timer0ISR:
                 PUSH            DPL
                 PUSH            DPH
 
-                ORL             PSW, #mRS1+mRS0   ; Bank 3
+                ORL             PSW, #mLEDBank
                 USING           LEDBank
 
                 POP             DPH

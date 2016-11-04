@@ -6,22 +6,27 @@
 
                 NAME            UART
 
+                $INCLUDE        (PSW.inc)
+
                 PUBLIC          InitUART
 
                 PUBLIC          UART1ISR
                 PUBLIC          UART2ISR
 
-UARTBank        EQU             1
+UARTBank        EQU             1 ; Register bank used in UART interrupt
+mUARTBank       EQU             UARTBank shl bBank
 
 ;===============================================================================
-Buffers         SEGMENT         XDATA AT 0300h
+Buffers         SEGMENT         XDATA AT 00300h
                 RSEG            Buffers
 
-TXBuffer:       DSB             128
-TXBuffEnd       EQU             $-TXBuffer
+nTXBuff         EQU             128
+aTXBuffer:      DSB             nTXBuff
+aTXBuffEnd      EQU             $
 
-RXBuffer:       DSB             128
-RXBuffEnd       EQU             $-RXBuffer
+nRXBuff         EQU             128
+aRXBuffer:      DSB             nRXBuff
+aRXBuffEnd      EQU             $
 
 ;===============================================================================
 UART            SEGMENT         CODE

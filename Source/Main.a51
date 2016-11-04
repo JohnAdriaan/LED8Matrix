@@ -57,7 +57,7 @@
 
                 PUBLIC          ResetISR          ; Publish this for Vectors
 
-                EXTERN          DATA(Stack)
+                EXTERN          DATA(aStack)
                 EXTERN          CODE(InitCPU)
                 EXTERN          CODE(InitUART)
                 EXTERN          CODE(InitTimer)
@@ -77,7 +77,7 @@ Main            SEGMENT         CODE
                 RSEG            Main
 
 ResetISR:
-                MOV             SP, #Stack-1      ; Better (upgoing) Stack addr
+                MOV             SP, #aStack-1     ; Better (upgoing) Stack addr
                 CALL            InitCPU           ; Initialise CPU SFRs
                 CALL            InitUART          ; Initialise UART2
                 CALL            InitTimer         ; Initialise Timer0
@@ -91,7 +91,7 @@ ResetISR:
 Executive:
                 JBC             EndFrame, NextFrame ; Next frame flag? Clear!
                 JBC             CmdRXed, ProcessCmd ; Next command flag? Clear!
-                %GoToSleep
+                GoToSleep
                 SJMP            Executive         ; Start again
 
 ;-------------------------------------------------------------------------------
