@@ -4,49 +4,27 @@
 ; This file defines the PSW SFR and its fields
 ;
 
+                $INCLUDE        (John.inc)
+
 ; Program Status Word
                 SFR   rPSW   =  0D0h
 
-; CarrY flag
-bCY             EQU             7
-CY              BIT             rPSW.bCY
-mCY             EQU             1 shl bCY
+DefineBit       CY,  rPSW, 7            ; CarrY flag
+DefineBit       AC,  rPSW, 6            ; Auxiliary Carry flag (for BCD)
+DefineBit       F0,  rPSW, 5            ; (User) Flag 0
+DefineBit       RS1, rPSW, 4            ; Register bank Select 1
+DefineBit       RS0, rPSW, 3            ; Register bank Select 0
 
-; Auxiliary Carry flag (for BCD)
-bAC             EQU             6
-AC              BIT             rPSW.bAC
-mAC             EQU             1 shl bAC
+;DefineBit      OV,  rPSW, 2            ; OVerflow flag
+bOV             EQU             2
+OV              BIT             rPSW.bOV
+;mOV            EQU             1b shl bOV  ; Naming convention collision!
 
-; (User) Flag 0
-bF0             EQU             5
-F0              BIT             rPSW.bF0
-mF0             EQU             1 shl bF0
-
-; Register bank Select 1
-bRS1            EQU             4
-RS1             BIT             rPSW.bRS1
-mRS1            EQU             1 shl bRS1
-
-; Register bank Select 0
-bRS0            EQU             3
-RS0             BIT             rPSW.bRS0
-mRS0            EQU             1 shl bRS0
+DefineBit       F1,  rPSW, 1            ; (User) Flag 1
+DefineBit       P,   rPSW, 0            ; Parity Flag
 
 ; Register bank Select
 bRS             EQU             bRS0
+bBank           EQU             bRS
 mRS             EQU             mRS1 + mRS0
-
-; OVerflow flag
-bOV             EQU             2
-OV              BIT             rPSW.bOV
-;mOV            EQU             1 shl bOV
-
-; (User) Flag 1
-bF1             EQU             1
-F1              BIT             rPSW.bF1
-mF1             EQU             1 shl bF1
-
-; Parity Flag
-bP              EQU             0
-P               BIT             rPSW.bP
-mP              EQU             1 shl bP
+mBank           EQU             mRS

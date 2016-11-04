@@ -4,45 +4,16 @@
 ; This file defines the TCON SFR and its fields
 ;
 
+                $INCLUDE        (John.inc)
+
 ; Timer CONtrol
                 SFR  rTCON   =  088h
 
-; Timer Flag 1
-bTF1            EQU             7
-TF1             BIT             rTCON.bTF1
-mTF1            EQU             1 shl bTF1
-
-; Timer Run 1
-bTR1            EQU             6
-TR1             BIT             rTCON.bTR1
-mTR1            EQU             1 shl bTR1
-
-; Timer Flag 0
-bTF0            EQU             5
-TF0             BIT             rTCON.bTF0
-mTF0            EQU             1 shl bTF0
-
-; Timer Run 0
-bTR0            EQU             4
-TR0             BIT             rTCON.bTR0
-mTR0            EQU             1 shl bTR0
-
-; Interrupt External 1
-bIE1            EQU             3
-IE1             BIT             rTCON.bIE1
-mIE1            EQU             1 shl bIE1
-
-; /Level vs Edge triggered 1
-bIT1            EQU             2
-IT1             BIT             rTCON.bIT1
-mIT1            EQU             1 shl bIT1
-
-; Interrupt External 0
-bIE0            EQU             1
-IE0             BIT             rTCON.bIE0
-mIE0            EQU             1 shl bIE0
-
-; /Level vs Edge triggered 0
-bIT0            EQU             0
-IT0             BIT             rTCON.bIT0
-mIT0            EQU             1 shl bIT0
+DefineBit       TF1, rTCON, 7           ; Timer Flag 1
+DefineBit       TR1, rTCON, 6           ; Timer Run 1
+DefineBit       TF0, rTCON, 5           ; Timer Flag 0
+DefineBit       TR0, rTCON, 4           ; Timer Run 0
+DefineBit       IE1, rTCON, 3           ; Interrupt External 1
+DefineBit       IT1, rTCON, 2           ; /Level vs Edge triggered 1
+DefineBit       IE0, rTCON, 1           ; Interrupt External 0
+DefineBit       IT0, rTCON, 0           ; /Level vs Edge triggered 0
