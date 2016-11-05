@@ -57,24 +57,24 @@ InitDigiPot:
 
                 MOV             R3, #25       ; Approx 1000 Ohms for all Anodes
                 MOV             R2, #25       ; Approx 1000 Ohms for Red Cathode
-                ACALL           SetDigiPot
-;                SETB            ShDn          ; Turn on DigiPots
+                ACALL           SetDigiPots
+;***                SETB            ShDn          ; Turn on DigiPots
                 RET
 
 ;-------------------------------------------------------------------------------
 ; Call with R3 set to Anode value, and R2 set to Red Cathode value
 ; Modifies: A, R0, R1, R7
-SetDigiPot:
+SetDigiPots:
                 MOV             R1, #nDigiPots; DigiPot to set (0, 3, 2, 1)
                 CLR             Clk           ; Set Clk low
-SetDigiPotLoop:
+SetDigiPotsLoop:
                 CLR             CS            ; Set CS low
                 MOV             A, R2         ; Send Red Cathode first
                 ACALL           SendDigiPot   ; Send data to this DigiPot
                 MOV             A, R3         ; Send Anode next
                 ACALL           SendDigiPot   ; Send data to this DigiPot
                 SETB            CS            ; Set CS high again
-                DJNZ            R1, SetDigiPotLoop ; One less DigiPot
+                DJNZ            R1, SetDigiPotsLoop ; One less DigiPot
                 RET
 SendDigiPot:
                 MOV             R0, A         ; Save value to set for now

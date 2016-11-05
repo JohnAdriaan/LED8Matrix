@@ -63,14 +63,9 @@
                 EXTERN          CODE(InitTimer)
                 EXTERN          CODE(InitDigiPot)
                 EXTERN          CODE(InitLED)
-                EXTERN          CODE(CopyFrame)
 
-;===============================================================================
-MainBits        SEGMENT         BIT
-                RSEG            MainBits
-
-EndFrame:       DBIT            1                 ; Set when Frame finished
-CmdRXed:        DBIT            1                 ; Set when Command received
+                EXTERN          BIT(NewFrame)
+                EXTERN          BIT(CmdRXed)
 
 ;===============================================================================
 Main            SEGMENT         CODE
@@ -84,21 +79,16 @@ ResetISR:
                 CALL            InitDigiPot       ; Initialise Digital Pots
                 CALL            InitLED           ; Initialise LED matrix
 
-                CLR             EndFrame          ; No frame (yet)
-                CLR             CmdRXed           ; No command (yet)
-
                 SETB            EA                ; Enable all interrupts
 Executive:
-                JBC             EndFrame, NextFrame ; Next frame flag? Clear!
+                JBC             NewFrame, NextFrame ; Next frame flag? Clear!
                 JBC             CmdRXed, ProcessCmd ; Next command flag? Clear!
-                GoToSleep
+                GoToSleep               ; Nothing to do until next interrupt
                 SJMP            Executive         ; Start again
 
 ;-------------------------------------------------------------------------------
-; Called to display next frame
-; Copy current buffer to decrement area
+; Called to generate next frame
 NextFrame:
-                CALL            CopyFrame
                 SJMP            Executive         ; Start again
 
 ;-------------------------------------------------------------------------------
