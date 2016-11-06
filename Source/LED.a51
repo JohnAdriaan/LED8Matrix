@@ -4,15 +4,7 @@
 
                 NAME            LED
 
-; There are two ways to program individual RGB pixels:
-; * The whole pixel (all B, G, R LEDs every cycle);
-; * Only one LED (B, G, or R) every cycle.
-; The former allows for longer latency - but requires each LED to be dimmer.
-; The latter requires more interrupts - but each LED can be brighter.
-$RESET (PIXELvsLED)
-$SET   (LEDvsPIXEL)
-
-                $INCLUDE        (Board.inc)
+                $INCLUDE        (Options.inc)
 
                 $INCLUDE        (PSW.inc)
                 $INCLUDE        (IE.inc)
@@ -40,12 +32,12 @@ LEDBlue         EQU             R5
 LEDGreen        EQU             R6
 LEDRed          EQU             R7
 
-$IF (BOARD_Resistor)
+$IF (BOARD=BOARD_Resistor)
                 SFR   pAnode  = pP2  ; 0A0h
                 SFR   pBlue   = pP1  ; 090h
                 SFR   pGreen  = pP0  ; 080h
                 SFR   pRed    = pP3  ; 0B0h
-$ELSEIF (BOARD_DigiPot)
+$ELSEIF (BOARD=BOARD_DigiPot)
                 SFR   pAnode  = pP0  ; 080h
                 SFR   pBlue   = pP3  ; 0B0h
                 SFR   pGreen  = pP2  ; 0A0h
@@ -187,12 +179,7 @@ CopyLoop:
 Timer0_Handler:
                 SetBank         LEDBank
 
-$IF (LEDvsPIXEL)
-$ELSEIF (PIXELvsLED)
-                                                  ; Nothing to do here
-$ELSE
-__ERROR__ "LED vs PIXEL not defined!"
-$ENDIF
+; ***UPDATE
                 DJNZ            LEDCycle, Cycle   ; Still in current cycle?
 
                 ; New row started!
@@ -239,33 +226,14 @@ Cycle:
 RowLoop:
                 MOV             LEDMask, A
 ; *** Initialise which colour register
-$IF (LEDvsPIXEL)
-$ELSEIF (PIXELvsLED)
-$ELSE
-__ERROR__ "LED vs PIXEL not defined!"
-$ENDIF
 CellLoop: ; One cell is ether an LED or a Pixel
                 MOVX            A, @R0            ; Get current LED value
                 JZ              CellNext          ; Jump if A is Zero
                 DEC             A                 ; PWM LED value
                 MOVX            @R0, A            ; and store back
 ; *** Zero bit indicated by LEDMask in current colour register
-$IF (LEDvsPIXEL)
-$ELSEIF (PIXELvsLED)
-$ELSE
-__ERROR__ "LED vs PIXEL not defined!"
-$ENDIF
 CellNext:
 ; *** Go to next colour register
-$IF (LEDvsPIXEL)
-                INC             R0                ; Go to next colour value
-                INC             R0
-                INC             R0
-$ELSEIF (PIXELvsLED)
-                INC             R0                ; Go to next LED value
-$ELSE
-__ERROR__ "LED vs PIXEL not defined!"
-$ENDIF
                 JNZ             CellLoop          ; *** or whatever
 RowNext:
                 CLR             C                 ; Need zero in Carry
@@ -273,11 +241,6 @@ RowNext:
                 RLC             A
                 JNZ             RowLoop           ; Still more to do
 
-$IF (LEDvsPIXEL)
-$ELSEIF (PIXELvsLED)
-$ELSE
-__ERROR__ "LED vs PIXEL not defined!"
-$ENDIF
                 MOV             pBlue,  LEDBlue
                 MOV             pGreen, LEDGreen
                 MOV             pRed,   LEDRed

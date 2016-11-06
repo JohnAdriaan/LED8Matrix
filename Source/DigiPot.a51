@@ -27,7 +27,7 @@
                 NAME            DigiPot
 
                 $INCLUDE        (John.inc)
-                $INCLUDE        (Board.inc)
+                $INCLUDE        (Options.inc)
                 $INCLUDE        (P4.inc)
 
                 PUBLIC          DigiPot_Init
@@ -46,19 +46,23 @@ mDigiPot        EQU             mShDn + mCS + mClk + mSDI
 
 nDigiPots       EQU             4
 
+DigiPotOhms     EQU             49 ; This is the wiper resistance (note min val)
+DigiPotAnode    EQU             (OHMS_Anode-DigiPotOhms)*4/10*64/1000 ; *Steps/MaxOhms
+DigiPotRed      EQU             (OHMS_Red-DigiPotOhms)  *4/10*64/1000 ; *Steps/MaxOhms
+
 ;===============================================================================
 DigiPot         SEGMENT         CODE
                 RSEG            DigiPot
 
 DigiPot_Init:
-$IF (BOARD_DigiPot)
+$IF (BOARD=BOARD_DigiPot)
                 MOV             A, #mDigiPot  ; Pins to change
                 ORL             rDigiPotM0, A ; Push/Pull needs 1 in M0...
                 CPL             A             ; (toggle all bits)
                 ANL             rDigiPotM1, A ; ...and 0 in M1
 
-                MOV             R3, #25       ; Approx 1000 Ohms for all Anodes
-                MOV             R2, #25       ; Approx 1000 Ohms for Red Cathode
+                MOV             R3, #DigiPotAnode
+                MOV             R2, #DigiPotRed
                 ACALL           DigiPot_Set
 ;***                SETB            ShDn          ; Turn on DigiPots
 $ENDIF
@@ -77,7 +81,7 @@ SetLoop:
                 MOV             A, R3         ; Send Anode next
                 ACALL           SetSend       ; Send data to this DigiPot
                 SETB            CS            ; Set CS high again
-                DJNZ            R1, SetLoop ; One less DigiPot
+                DJNZ            R1, SetLoop   ; One less DigiPot
                 RET
 SetSend:
                 MOV             R0, A         ; Save value to set for now

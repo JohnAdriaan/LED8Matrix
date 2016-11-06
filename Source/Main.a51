@@ -19,25 +19,23 @@
 ; decremented to zero, and then the relevant LED will be turned off.
 ;
 ; A timer interrupt will fire VERY often, and each interrupt will do one...
-; * LED? 192 interrupts per cycle. (I can't see an advantage here)
-; * Pixel? 64 interrupts per cycle. (Ditto)
-; * LED Column? 24 interrupts per cycle. (Each LED can then be 15 mA)
-; * Pixel Column? 8 interrupts per cycle. (Each LED can then only be 5mA)
+; * LED? 192 interrupts per cycle.
+; * Pixel? 64 interrupts per cycle.
+; * LED Row? 24 interrupts per cycle.
+; * Pixel Row? 8 interrupts per cycle.
 ;
 ; The compromise is between interrupts per cycle versus power consumption.
-; At any one instant, it is possible to have up to either 8 LEDs on or 24.
-; Given a 120mA max for the entire chip, that's either 15mA x 8 or 5mA x 24 LEDs
-; simultaneously. The former is brighter, while the latter has better latency.
+; At any one instant, it is possible to have up to 1, 3, 8 or 24 LEDs on.
+; Given a 120mA max for the entire chip, and 20 mA for one pin, there are
+; tradeoffs...
 ;
 ; All of this relies on Persistence of Vision (PoV). The question becomes one of
 ; whether a Red-then-Green-then-Blue can stil be seen as white, versus having
 ; all of them on at once. That's what this will test!
 ;
-; Since LED brightness is the key, I have two BOARDs. One has fixed resistors,
-; which is easy but inflexible. The other uses Digital Potentiometers, which
-; allows me to set the per-LED resistance (well, per column...) allowing the
-; brightness to be adjusted. The starting value is half-range, so it will need
-; to be set before the LEDs will light.
+; Since LED brightness is the key, I have a dev board that uses DigiPots to
+; easily change resistance values. The final board has fixed resistors - with a
+; fixed algorithm, of course!
 ;
 ; The RGB LEDs require different current-limit resistors for the different
 ; colours - and worse, the fact that zero-to-eight may be lit means that the
