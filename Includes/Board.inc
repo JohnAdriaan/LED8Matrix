@@ -1,13 +1,14 @@
 ;
 ; Board.inc
+; This file defines which way around the code should operate.
 ;
 
 ; There are two boards:
-; * BOARD #1 has fixed resistors.
-; * BOARD #2 has digital potentiometers.
+; * BOARD_Resistor has fixed resistors.
+; * BOARD_DigiPot has digital potentiometers.
 ;
-; The two are almost identical - except that for architecture reasons,
-; they use different I/O ports.
+; The two are almost identical - except that for board layout reasons,
+; they use different I/O ports. Oh, and the DigiPots need to be programmed!
 
-;$SET  (BOARD = 1)
-$SET  (BOARD = 2)
+$RESET (BOARD_Resistor)
+$SET   (BOARD_DigiPot)
