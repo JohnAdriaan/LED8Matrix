@@ -8,24 +8,37 @@
 
                 $INCLUDE        (TCON.inc)
 
-                PUBLIC          InitTimer
+                EXTERN   CODE   (Timer0_Handler)
+;               EXTERN   CODE   (Timer1_Handler)
 
-;               PUBLIC          Timer0ISR
-;               PUBLIC          Timer1ISR
+                PUBLIC          Timer_Init
+
+                PUBLIC          Timer_0ISR
+;               PUBLIC          Timer_1ISR
 
 ;===============================================================================
 Timer           SEGMENT         CODE
                 RSEG            Timer
 
-InitTimer:
+Timer_Init:
                 RET
 
 ;-------------------------------------------------------------------------------
-;Timer0ISR:
-;               RETI
+Timer_0ISR:
+                PUSH            PSW
+                PUSH            ACC
+                ACALL           Timer0_Handler
+                POP             ACC
+                POP             PSW
+                RETI
 
 ;-------------------------------------------------------------------------------
-;Timer1ISR:
+;Timer_1ISR:
+;               PUSH            PSW
+;               PUSH            ACC
+;               ACALL           Timer1_Handler
+;               POP             ACC
+;               POP             PSW
 ;               RETI
 
 ;===============================================================================

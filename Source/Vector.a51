@@ -10,71 +10,71 @@
 
                 NAME            Vector
 
-                EXTRN           CODE(ResetISR)
-;               EXTRN           CODE(Int0ISR)
-                EXTRN           CODE(Timer0ISR)
-;               EXTRN           CODE(Int1ISR)
-;               EXTRN           CODE(Timer1ISR)
-;               EXTRN           CODE(UART1ISR)
-;               EXTRN           CODE(LVDISR)
-;               EXTRN           CODE(ADCISR)
-;               EXTRN           CODE(PCAISR)
-                EXTRN           CODE(UART2ISR)
-;               EXTRN           CODE(SPIISR)
+                EXTRN   CODE   (Reset_ISR)
+;               EXTRN   CODE   (Int_0ISR)
+                EXTRN   CODE   (Timer_0ISR)
+;               EXTRN   CODE   (Int_1ISR)
+;               EXTRN   CODE   (Timer_1ISR)
+;               EXTRN   CODE   (UART_1ISR)
+;               EXTRN   CODE   (LVD_ISR)
+;               EXTRN   CODE   (ADC_ISR)
+;               EXTRN   CODE   (PCA_ISR)
+                EXTRN   CODE   (UART_2ISR)
+;               EXTRN   CODE   (SPI_ISR)
 
 ;===============================================================================
 Vector          SEGMENT         CODE AT 00000h
                 RSEG            Vector
 
                 ORG             00000h
-ResetVector:    JMP             ResetISR
+ResetVector:    JMP             Reset_ISR
 
 ;-------------------------------------------------------------------------------
                 ORG             00003h
-;Int0Vector:    JMP             Int0ISR
+;Int0Vector:    JMP             Int_0ISR
                 RETI
 
 ;-------------------------------------------------------------------------------
                 ORG             0000Bh
-Timer0Vector:   JMP             Timer0ISR
+Timer0Vector:   JMP             Timer_0ISR
 
 ;-------------------------------------------------------------------------------
                 ORG             00013h
-;Int1Vector:    JMP             Int1ISR
+;Int1Vector:    JMP             Int_1ISR
                 RETI
 
 ;-------------------------------------------------------------------------------
                 ORG             0001Bh
-;Timer1Vector:  JMP             Timer1ISR
+;Timer1Vector:  JMP             Timer_1ISR
                 RETI
 
 ;-------------------------------------------------------------------------------
                 ORG             00023h
-;UART1Vector:   JMP             UART1ISR
+;UART1Vector:   JMP             UART_1ISR
                 RETI
 
 ;-------------------------------------------------------------------------------
                 ORG             0002Bh
-;ADCVector:     JMP             ADCISR
+;ADCVector:     JMP             ADC_ISR
                 RETI
 
 ;-------------------------------------------------------------------------------
                 ORG             00033h
-;LVDVector:     JMP             LVDISR
+;LVDVector:     JMP             LVD_ISR
                 RETI
 
 ;-------------------------------------------------------------------------------
                 ORG             0003Bh
-;PCAVector:     JMP             PCAISR
+;PCAVector:     JMP             PCA_ISR
                 RETI
 
 ;-------------------------------------------------------------------------------
                 ORG             00043h
-UART2Vector:    JMP             UART2ISR
+UART2Vector:    JMP             UART_2ISR
 
 ;-------------------------------------------------------------------------------
                 ORG             0004Bh
-;SPIVector:     JMP             SPIISR
+;SPIVector:     JMP             SPI_ISR
                 RETI
 
 ;===============================================================================

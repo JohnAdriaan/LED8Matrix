@@ -55,34 +55,34 @@
                 $INCLUDE        (IE.inc)          ; Need Interrupt Enable SFRs
                 $INCLUDE        (PCON.inc)        ; Need Power Control SFRs
 
-                PUBLIC          ResetISR          ; Publish this for Vectors
+                PUBLIC          Reset_ISR         ; Publish this for Vectors
 
-                EXTERN          DATA(aStack)
-                EXTERN          CODE(InitCPU)
-                EXTERN          CODE(InitUART)
-                EXTERN          CODE(InitTimer)
-                EXTERN          CODE(InitDigiPot)
-                EXTERN          CODE(InitLED)
+                EXTERN   DATA   (CPU_Stack)
+                EXTERN   CODE   (CPU_Init)
+                EXTERN   CODE   (UART_Init)
+                EXTERN   CODE   (Timer_Init)
+                EXTERN   CODE   (DigiPot_Init)
+                EXTERN   CODE   (LED_Init)
 
-                EXTERN          BIT(NewFrame)
-                EXTERN          BIT(CmdRXed)
+                EXTERN   BIT    (LED_Frame)
+                EXTERN   BIT    (UART_RXed)
 
 ;===============================================================================
 Main            SEGMENT         CODE
                 RSEG            Main
 
-ResetISR:
-                MOV             SP, #aStack-1     ; Better (upgoing) Stack addr
-                CALL            InitCPU           ; Initialise CPU SFRs
-                CALL            InitUART          ; Initialise UART2
-                CALL            InitTimer         ; Initialise Timer0
-                CALL            InitDigiPot       ; Initialise Digital Pots
-                CALL            InitLED           ; Initialise LED matrix
+Reset_ISR:
+                MOV             SP, #CPU_Stack-1  ; Better (upgoing) Stack addr
+                CALL            CPU_Init          ; Initialise CPU SFRs
+                CALL            UART_Init         ; Initialise UART2
+                CALL            Timer_Init        ; Initialise Timer0
+                CALL            DigiPot_Init      ; Initialise Digital Pots
+                CALL            LED_Init          ; Initialise LED matrix
 
                 SETB            EA                ; Enable all interrupts
 Executive:
-                JBC             NewFrame, NextFrame ; Next frame flag? Clear!
-                JBC             CmdRXed, ProcessCmd ; Next command flag? Clear!
+                JBC             LED_Frame, NextFrame  ; Next frame flag? Clear!
+                JBC             UART_RXed, ProcessCmd ; Next command flag? Clear!
                 GoToSleep               ; Nothing to do until next interrupt
                 SJMP            Executive         ; Start again
 

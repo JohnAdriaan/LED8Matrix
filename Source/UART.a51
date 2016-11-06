@@ -8,11 +8,11 @@
 
                 $INCLUDE        (PSW.inc)
 
-                PUBLIC          InitUART
-                PUBLIC          CmdRXed
+                PUBLIC          UART_Init
+                PUBLIC          UART_RXed
 
-                PUBLIC          UART1ISR
-                PUBLIC          UART2ISR
+                PUBLIC          UART_1ISR
+                PUBLIC          UART_2ISR
 
 UARTBank        EQU             1       ; Register bank used in UART interrupt
 
@@ -20,7 +20,7 @@ UARTBank        EQU             1       ; Register bank used in UART interrupt
 UARTBits        SEGMENT         BIT
                 RSEG            UARTBits
 
-CmdRXed:        DBIT            1                 ; Set when Command received
+UART_RXed:      DBIT            1                 ; Set when Command received
 
 ;===============================================================================
 Buffers         SEGMENT         XDATA AT 00300h
@@ -38,17 +38,17 @@ aRXBuffEnd      EQU             $
 UART            SEGMENT         CODE
                 RSEG            UART
 
-InitUART:
+UART_Init:
                 RET
 
 ;-------------------------------------------------------------------------------
-UART1ISR:
+UART_1ISR:
                 USING           UARTBank
 
                 SJMP            UARTISR
 
 ;-------------------------------------------------------------------------------
-UART2ISR:
+UART_2ISR:
                 USING           UARTBank
 
 ;               SJMP            UARTISR

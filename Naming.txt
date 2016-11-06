@@ -1,24 +1,38 @@
-NAMING CONVENTIONS:
+NAMING CONVENTIONS
+==================
 
-It is possible to refer to a single bit in a number of different ways:
-* By bit number (0-7);
-  - I prefix all bit number names with a 'b'.
-* By mask (01h-80h);
-  - I prefix all mask value names with an 'm' (1b shl bitNum).
-* By name (reg.#) - but only if directly accessible.
-  - I use the documented name (no prefix) for Reg.Bit
-
-And speaking of (memory) registers, they too can be accessed a couple of ways:
-* Directly by number (000h-0FFh);
-  - I prefix all register number names with an 'r'.
-  - Except for the I/O ports, which I prefix with 'p'.
-* Indirectly by pointer.
-
-* 'a' means a (data) address (code addresses (labels) have no prefix);
-* 'n' means a numerical value.
-
+Constants
+---------
 All (16-bit) addresses will be 5-digit hex numbers (leading 0) ending in 'h'.
-All (8-bit) values will be 3-digit hex numbers (leading 0) ending in 'h'.
+All (8-bit) hex values will be 3-digit hex numbers (leading 0) ending in 'h'.
 All hex letters are in capitals. The final 'h' is lower-case.
 All mask values are in binary (0s and 1s) with a (lower-case) 'b' suffix.
-- Thus 01b must be binary, not hex - that'd be 01Bh
+ - Thus 01b must be binary, not hex - that'd be 01Bh
+
+Bits
+----
+It is possible to refer to a single bit in a number of different ways:
+ * By bit number (0-7);
+   - I prefix all bit number names with a 'b'.
+ * By mask (01h-80h);
+   - I prefix all mask value names with an 'm' (1b shl bitNum).
+ * By name (reg.#) - but only if directly accessible.
+   - I use the documented name (no prefix) for Reg.Bit
+
+Registers
+---------
+And speaking of (memory) registers, they too can be accessed a couple of ways:
+ * Directly by number (000h-0FFh);
+   - I prefix all register number names with an 'r'.
+   - Except for the I/O ports, which I prefix with 'p'.
+ * Indirectly by pointer.
+
+ * 'a' means a (data) address (code addresses (labels) have no prefix);
+ * 'n' means a numerical value.
+
+Symbols
+-------
+All public symbols will start with their module name followed by an underscore.
+There is one exception: if a module doesn't know which module will implement
+a function, it will EXTERN a related module name (NOT the same!) and any module
+can PUBLIC that name.

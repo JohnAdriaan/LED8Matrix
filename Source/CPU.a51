@@ -11,14 +11,14 @@
                 $INCLUDE        (PSW.inc)
                 $INCLUDE        (WDT.inc)
 
-                PUBLIC          aStack
-                PUBLIC          InitCPU
+                PUBLIC          CPU_Stack
+                PUBLIC          CPU_Init
 
 ;===============================================================================
 StackSegment    SEGMENT         DATA AT 00030h
                 RSEG            StackSegment
 
-aStack:         DSB             32      ; How big should this be?
+CPU_Stack:      DSB             32      ; How big should this be?
 
 ;===============================================================================
 CPUData         SEGMENT         XDATA AT 000F0h
@@ -39,7 +39,7 @@ NonExistent:    DSB             0FC00h            ; Force "overlay" error
 CPU             SEGMENT         CODE
                 RSEG            CPU
 
-InitCPU:
+CPU_Init:
                 MOV             A, rPCON          ; Read Power Control
                 MOV             R0, #aPower       ; Index
                 MOVX            @R0, A            ; Save in CPUData

@@ -30,7 +30,8 @@
                 $INCLUDE        (Board.inc)
                 $INCLUDE        (P4.inc)
 
-                PUBLIC          InitDigiPot
+                PUBLIC          DigiPot_Init
+                PUBLIC          DigiPot_Set
 
                 SFR  pDigiPot   = pP4
                 SFR  rDigiPotM0 = rP4M0
@@ -49,7 +50,8 @@ nDigiPots       EQU             4
 DigiPot         SEGMENT         CODE
                 RSEG            DigiPot
 
-InitDigiPot:
+DigiPot_Init:
+$IF (BOARD_DigiPot)
                 MOV             A, #mDigiPot  ; Pins to change
                 ORL             rDigiPotM0, A ; Push/Pull needs 1 in M0...
                 CPL             A             ; (toggle all bits)
@@ -57,40 +59,41 @@ InitDigiPot:
 
                 MOV             R3, #25       ; Approx 1000 Ohms for all Anodes
                 MOV             R2, #25       ; Approx 1000 Ohms for Red Cathode
-                ACALL           SetDigiPots
+                ACALL           DigiPot_Set
 ;***                SETB            ShDn          ; Turn on DigiPots
+$ENDIF
                 RET
 
 ;-------------------------------------------------------------------------------
 ; Call with R3 set to Anode value, and R2 set to Red Cathode value
 ; Modifies: A, R0, R1, R7
-SetDigiPots:
+DigiPot_Set:
                 MOV             R1, #nDigiPots; DigiPot to set (0, 3, 2, 1)
                 CLR             Clk           ; Set Clk low
-SetDigiPotsLoop:
+SetLoop:
                 CLR             CS            ; Set CS low
                 MOV             A, R2         ; Send Red Cathode first
-                ACALL           SendDigiPot   ; Send data to this DigiPot
+                ACALL           SetSend       ; Send data to this DigiPot
                 MOV             A, R3         ; Send Anode next
-                ACALL           SendDigiPot   ; Send data to this DigiPot
+                ACALL           SetSend       ; Send data to this DigiPot
                 SETB            CS            ; Set CS high again
-                DJNZ            R1, SetDigiPotsLoop ; One less DigiPot
+                DJNZ            R1, SetLoop ; One less DigiPot
                 RET
-SendDigiPot:
+SetSend:
                 MOV             R0, A         ; Save value to set for now
                 MOV             A, R1         ; DigiPot to set
                 RR              A             ; Need bottom two bits up high
                 RR              A             ; (since MSb is sent first)
                 MOV             R7, #2        ; Number of bits to send
-                ACALL           SendDigiPotBits
+                ACALL           SetBits
                 MOV             A, R0         ; Get value to set back
                 MOV             R7, #8        ; Number of bits to send
-SendDigiPotBits:
+SetBits:
                 RLC             A             ; Get high bit in Carry
                 MOV             SDI, C        ; Write Carry to data bit
                 SETB            Clk           ; Raise Clk
                 CLR             Clk           ; Lower Clk
-                DJNZ            R7, SendDigiPotBits
+                DJNZ            R7, SetBits
                 RET
 ;===============================================================================
                 END
