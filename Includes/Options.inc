@@ -1,6 +1,8 @@
 ;
 ; Options.inc
-; This file defines which way the code should operate.
+; This file defines which way the code should operate:
+; * How different BOARDs work - and the resultant constants
+; * How different UPDATEs work - and the resultant constants
 ;
 
 ; There are two boards:
@@ -60,29 +62,16 @@ $ENDIF
 ; its own OHMS, for both Anode and Red - Green and Blue have similar voltage
 ; drops, while Red has less.
 
+$SET (UPDATE_All   =0) ; Include ALL update mechanisms
 $SET (UPDATE_Row   =1)
 $SET (UPDATE_Colour=2)
 $SET (UPDATE_Pixel =3)
 $SET (UPDATE_LED   =4)
 
-$SET (UPDATE=4)
-
-PORT_mA         EQU             20
-BOARD_mA        EQU             120
-$IF     (UPDATE=UPDATE_Row)    ; 3*8 LEDs / 6 (Shared Anode+3xCathodes)
-PORT_uA         EQU             PORT_mA*100/3/8*10    ; 833
-BOARD_uA        EQU             BOARD_mA*100/3/8*10/6 ; 833
-$ELSEIF (UPDATE=UPDATE_Colour) ; 8 LEDs / 6 (Shared Anode+3xCathodes)
-PORT_uA         EQU             PORT_mA*100/8*10      ; 2500
-BOARD_uA        EQU             BOARD_mA*100/8*10/6   ; 2500
-$ELSEIF (UPDATE=UPDATE_Pixel)  ; 3 LEDs (Shared Anode+3xCathodes)
-PORT_uA         EQU             PORT_mA*100*10 /3     ; 6666
-BOARD_uA        EQU             BOARD_mA*100*10/6     ; 20000
-$ELSEIF (UPDATE=UPDATE_LED)    ; 1 LED  (Anode+Cathode)
-PORT_uA         EQU             PORT_mA*100*10        ; 20000
-BOARD_uA        EQU             BOARD_mA*100*10/2     ; 60000
+$IF (BOARD=BOARD_DigiPot)
+   $SET (UPDATE=0) ; Allow all UPDATE mechanisms
 $ELSE
-__ERROR__ "UPDATE not set!"
+   $SET (UPDATE=1) ; Only allow this one (fixed resistor!)
 $ENDIF
 
 mV_Red          EQU             1720
@@ -91,5 +80,57 @@ mV_Blue         EQU             2484
 mV_Anode        EQU             2300 ; *MIN*imum of mV_Blue and mV_Green
 mV_CPU          EQU             5000
 
-OHMS_Anode      EQU             (mV_CPU-mV_Anode)*10 / (PORT_ua/100)
-OHMS_Red        EQU             (mV_CPU-mV_Anode-mV_Red)*10 / (PORT_uA/100)
+; Convert uA to Ohms for the two resistor locations
+%*DEFINE (OHMS_Anode(uA)) ((mV_CPU-mV_Anode)*10 / (%uA/100))
+%*DEFINE (OHMS_Red(uA))   ((mV_CPU-mV_Anode-mV_Red)*10 / (%uA/100))
+
+PORT_mA         EQU             20
+BOARD_mA        EQU             120
+
+; 3*8 LEDs / 6 (Shared Anode+3xCathodes)
+PORT_uA_Row     EQU             PORT_mA*100/3/8*10    ; 833
+BOARD_uA_Row    EQU             BOARD_mA*100/3/8*10/6 ; 833
+OHMS_Anode_Row  EQU             %OHMS_Anode(PORT_uA_Row)
+OHMS_Red_Row    EQU             %OHMS_Red(PORT_uA_Row)
+
+; 8 LEDs / 6 (Shared Anode+3xCathodes)
+PORT_uA_Colour  EQU             PORT_mA*100/8*10      ; 2500
+BOARD_uA_Colour EQU             BOARD_mA*100/8*10/6   ; 2500
+OHMS_Anode_Colour EQU           %OHMS_Anode(PORT_uA_Colour)
+OHMS_Red_Colour   EQU           %OHMS_Red(PORT_uA_Colour)
+
+; 3 LEDs (Shared Anode+3xCathodes)
+PORT_uA_Pixel   EQU             PORT_mA*100*10 /3     ; 6666
+BOARD_uA_Pixel  EQU             BOARD_mA*100*10/6     ; 20000
+OHMS_Anode_Pixel EQU            %OHMS_Anode(PORT_uA_Pixel)
+OHMS_Red_Pixel   EQU            %OHMS_Red(PORT_uA_Pixel)
+
+; 1 LED  (Anode+Cathode)
+PORT_uA_LED     EQU             PORT_mA*100*10        ; 20000
+BOARD_uA_LED    EQU             BOARD_mA*100*10/2     ; 60000
+OHMS_Anode_LED  EQU             %OHMS_Anode(PORT_uA_LED)
+OHMS_Red_LED    EQU             %OHMS_Red(PORT_uA_LED)
+
+$IF     (UPDATE=UPDATE_Row)
+PORT_uA         EQU             PORT_uA_Row
+OHMS_Anode      EQU             OHMS_Anode_Row
+OHMS_Red        EQU             OHMS_Red_Row
+$ELSEIF (UPDATE=UPDATE_Colour)
+PORT_uA         EQU             PORT_uA_Colour
+OHMS_Anode      EQU             OHMS_Anode_Colour
+OHMS_Red        EQU             OHMS_Red_Colour
+$ELSEIF (UPDATE=UPDATE_Pixel)
+PORT_uA         EQU             PORT_uA_Pixel
+OHMS_Anode      EQU             OHMS_Anode_Pixel
+OHMS_Red        EQU             OHMS_Red_Pixel
+$ELSEIF (UPDATE=UPDATE_LED)
+PORT_uA         EQU             PORT_uA_LED
+OHMS_Anode      EQU             OHMS_Anode_LED
+OHMS_Red        EQU             OHMS_Red_LED
+$ELSEIF (UPDATE=UPDATE_All)
+PORT_uA         EQU             PORT_uA_Row       ; Worst-case start value
+OHMS_Anode      EQU             OHMS_Anode_Row
+OHMS_Red        EQU             OHMS_Red_Row
+$ELSE
+__ERROR__ "UPDATE not set!"
+$ENDIF
