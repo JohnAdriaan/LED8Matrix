@@ -48,6 +48,7 @@ $ENDIF
 
                 PUBLIC          LED_Init
                 PUBLIC          LED_Frame
+                PUBLIC          LED_Update
                 PUBLIC          Timer0_Handler
 
 ;===============================================================================
@@ -55,6 +56,12 @@ LEDBits         SEGMENT         BIT
                 RSEG            LEDBits
 
 LED_Frame:      DBIT            1                 ; Set when Frame buffer ready
+
+;===============================================================================
+LEDData         SEGMENT         DATA
+                RSEG            LEDData
+
+LED_Update:     DSB             1
 
 ;===============================================================================
 LEDPWM          SEGMENT         XDATA AT 00000h
@@ -135,6 +142,7 @@ nLogoSize       EQU             $-Logo
 ;...............................................................................
 InitVars:
                 CLR             LED_Frame         ; Can't generate new frame yet
+                MOV             LED_Update, #0    ; Which mechanism to use
                 MOV             rLEDCycle, #1     ; Simulate new Frame
                 RET
 
