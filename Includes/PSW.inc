@@ -6,6 +6,23 @@
 
                 $INCLUDE        (John.inc)
 
+SetBank         MACRO           Bank
+IF (Bank=0)
+                ANL             PSW, #NOT (mRS1+mRS0)
+ELSEIF (Bank=1)
+                ORL             PSW, #mRS0
+                ANL             PSW, #NOT mRS1
+ELSEIF (Bank=2)
+                ANL             PSW, #NOT mRS0
+                ORL             PSW, #mRS1
+ELSEIF (Bank=3)
+                ORL             PSW, #mRS1+mRS0
+ELSE
+__ERROR__       "Invalid Bank!"
+ENDIF
+                USING           Bank
+                ENDM
+
 ; Program Status Word
                 SFR   rPSW   =  0D0h
 
@@ -22,9 +39,3 @@ OV              BIT             rPSW.bOV
 
 DefineBit       F1,  rPSW, 1            ; (User) Flag 1
 DefineBit       P,   rPSW, 0            ; Parity Flag
-
-; Register bank Select
-bRS             EQU             bRS0
-bBank           EQU             bRS
-mRS             EQU             mRS1 + mRS0
-mBank           EQU             mRS

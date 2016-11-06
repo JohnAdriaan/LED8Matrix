@@ -15,7 +15,6 @@
                 PUBLIC          UART2ISR
 
 UARTBank        EQU             1       ; Register bank used in UART interrupt
-mUARTBank       EQU             UARTBank shl bBank
 
 ;===============================================================================
 UARTBits        SEGMENT         BIT
