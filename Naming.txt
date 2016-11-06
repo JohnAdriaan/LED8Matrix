@@ -23,16 +23,19 @@ Registers
 ---------
 And speaking of (memory) registers, they too can be accessed a couple of ways:
  * Directly by number (000h-0FFh);
-   - I prefix all register number names with an 'r'.
+   - I prefix all these register number names with an 'r'.
    - Except for the I/O ports, which I prefix with 'p'.
+ * Relatively by number (R0-R7) within a Bank;
+   - These MUST NOT use an 'r' prefix - they're not a number from 000h-0FFh.
  * Indirectly by pointer.
-
- * 'a' means a (data) address (code addresses (labels) have no prefix);
- * 'n' means a numerical value.
 
 Symbols
 -------
 All public symbols will start with their module name followed by an underscore.
-There is one exception: if a module doesn't know which module will implement
-a function, it will EXTERN a related module name (NOT the same!) and any module
-can PUBLIC that name.
+ - There is one exception: if a module doesn't know which module will implement
+   a function, it will EXTERN a related module name (NOT the same!) and any
+   module can PUBLIC that name.
+
+Within a module:
+ * 'a' means a (data) address (code addresses (labels) have no prefix);
+ * 'n' means a numerical value - requiring a '#' in the code!

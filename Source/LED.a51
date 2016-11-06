@@ -41,15 +41,15 @@ LEDGreen        EQU             R6
 LEDRed          EQU             R7
 
 $IF (BOARD_Resistor)
-                SFR pLEDAnode = pP2  ; 0A0h
-                SFR pLEDBlue  = pP1  ; 090h
-                SFR pLEDGreen = pP0  ; 080h
-                SFR pLEDRed   = pP3  ; 0B0h
+                SFR   pAnode  = pP2  ; 0A0h
+                SFR   pBlue   = pP1  ; 090h
+                SFR   pGreen  = pP0  ; 080h
+                SFR   pRed    = pP3  ; 0B0h
 $ELSEIF (BOARD_DigiPot)
-                SFR pLEDAnode = pP0  ; 080h
-                SFR pLEDBlue  = pP3  ; 0B0h
-                SFR pLEDGreen = pP2  ; 0A0h
-                SFR pLEDRed   = pP1  ; 090h
+                SFR   pAnode  = pP0  ; 080h
+                SFR   pBlue   = pP3  ; 0B0h
+                SFR   pGreen  = pP2  ; 0A0h
+                SFR   pRed    = pP1  ; 090h
 $ELSE
 __ERROR__ "BOARD not defined!"
 $ENDIF
@@ -88,54 +88,68 @@ LED_Init:
 
 ;-------------------------------------------------------------------------------
 InitFrame:
-                MOV             R0, #0            ; Need a zero for SUBB
                 MOV             DPTR, #aFrame     ; Store in the Frame area
 
-                MOV             R6, #Mandelbrot - MandelOffset ; Start offset
-                MOV             R7, #nLEDRows     ; Number of Logo Rows
+                MOV             R6, #Logo - LogoOffset ; Start offset
+                MOV             R7, #nLogoSize    ; Number of Logo bytes
 InitFrameLoop:
                 MOV             A, R6             ; Get current offset
                 MOVC            A, @A+PC          ; Weird PC-relative indexing
-MandelOffset:                                     ; (Base to calculate from)
+LogoOffset:                                       ; (Base to offset from)
 
-                MOV             R5, #nLEDCols     ; Number of bits in bitmap row
-InitColLoop:
+                SETB            F0                ; Flag which nibble to do
+InitNibbleLoop:
+                RLC             A                 ; Get Intensity bit into Carry
+                MOV             R2, A             ; Save value away
+                MOV             A, 0FFh           ; Full intensity
+                RRC             A                 ; Half intensity?
+                XCH             A, R2             ; Swap back, and save intensity
+
+                MOV             R5, #nLEDColours  ; Number of colours
+InitColourLoop:
                 RLC             A                 ; Get top bit into Carry
                 MOV             R1, A             ; Save away - need A!
 
-                CLR             A                 ; Need zero in A
-                SUBB            A, R0             ; Turn Carry into 000h or 0FFh
-                MOVX            @DPTR, A          ; Store Blue
+                MOV             A, R2             ; Get intensity
+                JC              InitColour
+                CLR             A                 ; Nope: LED is off!
+InitColour:
+                MOVX            @DPTR, A          ; Store Colour
                 INC             DPTR
-                MOVX            @DPTR, A          ; Store Green
-                INC             DPTR
-                CLR             A                 ; Cyan!
-                MOVX            @DPTR, A          ; Store Red
-                INC             DPTR
+                MOV             A, R1             ; Restore current value into A
+                DJNZ            R5, InitColourLoop
 
-                MOV             A, R1             ; Restore Row bitmap into A
-                DJNZ            R5, InitColLoop
+                JBC             F0, InitNibbleLoop ; Go around for next nibble?
 
-                INC             R6                ; Next Row in Logo
+                INC             R6                ; Next byte in Logo
                 DJNZ            R7, InitFrameLoop
 
                 RET
 
-Mandelbrot:                     ; Bitmap top to bottom, MSb to LSb=left to right
-                DB              00001000b, 00011100b, 01011111b, 11111110b
-                DB              11111110b, 01011111b, 00011100b, 00001000b
+; Bitmap:
+; * Top to bottom;
+; * 4 bits per pixel (IBGR);
+; * MSn to LSn=left to right
+Logo:
+                DB              044h, 044h, 0D0h, 0D4h
+                DB              044h, 0DDh, 000h, 00Dh
+                DB              04Dh, 00Dh, 000h, 00Dh
+                DB              0D0h, 000h, 000h, 0D4h
+                DB              04Dh, 00Dh, 000h, 00Dh
+                DB              044h, 0DDh, 000h, 00Dh
+                DB              044h, 044h, 04Dh, 044h
+nLogoSize       EQU             $-Logo
+
 ;...............................................................................
 InitVars:
                 CLR             LED_Frame         ; Can't generate new frame yet
-
                 MOV             rLEDCycle, #1     ; Simulate new Frame
-
                 RET
 
 ;...............................................................................
 InitIO:
                 CLR             A               ; 000h
-                MOV             pLEDAnode, A    ; Anodes off
+                MOV             pAnode, A       ; Anodes off
 
                 ; Push/Pull is rPxM1=0 and rPxM0=1
                 MOV             rP0M1, A
@@ -150,17 +164,32 @@ InitIO:
                 MOV             rP3M0, A
 
                 ; Set all Cathodes high (LEDs off)
-                MOV             pLEDRed,   A
-                MOV             pLEDGreen, A
-                MOV             pLEDBlue,  A
+                MOV             pRed,   A
+                MOV             pGreen, A
+                MOV             pBlue,  A
 
                 RET
 ;-------------------------------------------------------------------------------
-Timer0_Handler  :
+CopyFrame       MACRO
+                LOCAL           CopyLoop
+                MOV             DPTR, #aFrame     ; Source area
+                MOV             R0, #aPWM         ; Destination area
+
+                MOV             R7, #nLEDs        ; This many LEDs
+CopyLoop:
+                MOVX            A, @DPTR
+                MOVX            @R0, A
+                INC             DPTR
+                INC             R0
+                DJNZ            R7, CopyLoop
+                ENDM
+
+Timer0_Handler:
                 SetBank         LEDBank
 
 $IF (LEDvsPIXEL)
 $ELSEIF (PIXELvsLED)
+                                                  ; Nothing to do here
 $ELSE
 __ERROR__ "LED vs PIXEL not defined!"
 $ENDIF
@@ -168,12 +197,12 @@ $ENDIF
 
                 ; New row started!
                 MOV             A, 0FFh           ; Set all Cathodes high
-                MOV             pLEDRed,   A
-                MOV             pLEDGreen, A
-                MOV             pLEDBlue,  A
+                MOV             pRed,   A
+                MOV             pGreen, A
+                MOV             pBlue,  A
 
                 CLR             C                 ; Need zero Carry
-                MOV             A, pLEDAnode      ; Current Anode (init 000h)
+                MOV             A, pAnode         ; Current Anode (init 000h)
                 RLC             A                 ; Change which Anode
                 JNZ             NewRow            ; A not zero (yet)
 
@@ -181,28 +210,18 @@ $ENDIF
                 SETB            EA                ; Enable ints during copy
                 PUSH            DPL               ; Need these registers now...
                 PUSH            DPH
-
-                MOV             DPTR, #aFrame     ; Source area
-                MOV             R0, #aPWM         ; Destination area
-
-                MOV             R7, #nLEDs        ; This many LEDs
-CopyFrame:
-                MOVX            A, @DPTR
-                MOVX            @R0, A
-                INC             DPTR
-                INC             R0
-                DJNZ            R7, CopyFrame
+                CopyFrame
                 POP             DPH               ; Don't need these anymore
                 POP             DPL
                 CLR             EA                ; Disable ints again
 
                 MOV             LEDIndex, #aPWM
                 SETB            LED_Frame
-                MOV             pLEDAnode, #00000001b ; Restart Anode
+                MOV             pAnode, #00000001b ; Restart Anode
                 SJMP            Cycle
 
 NewRow:
-                MOV             pLEDAnode, A      ; Save new Row mask back
+                MOV             pAnode, A         ; Save new Row mask back
                 MOV             A, LEDIndex       ; Current row
                 ADD             A, #nLEDsPerRow   ; New position
                 MOV             LEDIndex, A       ; Into index
@@ -225,9 +244,9 @@ $ELSEIF (PIXELvsLED)
 $ELSE
 __ERROR__ "LED vs PIXEL not defined!"
 $ENDIF
-LEDLoop:
+CellLoop: ; One cell is ether an LED or a Pixel
                 MOVX            A, @R0            ; Get current LED value
-                JZ              LEDNext           ; Jump if A is Zero
+                JZ              CellNext          ; Jump if A is Zero
                 DEC             A                 ; PWM LED value
                 MOVX            @R0, A            ; and store back
 ; *** Zero bit indicated by LEDMask in current colour register
@@ -236,15 +255,18 @@ $ELSEIF (PIXELvsLED)
 $ELSE
 __ERROR__ "LED vs PIXEL not defined!"
 $ENDIF
-LEDNext:
-                INC             R0
+CellNext:
 ; *** Go to next colour register
 $IF (LEDvsPIXEL)
+                INC             R0                ; Go to next colour value
+                INC             R0
+                INC             R0
 $ELSEIF (PIXELvsLED)
+                INC             R0                ; Go to next LED value
 $ELSE
 __ERROR__ "LED vs PIXEL not defined!"
 $ENDIF
-                JNZ             LEDLoop           ; *** or whatever
+                JNZ             CellLoop          ; *** or whatever
 RowNext:
                 CLR             C                 ; Need zero in Carry
                 MOV             A, LEDMask        ; Where are we in the mask?
@@ -256,9 +278,9 @@ $ELSEIF (PIXELvsLED)
 $ELSE
 __ERROR__ "LED vs PIXEL not defined!"
 $ENDIF
-                MOV             pLEDBlue,  LEDBlue
-                MOV             pLEDGreen, LEDGreen
-                MOV             pLEDRed,   LEDRed
+                MOV             pBlue,  LEDBlue
+                MOV             pGreen, LEDGreen
+                MOV             pRed,   LEDRed
 
                 RET
 
