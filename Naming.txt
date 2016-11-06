@@ -11,6 +11,7 @@ It is possible to refer to a single bit in a number of different ways:
 And speaking of (memory) registers, they too can be accessed a couple of ways:
 * Directly by number (000h-0FFh);
   - I prefix all register number names with an 'r'.
+  - Except for the I/O ports, which I prefix with 'p'.
 * Indirectly by pointer.
 
 * 'a' means a (data) address (code addresses (labels) have no prefix);

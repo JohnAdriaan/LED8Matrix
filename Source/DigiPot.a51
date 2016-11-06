@@ -32,14 +32,14 @@
 
                 PUBLIC          InitDigiPot
 
-                SFR  rDigiPot   = rP4
+                SFR  pDigiPot   = pP4
                 SFR  rDigiPotM0 = rP4M0
                 SFR  rDigiPotM1 = rP4M1
 
-DefineBit       ShDn, rDigiPot, 4
-DefineBit       CS,   rDigiPot, 0
-DefineBit       Clk,  rDigiPot, 5
-DefineBit       SDI,  rDigiPot, 1
+DefineBit       ShDn, pDigiPot, 4
+DefineBit       CS,   pDigiPot, 0
+DefineBit       Clk,  pDigiPot, 5
+DefineBit       SDI,  pDigiPot, 1
 
 mDigiPot        EQU             mShDn + mCS + mClk + mSDI
 
