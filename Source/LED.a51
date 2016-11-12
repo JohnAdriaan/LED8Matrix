@@ -47,6 +47,7 @@ __ERROR__ "BOARD not defined!"
 $ENDIF
 
                 PUBLIC          LED_Init
+                PUBLIC          LED_Reset
                 PUBLIC          LED_Frame
                 PUBLIC          LED_Update
                 PUBLIC          Timer0_Handler
@@ -81,6 +82,8 @@ LED             SEGMENT         CODE
 
 LED_Init:
                 ACALL           InitFrame
+                MOV             LED_Update, #0    ; Which mechanism to use
+LED_Reset:
                 ACALL           InitVars
                 ACALL           InitIO
                 RET
@@ -142,7 +145,6 @@ nLogoSize       EQU             $-Logo
 ;...............................................................................
 InitVars:
                 CLR             LED_Frame         ; Can't generate new frame yet
-                MOV             LED_Update, #0    ; Which mechanism to use
                 MOV             rLEDCycle, #1     ; Simulate new Frame
                 RET
 

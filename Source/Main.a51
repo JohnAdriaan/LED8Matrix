@@ -77,6 +77,9 @@ Reset_ISR:
                 CALL            DigiPot_Init      ; Initialise Digital Pots
                 CALL            LED_Init          ; Initialise LED matrix
 
+                CLR             A                 ; Lowest mode
+Recycle:
+                CALL            DigiPot_Set
                 SETB            EA                ; Enable all interrupts
 Executive:
                 JBC             LED_Frame, NextFrame  ; Next frame flag? Clear!
@@ -92,7 +95,9 @@ NextFrame:
 ;-------------------------------------------------------------------------------
 ; Called to process next received command
 ProcessCmd:
-                SJMP            Executive         ; Start again
+                CLR             EA                ; Stop timer (well, everything)
+                CALL            LED_Reset         ; Turn off LEDs
+                SJMP            Recycle           ; Start again
 
 ;===============================================================================
                 END
