@@ -47,7 +47,7 @@ CPU_Init:
                 MOV             rPCON, A
 
                 MOV             A, rWDT_CONTR     ; Get WatchDog timer
-                ANL             A, mWDT_FLAG      ; Did it fire?
+                ANL             A, #mWDT_FLAG     ; Did it fire?
 
                 RET
 

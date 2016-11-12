@@ -100,7 +100,7 @@ LogoOffset:                                       ; (Base to offset from)
 InitNibbleLoop:
                 RLC             A                 ; Get Intensity bit into Carry
                 MOV             R2, A             ; Save value away
-                MOV             A, 0FFh           ; Full intensity
+                MOV             A, #0FFh          ; Full intensity
                 RRC             A                 ; Half intensity?
                 XCH             A, R2             ; Swap back, and save intensity
 
@@ -191,7 +191,7 @@ Timer0_Handler:
                 DJNZ            LEDCycle, Cycle   ; Still in current cycle?
 
                 ; New row started!
-                MOV             A, 0FFh           ; Set all Cathodes high
+                MOV             A, #0FFh          ; Set all Cathodes high
                 MOV             pRed,   A
                 MOV             pGreen, A
                 MOV             pBlue,  A
