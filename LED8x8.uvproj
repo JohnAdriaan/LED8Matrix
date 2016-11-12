@@ -389,6 +389,11 @@
               <FilePath>.\Source\Timer.a51</FilePath>
             </File>
             <File>
+              <FileName>Flash.a51</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\Source\Flash.a51</FilePath>
+            </File>
+            <File>
               <FileName>DigiPot.a51</FileName>
               <FileType>2</FileType>
               <FilePath>.\Source\DigiPot.a51</FilePath>
@@ -404,6 +409,11 @@
           <GroupName>Listings</GroupName>
           <Files>
             <File>
+              <FileName>Naming.txt</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Naming.txt</FilePath>
+            </File>
+            <File>
               <FileName>LED8x8.map</FileName>
               <FileType>5</FileType>
               <FilePath>.\Listings\LED8x8.map</FilePath>
@@ -414,15 +424,25 @@
               <FilePath>.\Objects\LED8x8.hex</FilePath>
             </File>
             <File>
-              <FileName>Naming.txt</FileName>
+              <FileName>DigiPot.lst</FileName>
               <FileType>5</FileType>
-              <FilePath>.\Naming.txt</FilePath>
+              <FilePath>.\Listings\DigiPot.lst</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
           <GroupName>Includes</GroupName>
           <Files>
+            <File>
+              <FileName>John.inc</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Includes\John.inc</FilePath>
+            </File>
+            <File>
+              <FileName>Options.inc</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Includes\Options.inc</FilePath>
+            </File>
             <File>
               <FileName>AUXR.inc</FileName>
               <FileType>5</FileType>
