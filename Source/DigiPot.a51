@@ -13,15 +13,15 @@
 ;  A1 A0 D7 D6 D5 D4 D3 D2 D1 D0
 ; 
 ; A DigiPot is commanded by:
-; * Pulling down CLK (P4.5)                   ( 0ns);
-; * Pulling down CS (P4.0)                    (10ns);
-; * Repeat for 10n bits (n=#DigiPots in chain)
-;   - Setting SDI (P4.1)                      ( 5ns);
-;   - Raising CLK (P4.5)                      (10ns);
-;   - Lowering CLK (P4.5)                     (10ns, 25ns if chained);
-; * Raising CS (P4.0)                         (10ns)
+; * Lower CLK   (P4.5)                ( 0ns);
+; * Lower CS    (P4.0)                (10ns);
+; * Repeat for 10n bits (n=#DigiPots in chain):
+;   - Set SDI     (P4.1)                ( 5ns);
+;   - Raise CLK   (P4.5)                (10ns);
+;   - Lower CLK   (P4.5)                (10ns, 25ns if chained);
+; * Raise CS    (P4.0)                (10ns)
 ;
-; Note that pulling SHDN (P4.4) low open-circuits the DigiPot.
+; Note that lowering SHDN (P4.4) open-circuits the DigiPot.
 ;
 
                 NAME            DigiPot
@@ -31,6 +31,7 @@
                 $INCLUDE        (P4.inc)
 
                 PUBLIC          DigiPot_Init
+$IF (BOARD=BOARD_DigiPot)
                 PUBLIC          DigiPot_Set
 
                 SFR  pDigiPot   = pP4
@@ -47,42 +48,51 @@ mDigiPot        EQU             mShDn + mCS + mClk + mSDI
 nDigiPots       EQU             4
 
 DigiPotOhms     EQU             49 ; This is the wiper resistance (note min val)
-DigiPotAnode    EQU             (OHMS_Anode-DigiPotOhms)*4/10*64/1000 ; *Steps/MaxOhms
-DigiPotRed      EQU             (OHMS_Red-DigiPotOhms)  *4/10*64/1000 ; *Steps/MaxOhms
-
+$ENDIF
 ;===============================================================================
 DigiPot         SEGMENT         CODE
                 RSEG            DigiPot
 
 DigiPot_Init:
-$IF (BOARD=BOARD_DigiPot)
+$IF     (BOARD=BOARD_Resistor)
+                RET
+$ELSEIF (BOARD=BOARD_DigiPot)
                 MOV             A, #mDigiPot  ; Pins to change
                 ORL             rDigiPotM0, A ; Push/Pull needs 1 in M0...
                 CPL             A             ; (toggle all bits)
                 ANL             rDigiPotM1, A ; ...and 0 in M1
-
-                MOV             R3, #DigiPotAnode
-                MOV             R2, #DigiPotRed
-                ACALL           DigiPot_Set
-;***                SETB            ShDn          ; Turn on DigiPots
-$ENDIF
                 RET
 
 ;-------------------------------------------------------------------------------
-; Call with R3 set to Anode value, and R2 set to Red Cathode value
-; Modifies: A, R0, R1, R7
+; Call with A set to desired mode
+; Modifies: A, R0, R1, R2, R7
 DigiPot_Set:
+                CLR             ShDn          ; Open-circuit DigiPots
+                CLR             C             ; Need zero here
+                RL              A             ; Two entries per table row
+                MOV             R2, A         ; Save table offset away
+                ADD             A, #Set_Table-AnodeOffset ; Offset for Anode
+                MOVC            A, @A+PC      ; Weird PC-relative index
+AnodeOffset:
+
+                XCH             A, R2         ; Save, and restore table offset
+                ADD             A, #Set_Table-RedOffset+1 ; Offset for Red
+                MOVC            A, @A+PC      ; Weird PC-relative index
+RedOffset:
+
                 MOV             R1, #nDigiPots; DigiPot to set (0, 3, 2, 1)
                 CLR             Clk           ; Set Clk low
 SetLoop:
                 CLR             CS            ; Set CS low
-                MOV             A, R2         ; Send Red Cathode first
-                ACALL           SetSend       ; Send data to this DigiPot
-                MOV             A, R3         ; Send Anode next
-                ACALL           SetSend       ; Send data to this DigiPot
+                ACALL           SetSend       ; Send Red Cathode to this DigiPot
+                MOV             A, R2         ; Restore saved value
+                ACALL           SetSend       ; Send Anode to this DigiPot
                 SETB            CS            ; Set CS high again
                 DJNZ            R1, SetLoop   ; One less DigiPot
+
+                SETB            ShDn          ; Turn on DigiPots
                 RET
+
 SetSend:
                 MOV             R0, A         ; Save value to set for now
                 MOV             A, R1         ; DigiPot to set
@@ -96,8 +106,58 @@ SetBits:
                 RLC             A             ; Get high bit in Carry
                 MOV             SDI, C        ; Write Carry to data bit
                 SETB            Clk           ; Raise Clk
+;               NOP                           ; Not required
                 CLR             Clk           ; Lower Clk
                 DJNZ            R7, SetBits
                 RET
 ;===============================================================================
+
+PORT_mA         EQU              20
+BOARD_mA        EQU             120
+
+; 3*8 LEDs / 6 (Shared Anode+3xCathodes)
+PORT_uA_Row     EQU             PORT_mA*100/3*10/8    ; 833
+BOARD_uA_Row    EQU             BOARD_mA*100/3*10/8/6 ; 833
+
+; 8 LEDs / 6 (Shared Anode+3xCathodes)
+PORT_uA_Colour  EQU             PORT_mA*100/8*10      ; 2500
+BOARD_uA_Colour EQU             BOARD_mA*100/8*10/6   ; 2500
+
+; 3 LEDs (Shared Anode+3xCathodes)
+PORT_uA_Pixel   EQU             PORT_mA*1000/3        ; 6666
+BOARD_uA_Pixel  EQU             BOARD_mA*100/6*10     ; 20000
+
+; 1 LED  (Anode+Cathode)
+PORT_uA_LED     EQU             PORT_mA*1000          ; 20000
+BOARD_uA_LED    EQU             BOARD_mA*100/2*10     ; 60000
+
+; Millivolts for different components
+mV_Red          EQU             1720
+mV_Green        EQU             2300
+mV_Blue         EQU             2484
+mV_Anode        EQU             2300 ; *MIN*imum of mV_Blue and mV_Green
+mV_CPU          EQU             5000
+
+; Convert uA to Ohms for the two resistor locations
+%*DEFINE       (OHMS_Anode(uA)) ((mV_CPU-mV_Anode)*10 / (%uA/100))
+%*DEFINE       (OHMS_Red(uA))   ((mV_CPU-mV_Anode-mV_Red)*10 / (%uA/100))
+
+; Convert Ohms to DigiPot setting
+%*DEFINE         (Setting(O))  ((%O-DigiPotOhms)*4/10*64/1000) ; *Steps/MaxOhms
+
+; Create Entry in Table from uA with Anode, Red settings
+%*DEFINE         (Entry(uA))    (%Setting(%OHMS_Anode(%uA)), %Setting(%OHMS_Red(%uA)))
+
+Set_Table:
+Set_Row_All:     DB             %Entry(Port_uA_Row)
+Set_Row_One:     DB             %Entry(Port_uA_Colour)
+Set_Row_Colour:  DB             %Entry(Port_uA_Colour)
+Set_Pixel:       DB             %Entry(Port_uA_Pixel)
+Set_LED_Pixel:   DB             %Entry(Port_uA_LED)
+Set_LED_Row:     DB             %Entry(Port_uA_LED)
+Set_LED_All:     DB             %Entry(Port_uA_LED)
+
+$ELSE
+__ERROR__ "BOARD not set!"
+$ENDIF
                 END

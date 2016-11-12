@@ -56,11 +56,15 @@
                 PUBLIC          Reset_ISR         ; Publish this for Vectors
 
                 EXTERN   DATA   (CPU_Stack)
+
                 EXTERN   CODE   (CPU_Init)
                 EXTERN   CODE   (UART_Init)
                 EXTERN   CODE   (Timer_Init)
+                EXTERN   CODE   (Flash_Init)
                 EXTERN   CODE   (DigiPot_Init)
+                EXTERN   CODE   (DigiPot_Set)
                 EXTERN   CODE   (LED_Init)
+                EXTERN   CODE   (LED_Reset)
 
                 EXTERN   BIT    (LED_Frame)
                 EXTERN   BIT    (UART_RXed)
@@ -74,6 +78,7 @@ Reset_ISR:
                 CALL            CPU_Init          ; Initialise CPU SFRs
                 CALL            UART_Init         ; Initialise UART2
                 CALL            Timer_Init        ; Initialise Timer0
+                CALL            Flash_Init        ; Initialise Flash
                 CALL            DigiPot_Init      ; Initialise Digital Pots
                 CALL            LED_Init          ; Initialise LED matrix
 
