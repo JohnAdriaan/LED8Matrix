@@ -69,7 +69,7 @@ ELSEIF (BOARD=BOARD_DigiPot)
 DigiPot_Set:
                 CLR             ShDn          ; Open-circuit DigiPots
                 CLR             C             ; Need zero here
-                RL              A             ; Two entries per table row
+                RLC             A             ; Two entries per table row
                 MOV             R2, A         ; Save table offset away
                 ADD             A, #Set_Table-AnodeOffset ; Offset for Anode
                 MOVC            A, @A+PC      ; Weird PC-relative index
