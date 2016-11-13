@@ -4,8 +4,10 @@
 ; This file holds support definitions for standardisation.
 ;
 
-$IF (JOHN_INC=0)
+$IF  (JOHN_INC=0)
 $SET (JOHN_INC)
+
+$GEN                            ; Enable macro expansions in listings
 
 ; This macro defines symbols for all forms of a bit.
 ; It takes the bit name, the register it's a member of, and the bit position.
