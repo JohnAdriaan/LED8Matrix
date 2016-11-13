@@ -31,7 +31,7 @@
                 $INCLUDE        (P4.inc)
 
                 PUBLIC          DigiPot_Init
-$IF (BOARD=BOARD_DigiPot)
+IF (BOARD=BOARD_DigiPot)
                 PUBLIC          DigiPot_Set
 
                 SFR  pDigiPot   = pP4
@@ -48,15 +48,15 @@ mDigiPot        EQU             mShDn + mCS + mClk + mSDI
 nDigiPots       EQU             4
 
 DigiPotOhms     EQU             49 ; This is the wiper resistance (note min val)
-$ENDIF
+ENDIF
 ;===============================================================================
 DigiPot         SEGMENT         CODE
                 RSEG            DigiPot
 
 DigiPot_Init:
-$IF     (BOARD=BOARD_Resistor)
+IF     (BOARD=BOARD_Resistor)
                 RET
-$ELSEIF (BOARD=BOARD_DigiPot)
+ELSEIF (BOARD=BOARD_DigiPot)
                 MOV             A, #mDigiPot  ; Pins to change
                 ORL             rDigiPotM0, A ; Push/Pull needs 1 in M0...
                 CPL             A             ; (toggle all bits)
@@ -157,7 +157,7 @@ Set_LED_Pixel:   DB             %Entry(Port_uA_LED)
 Set_LED_Row:     DB             %Entry(Port_uA_LED)
 Set_LED_All:     DB             %Entry(Port_uA_LED)
 
-$ELSE
-__ERROR__ "BOARD not set!"
-$ENDIF
+ELSE
+__ERROR__       "BOARD not defined!"
+ENDIF
                 END

@@ -5,34 +5,39 @@
 ; * How different UPDATEs work - and the resultant constants
 ;
 
+$IF  (OPTIONS_INC=0)
+$SET (OPTIONS_INC)
+
+                $INCLUDE        (John.inc)
+
 ; There are two boards:
 ; * BOARD_Resistor has fixed resistors.
 ; * BOARD_DigiPot has digital potentiometers.
 ; Other than the obvious, the differences are:
 ; * For board layout reasons, Cathodes and Anodes are on different I/O ports;
 ; * The two boards use different clocks (CPU_Freq, in 512*Hz).
-$SET (BOARD_Resistor=1)
-$SET (BOARD_DigiPot=2)
+BOARD_Resistor  EQU             1
+BOARD_DigiPot   EQU             2
 
-$SET (BOARD=2)
+BOARD           EQU             BOARD_DigiPot
 
-$IF (BOARD=BOARD_Resistor)
-   $SET (CPU_Freq=21600)
-$ELSEIF (BOARD=BOARD_DigiPot)
-   $SET (CPU_Freq=64800)
-$ELSE
-   __ERROR__ "BOARD not set!"
-$ENDIF
+IF (BOARD=BOARD_Resistor)
+CPU_Freq        EQU             21600
+ELSEIF (BOARD=BOARD_DigiPot)
+CPU_Freq        EQU             64800
+ELSE
+__ERROR__       "BOARD not defined!"
+ENDIF
 
 ; * A "cycle" is a single count downwards of the LED value(s) - one PWM cycle.
 ;   - This is embodied in a single interrupt - whatever the interrupt does.
 ; * A "frame" is an update of the entire matrix.
-;   - For persistence of vision, there have to be many frames per second (FPS).
+;   - For persistence of vision, there have to be many Frames Per Second (FPS).
 ;   - Depending on colour depth (bits per colour(LED): 1/2/4/6/8), that could be
 ;     1, 4, 16, 64 or 256 cycles (interrupts) per LED per frame (grouped as
 ;     configured).
-
-$SET (FPS=24)       ; Frames per second. This will dictate the interrupt rate
+FPS             EQU             24 ; Frames Per Second. Sets the interrupt rate.
+                                   ; Note that the timer could use x12 mode...
 
 ; There are five ways to update the individual RGB pixels (some with options):
 ; 0) Each cycle, update the whole frame.
@@ -127,5 +132,7 @@ FPS_Rate        EQU             FPS_Rate_Colour
 ELSEIF (UPDATE=UPDATE_Row_Colour)
 FPS_Rate        EQU             FPS_Rate_Colour
 ELSE
-__ERROR__ "UPDATE not set!"
+__ERROR__       "UPDATE not defined!"
 ENDIF
+
+$ENDIF ; OPTIONS_INC
