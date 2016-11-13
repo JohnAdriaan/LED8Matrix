@@ -193,7 +193,7 @@ Timer0_Handler:                                   ; PSW and ACC saved
 
                 MOV             A, LED_Update     ; Get UPDATE method
                 CLR             C                 ; Need zero here
-                RL              A                 ; AJMP is a two-byte opcode
+                RLC             A                 ; AJMP is a two-byte opcode
                 MOV             DPTR, #UpdateTable ; Table of AJMPs
                 JMP             @A+DPTR           ; Do it!
 Timer0_Exit:
@@ -209,19 +209,31 @@ UpdateTable:
                 AJMP            UpdateRowLED
 ;               AJMP            UpdateRowColour   ; Just being clever...
 UpdateRowColour:
+; One Colour per Row changes per cycle (B0.0-7,B1.0-7,)  (8)
                 JMP             Timer0_Exit
 
 UpdatePixel:
+; One Pixel changes per cycle (BGR0.0,BGR0.1,)           (3)
                 JMP             Timer0_Exit
+
 UpdateLEDPixel:
+; One Colour changes per cycle (B0.0,G0.0,R0.0,B0.1,)    (1)
                 JMP             Timer0_Exit
+
 UpdateLEDColour:
+; One LED changes per cycle (B0.0,B0.1,..,B1.0,B1.1,)    (1)
                 JMP             Timer0_Exit
+
 UpdateLEDRow:
+; One LED changes per cycle (B0.0,B0.1,..,G0.0,G0.1,)    (1)
                 JMP             Timer0_Exit
+
 UpdateRowPixel:
+; One whole Row changes per cycle (BGR0.01234567,)     (8*3)
                 JMP             Timer0_Exit
+
 UpdateRowLED:
+; One Colour each Row changes per cycle (B0.0-7,G0.0-7,) (8)
                 JMP             Timer0_Exit
 
 ; ***UPDATE
