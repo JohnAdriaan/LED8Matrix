@@ -24,8 +24,6 @@ $ELSE
    __ERROR__ "BOARD not set!"
 $ENDIF
 
-$SET (FPS=24)       ; Frames per second. This will dictate the interrupt rate
-
 ; * A "cycle" is a single count downwards of the LED value(s) - one PWM cycle.
 ;   - This is embodied in a single interrupt - whatever the interrupt does.
 ; * A "frame" is an update of the entire matrix.
@@ -33,7 +31,9 @@ $SET (FPS=24)       ; Frames per second. This will dictate the interrupt rate
 ;   - Depending on colour depth (bits per colour(LED): 1/2/4/6/8), that could be
 ;     1, 4, 16, 64 or 256 cycles (interrupts) per LED per frame (grouped as
 ;     configured).
-;
+
+$SET (FPS=24)       ; Frames per second. This will dictate the interrupt rate
+
 ; There are five ways to update the individual RGB pixels (some with options):
 ; 0) Each cycle, update the whole frame.
 ;    * There aren't enough individual I/Os for that - there'd need to be 192!
@@ -77,35 +77,55 @@ $SET (FPS=24)       ; Frames per second. This will dictate the interrupt rate
 ; its own OHMS, for both Anode and Red - Green and Blue have similar voltage
 ; drops, while Red has less.
 
-$SET (UPDATE_Row_All   =0) ; Update all colours in a row at once   (24 LEDs)
-$SET (UPDATE_Row_One   =1) ; Update one row a colour at a time     ( 8 LEDs)
-$SET (UPDATE_Row_Colour=2) ; Update all rows one colour at a time  ( 8 LEDs)
-$SET (UPDATE_Pixel     =3) ; Update one whole pixel at a time      ( 3 LEDs)
-$SET (UPDATE_LED_Pixel =4) ; Update each LED in each pixel         ( 1 LED )
-$SET (UPDATE_LED_Row   =5) ; Update one LED in each row            ( 1 LED )
-$SET (UPDATE_LED_All   =6) ; Update one LED in all rows            ( 1 LED )
+; The representation of the different modes is expressed in bits as follows:
+; * There are three bits: Row, Pixel and LED;
+;   * If the Row bit is set, then the whole Row changes (one or all colours);
+;   * If neither the Pixel or LED bit is set, then all three colours change;
+;   * If the Pixel bit is set, then the Pixel, not Colour, changes per cycle;
+;   * If the LED bit is set, then the Colour is changed before the Row is.
+;
+; The bits are as follows:
+; ROW : PIXEL : LED | Interpretation                                    (# LEDs)
+;-----+-------+-----+-----------------------------------------------------------
+;  0  :   0   :  0  | One Pixel changes per cycle (BGR0.0,BGR0.1,)           (3)
+;  0  :   0   :  1  | One Colour changes per cycle (B0.0,G0.0,R0.0,B0.1,)    (1)
+;  0  :   1   :  0  | One LED changes per cycle (B0.0,B0.1,..,B1.0,B1.1,)    (1)
+;  0  :   1   :  1  | One LED changes per cycle (B0.0,B0.1,..,G0.0,G0.1,)    (1)
+;  1  :   0   :  0  | One whole Row changes per cycle (BGR0.01234567,)     (8*3)
+;  1  :   0   :  1  | One Colour each Row changes per cycle (B0.0-7,G0.0-7,) (8)
+;  1  :   1   :  0  | One Colour per Row changes per cycle (B0.0-7,B1.0-7,)  (8)
+;  1  :   1   :  1  | One Frame changes per cycle (not possible!)         (192!)
 
-$SET (UPDATE = 0)
+UPDATE_Pixel      EQU           000b    ; BGR0.0,BGR0.1,BGR0.2,...           (3)
+UPDATE_LED_Pixel  EQU           001b    ; B0.0,G0.0,R0.0,...                 (1)
+UPDATE_LED_Colour EQU           010b    ; B0.0,B0.1,...,B1.0,B1.1,...        (1)
+UPDATE_LED_Row    EQU           011b    ; B0.0,B0.1,...,G0.0,G0.1,...        (1)
+UPDATE_Row_Pixel  EQU           100b    ; BGR0.01234567,...                 (24)
+UPDATE_Row_LED    EQU           101b    ; B0.01234567,G0.01234567,...        (8)
+UPDATE_Row_Colour EQU           110b    ; B0.01234567,B1.01234567,...        (8)
+UPDATE_Row_Frame  EQU           111b    ;                                 (192!)
+
+UPDATE          EQU             UPDATE_Row_Pixel
 
 FPS_Rate_Row    EQU             8
 FPS_Rate_Colour EQU             8*3
 FPS_Rate_Pixel  EQU             8*8
 FPS_Rate_LED    EQU             8*8*3
 
-$IF     (UPDATE=UPDATE_Row_All)
-FPS_Rate        EQU             FPS_Rate_Row
-$ELSEIF (UPDATE=UPDATE_Row_One)
-FPS_Rate        EQU             FPS_Rate_Colour
-$ELSEIF (UPDATE=UPDATE_Row_Colour)
-FPS_Rate        EQU             FPS_Rate_Colour
-$ELSEIF (UPDATE=UPDATE_Pixel)
+IF     (UPDATE=UPDATE_Pixel)
 FPS_Rate        EQU             FPS_Rate_Pixel
-$ELSEIF (UPDATE=UPDATE_LED_Pixel)
+ELSEIF (UPDATE=UPDATE_LED_Pixel)
 FPS_Rate        EQU             FPS_Rate_LED
-$ELSEIF (UPDATE=UPDATE_LED_Row)
+ELSEIF (UPDATE=UPDATE_LED_Colour)
 FPS_Rate        EQU             FPS_Rate_LED
-$ELSEIF (UPDATE=UPDATE_LED_All)
+ELSEIF (UPDATE=UPDATE_LED_Row)
 FPS_Rate        EQU             FPS_Rate_LED
-$ELSE
+ELSEIF (UPDATE=UPDATE_Row_Pixel)
+FPS_Rate        EQU             FPS_Rate_Row
+ELSEIF (UPDATE=UPDATE_Row_LED)
+FPS_Rate        EQU             FPS_Rate_Colour
+ELSEIF (UPDATE=UPDATE_Row_Colour)
+FPS_Rate        EQU             FPS_Rate_Colour
+ELSE
 __ERROR__ "UPDATE not set!"
-$ENDIF
+ENDIF
