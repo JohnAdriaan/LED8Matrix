@@ -2,6 +2,19 @@
 ; LED.a51
 ;
 
+; Given that there are multiple UPDATE options (see Options.inc), there are two
+; mechanisms that I could use:
+; * UPDATE is bit-clever, so the Update routine could test the different bits to
+;   decide what to do. The problem is that that uses CPU cycles inside the
+;   interrupt to work out what to do - but the code would be smaller!
+; * The alternative is to quickly vector off the current UPDATE to specific
+;   routines, written to carefully maintain state within the register bank from
+;   interrupt to interrupt. Cute - I just need to remember to zero the variables
+;   when changing UPDATE.
+; My concern is that I have a 2,048-byte code limit. When I add a font table I'm
+; going to blow that. Of course, there are techniques that I could use to burn
+; the font table independent of the code. Hmmm...
+
                 NAME            LED
 
                 $INCLUDE        (Options.inc)
@@ -13,11 +26,12 @@
                 $INCLUDE        (P2.inc)
                 $INCLUDE        (P3.inc)
 
-nLEDColours     EQU             3 ; Blue, Green, Red
-nLEDCols        EQU             8
-nLEDsPerRow     EQU             nLEDColours * nLEDCols
-nLEDRows        EQU             8
-nLEDs           EQU             nLEDsPerRow * nLEDRows
+nColours        EQU             3 ; Blue, Green, Red
+nColumns        EQU             8
+nRows           EQU             8
+nPixels         EQU             nColumns * nRows
+nLEDsPerRow     EQU             nColours * nColumns
+nLEDs           EQU             nLEDsPerRow * nRows
 
 LEDBank         EQU             3  ; Register bank used in LED interrupt
 
@@ -32,19 +46,19 @@ LEDBlue         EQU             R5
 LEDGreen        EQU             R6
 LEDRed          EQU             R7
 
-$IF (BOARD=BOARD_Resistor)
+IF (BOARD=BOARD_Resistor)
                 SFR   pAnode  = pP2  ; 0A0h
                 SFR   pBlue   = pP1  ; 090h
                 SFR   pGreen  = pP0  ; 080h
                 SFR   pRed    = pP3  ; 0B0h
-$ELSEIF (BOARD=BOARD_DigiPot)
+ELSEIF (BOARD=BOARD_DigiPot)
                 SFR   pAnode  = pP0  ; 080h
                 SFR   pBlue   = pP3  ; 0B0h
                 SFR   pGreen  = pP2  ; 0A0h
                 SFR   pRed    = pP1  ; 090h
-$ELSE
-__ERROR__ "BOARD not defined!"
-$ENDIF
+ELSE
+__ERROR__       "BOARD not defined!"
+ENDIF
 
                 PUBLIC          LED_Init
                 PUBLIC          LED_Reset
@@ -82,7 +96,7 @@ LED             SEGMENT         CODE
 
 LED_Init:
                 ACALL           InitFrame
-                MOV             LED_Update, #0    ; Which mechanism to use
+                MOV             LED_Update, #UPDATE ; Which mechanism to use
 LED_Reset:
                 ACALL           InitVars
                 ACALL           InitIO
@@ -107,7 +121,7 @@ InitNibbleLoop:
                 RRC             A                 ; Half intensity?
                 XCH             A, R2             ; Swap back, and save intensity
 
-                MOV             R5, #nLEDColours  ; Number of colours
+                MOV             R5, #nColours     ; Number of colours
 InitColourLoop:
                 RLC             A                 ; Get top bit into Carry
                 MOV             R1, A             ; Save away - need A!
@@ -172,22 +186,43 @@ InitIO:
 
                 RET
 ;-------------------------------------------------------------------------------
-CopyFrame       MACRO
-                LOCAL           CopyLoop
-                MOV             DPTR, #aFrame     ; Source area
-                MOV             R0, #aPWM         ; Destination area
+Timer0_Handler:                                   ; PSW and ACC saved
+                SetBank         LEDBank           ; Use this register bank
+                PUSH            DPL               ; Need these registers too...
+                PUSH            DPH
 
-                MOV             R7, #nLEDs        ; This many LEDs
-CopyLoop:
-                MOVX            A, @DPTR
-                MOVX            @R0, A
-                INC             DPTR
-                INC             R0
-                DJNZ            R7, CopyLoop
-                ENDM
+                MOV             A, LED_Update     ; Get UPDATE method
+                CLR             C                 ; Need zero here
+                RL              A                 ; AJMP is a two-byte opcode
+                MOV             DPTR, #UpdateTable ; Table of AJMPs
+                JMP             @A+DPTR           ; Do it!
+Timer0_Exit:
+                POP             DPH               ; Restore these
+                POP             DPL
+                RET                               ; And finished!
+UpdateTable:
+                AJMP            UpdatePixel
+                AJMP            UpdateLEDPixel
+                AJMP            UpdateLEDColour
+                AJMP            UpdateLEDRow
+                AJMP            UpdateRowPixel
+                AJMP            UpdateRowLED
+;               AJMP            UpdateRowColour   ; Just being clever...
+UpdateRowColour:
+                JMP             Timer0_Exit
 
-Timer0_Handler:
-                SetBank         LEDBank
+UpdatePixel:
+                JMP             Timer0_Exit
+UpdateLEDPixel:
+                JMP             Timer0_Exit
+UpdateLEDColour:
+                JMP             Timer0_Exit
+UpdateLEDRow:
+                JMP             Timer0_Exit
+UpdateRowPixel:
+                JMP             Timer0_Exit
+UpdateRowLED:
+                JMP             Timer0_Exit
 
 ; ***UPDATE
                 DJNZ            LEDCycle, Cycle   ; Still in current cycle?
@@ -204,13 +239,7 @@ Timer0_Handler:
                 JNZ             NewRow            ; A not zero (yet)
 
                 ; New frame started! Copy frame across
-                SETB            EA                ; Enable ints during copy
-                PUSH            DPL               ; Need these registers now...
-                PUSH            DPH
-                CopyFrame
-                POP             DPH               ; Don't need these anymore
-                POP             DPL
-                CLR             EA                ; Disable ints again
+                ACALL           CopyFrame
 
                 MOV             LEDIndex, #aPWM
                 SETB            LED_Frame
@@ -254,8 +283,21 @@ RowNext:
                 MOV             pBlue,  LEDBlue
                 MOV             pGreen, LEDGreen
                 MOV             pRed,   LEDRed
+                AJMP            Timer0_Exit
+;...............................................................................
+CopyFrame:
+                SETB            EA                ; Allow interrupts during copy
+                MOV             DPTR, #aFrame     ; Source area
+                MOV             R0, #aPWM         ; Destination area
 
+                MOV             R7, #nLEDs        ; This many LEDs
+CopyLoop:
+                MOVX            A, @DPTR
+                MOVX            @R0, A
+                INC             DPTR
+                INC             R0
+                DJNZ            R7, CopyLoop
+                CLR             EA                ; That's enough!
                 RET
-
 ;===============================================================================
                 END
