@@ -7,12 +7,14 @@
                 NAME            UART
 
                 $INCLUDE        (PSW.inc)
+                $INCLUDE        (AUXR1.inc)       ; Need AUX R1 SFRs
 
-                PUBLIC          UART_Init
+                PUBLIC          UART_1_Init
+                PUBLIC          UART_2_Init
                 PUBLIC          UART_RXed
 
-                PUBLIC          UART_1ISR
-                PUBLIC          UART_2ISR
+                PUBLIC          UART_1_ISR
+                PUBLIC          UART_2_ISR
 
 UARTBank        EQU             1       ; Register bank used in UART interrupt
 
@@ -38,17 +40,21 @@ aRXBuffEnd      EQU             $
 UART            SEGMENT         CODE
                 RSEG            UART
 
+UART_1_Init:
+                AJMP            UART_Init
+
+UART_2_Init:
 UART_Init:
                 RET
 
 ;-------------------------------------------------------------------------------
-UART_1ISR:
+UART_1_ISR:
                 USING           UARTBank
 
                 SJMP            UARTISR
 
 ;-------------------------------------------------------------------------------
-UART_2ISR:
+UART_2_ISR:
                 USING           UARTBank
 
 ;               SJMP            UARTISR

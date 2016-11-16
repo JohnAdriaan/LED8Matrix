@@ -13,8 +13,8 @@
 
                 PUBLIC          Timer_Init
 
-                PUBLIC          Timer_0ISR
-;               PUBLIC          Timer_1ISR
+                PUBLIC          Timer_0_ISR
+;               PUBLIC          Timer_1_ISR
 
 ;===============================================================================
 Timer           SEGMENT         CODE
@@ -24,7 +24,7 @@ Timer_Init:
                 RET
 
 ;-------------------------------------------------------------------------------
-Timer_0ISR:
+Timer_0_ISR:
                 PUSH            PSW
                 PUSH            ACC
                 ACALL           Timer0_Handler

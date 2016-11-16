@@ -11,15 +11,15 @@
                 NAME            Vector
 
                 EXTRN   CODE   (Reset_ISR)
-;               EXTRN   CODE   (Int_0ISR)
-                EXTRN   CODE   (Timer_0ISR)
-;               EXTRN   CODE   (Int_1ISR)
-;               EXTRN   CODE   (Timer_1ISR)
-;               EXTRN   CODE   (UART_1ISR)
+;               EXTRN   CODE   (Int_0_ISR)
+                EXTRN   CODE   (Timer_0_ISR)
+;               EXTRN   CODE   (Int_1_ISR)
+;               EXTRN   CODE   (Timer_1_ISR)
+;               EXTRN   CODE   (UART_1_ISR)
 ;               EXTRN   CODE   (LVD_ISR)
 ;               EXTRN   CODE   (ADC_ISR)
 ;               EXTRN   CODE   (PCA_ISR)
-                EXTRN   CODE   (UART_2ISR)
+                EXTRN   CODE   (UART_2_ISR)
 ;               EXTRN   CODE   (SPI_ISR)
 
 ;===============================================================================
@@ -36,21 +36,21 @@ ResetVector:    JMP             Reset_ISR
 
 ;-------------------------------------------------------------------------------
                 ORG             0000Bh
-Timer0Vector:   JMP             Timer_0ISR
+Timer0Vector:   JMP             Timer_0_ISR
 
 ;-------------------------------------------------------------------------------
                 ORG             00013h
-;Int1Vector:    JMP             Int_1ISR
+;Int1Vector:    JMP             Int_1_ISR
                 RETI
 
 ;-------------------------------------------------------------------------------
                 ORG             0001Bh
-;Timer1Vector:  JMP             Timer_1ISR
+;Timer1Vector:  JMP             Timer_1_ISR
                 RETI
 
 ;-------------------------------------------------------------------------------
                 ORG             00023h
-;UART1Vector:   JMP             UART_1ISR
+;UART1Vector:   JMP             UART_1_ISR
                 RETI
 
 ;-------------------------------------------------------------------------------
@@ -70,7 +70,7 @@ Timer0Vector:   JMP             Timer_0ISR
 
 ;-------------------------------------------------------------------------------
                 ORG             00043h
-UART2Vector:    JMP             UART_2ISR
+UART2Vector:    JMP             UART_2_ISR
 
 ;-------------------------------------------------------------------------------
                 ORG             0004Bh
