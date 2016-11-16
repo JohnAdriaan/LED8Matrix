@@ -149,13 +149,13 @@ mV_CPU          EQU             5000
 %*DEFINE         (Entry(uA))    (%Setting(%OHMS_Anode(%uA)), %Setting(%OHMS_Red(%uA)))
 
 Set_Table:
-Set_Row_All:     DB             %Entry(Port_uA_Row)
-Set_Row_One:     DB             %Entry(Port_uA_Colour)
-Set_Row_Colour:  DB             %Entry(Port_uA_Colour)
 Set_Pixel:       DB             %Entry(Port_uA_Pixel)
 Set_LED_Pixel:   DB             %Entry(Port_uA_LED)
+Set_LED_Colour:  DB             %Entry(Port_uA_LED)
 Set_LED_Row:     DB             %Entry(Port_uA_LED)
-Set_LED_All:     DB             %Entry(Port_uA_LED)
+Set_Row_Pixel:   DB             %Entry(Port_uA_Row)
+Set_Row_LED:     DB             %Entry(Port_uA_Colour)
+Set_Row_Colour:  DB             %Entry(Port_uA_Colour)
 
 ELSE
 __ERROR__       "BOARD not defined!"
