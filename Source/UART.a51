@@ -41,9 +41,18 @@ UART            SEGMENT         CODE
                 RSEG            UART
 
 UART_1_Init:
+; ***               MOV             R0,
                 AJMP            UART_Init
 
 UART_2_Init:
+; ***                MOV             R0,
+                JZ              UART_Init
+
+                MOV             A, rAUXR1
+                ORL             A, #mS2_P4        ; Move UART2 to P4
+                MOV             rAUXR1, A
+
+; ***                MOV             R0,
 UART_Init:
                 RET
 

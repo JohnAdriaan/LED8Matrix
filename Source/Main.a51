@@ -51,15 +51,15 @@
                 NAME            Main
 
                 $INCLUDE        (IE.inc)          ; Need Interrupt Enable SFRs
-                $INCLUDE        (AUXR1.inc)       ; Need AUX R1 SFRs
                 $INCLUDE        (PCON.inc)        ; Need Power Control SFRs
+                $INCLUDE        (Options.inc)
 
                 PUBLIC          Reset_ISR         ; Publish this for Vectors
 
                 EXTERN   DATA   (CPU_Stack)
 
                 EXTERN   CODE   (CPU_Init)
-                EXTERN   CODE   (UART_Init)
+                EXTERN   CODE   (UART_2_Init)
                 EXTERN   CODE   (Timer_Init)
                 EXTERN   CODE   (Flash_Init)
                 EXTERN   CODE   (DigiPot_Init)
@@ -77,18 +77,15 @@ Main            SEGMENT         CODE
 Reset_ISR:
                 MOV             SP, #CPU_Stack-1  ; Better (upgoing) Stack addr
                 CALL            CPU_Init          ; Initialise CPU SFRs
-
-                MOV             A, rAUXR1
-                ORL             A, #mS2_P4        ; Move UART2 to P4
-                MOV             rAUXR1, A
-                CALL            UART_Init         ; Initialise UART2
+                MOV             A, #1             ; Move UART2 to Port 4
+                CALL            UART_2_Init       ; Initialise UART2
 
                 CALL            Timer_Init        ; Initialise Timer0
                 CALL            Flash_Init        ; Initialise Flash
                 CALL            DigiPot_Init      ; Initialise Digital Pots
                 CALL            LED_Init          ; Initialise LED matrix
 
-                CLR             A                 ; Lowest mode
+                MOV             A, #UPDATE        ; Starting mode
 Recycle:
                 CALL            DigiPot_Set
                 SETB            EA                ; Enable all interrupts
