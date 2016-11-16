@@ -35,16 +35,19 @@ nLEDs           EQU             nLEDsPerRow * nRows
 
 LEDBank         EQU             3  ; Register bank used in LED interrupt
 
-LEDIndex        EQU             R1 ; Index of row into decrement area
-                SFR rLEDIndex = LEDBank*8 + 1
+LEDPtr          EQU             R0
 
-LEDCycle        EQU             R2 ; Where we are in the countdown cycle
-                SFR rLEDCycle = LEDBank*8 + 2
+LEDBGRPtr       EQU             R1
+                SFR rBGRStart = LEDBank*8 + 2
+LEDBlue         EQU             R2
+LEDGreen        EQU             R3
+LEDRed          EQU             R4
+                SFR rBGREnd   = LEDBank*8 + 5
 
-LEDMask         EQU             R4 ; Current LED Mask to set
-LEDBlue         EQU             R5
-LEDGreen        EQU             R6
-LEDRed          EQU             R7
+LEDMask         EQU             R5 ; Current LED Mask to set
+LEDIndex        EQU             R6 ; Index of row into decrement area
+LEDCycle        EQU             R7 ; Where we are in the countdown cycle
+                SFR rLEDCycle = LEDBank*8 + 7
 
 IF (BOARD=BOARD_Resistor)
                 SFR   pAnode  = pP2  ; 0A0h
@@ -200,6 +203,7 @@ Timer0_Exit:
                 POP             DPH               ; Restore these
                 POP             DPL
                 RET                               ; And finished!
+;...............................................................................
 UpdateTable:
                 AJMP            UpdatePixel
                 AJMP            UpdateLEDPixel
@@ -208,42 +212,36 @@ UpdateTable:
                 AJMP            UpdateRowPixel
                 AJMP            UpdateRowLED
 ;               AJMP            UpdateRowColour   ; Just being clever...
+;...............................................................................
 UpdateRowColour:
 ; One Colour per Row changes per cycle (B0.0-7,B1.0-7,)  (8)
-                JMP             Timer0_Exit
-
+                AJMP            Timer0_Exit
+;...............................................................................
 UpdatePixel:
 ; One Pixel changes per cycle (BGR0.0,BGR0.1,)           (3)
-                JMP             Timer0_Exit
-
+                AJMP            Timer0_Exit
+;...............................................................................
 UpdateLEDPixel:
 ; One Colour changes per cycle (B0.0,G0.0,R0.0,B0.1,)    (1)
-                JMP             Timer0_Exit
-
+                AJMP            Timer0_Exit
+;...............................................................................
 UpdateLEDColour:
 ; One LED changes per cycle (B0.0,B0.1,..,B1.0,B1.1,)    (1)
-                JMP             Timer0_Exit
-
+                AJMP            Timer0_Exit
+;...............................................................................
 UpdateLEDRow:
 ; One LED changes per cycle (B0.0,B0.1,..,G0.0,G0.1,)    (1)
-                JMP             Timer0_Exit
-
+                AJMP            Timer0_Exit
+;...............................................................................
 UpdateRowPixel:
 ; One whole Row changes per cycle (BGR0.01234567,)     (8*3)
-                JMP             Timer0_Exit
-
-UpdateRowLED:
-; One Colour each Row changes per cycle (B0.0-7,G0.0-7,) (8)
-                JMP             Timer0_Exit
-
-; ***UPDATE
                 DJNZ            LEDCycle, Cycle   ; Still in current cycle?
 
                 ; New row started!
                 MOV             A, #0FFh          ; Set all Cathodes high
-                MOV             pRed,   A
-                MOV             pGreen, A
                 MOV             pBlue,  A
+                MOV             pGreen, A
+                MOV             pRed,   A
 
                 CLR             C                 ; Need zero Carry
                 MOV             A, pAnode         ; Current Anode (init 000h)
@@ -253,8 +251,8 @@ UpdateRowLED:
                 ; New frame started! Copy frame across
                 ACALL           CopyFrame
 
-                MOV             LEDIndex, #aPWM
                 SETB            LED_Frame
+                MOV             LEDIndex, #aPWM
                 MOV             pAnode, #00000001b ; Restart Anode
                 SJMP            Cycle
 
@@ -276,16 +274,19 @@ Cycle:
                 MOV             A, #00000001b     ; Start LEDMask value
 RowLoop:
                 MOV             LEDMask, A
-; *** Initialise which colour register
-CellLoop: ; One cell is ether an LED or a Pixel
+                MOV             LEDBGRPtr, #rBGRStart
+LEDLoop:
                 MOVX            A, @R0            ; Get current LED value
-                JZ              CellNext          ; Jump if A is Zero
+                JZ              LEDNext           ; Jump if A is Zero
                 DEC             A                 ; PWM LED value
                 MOVX            @R0, A            ; and store back
 ; *** Zero bit indicated by LEDMask in current colour register
-CellNext:
-; *** Go to next colour register
-                JNZ             CellLoop          ; *** or whatever
+                MOV             A, LEDMask        ; Get LED Mask
+                XRL             A, @LEDBGRPtr     ; XOR with current colour
+                MOV             @LEDBGRPtr, A     ; Save back
+LEDNext:
+                INC             LEDBGRPtr         ; Next colour
+                CJNE            LEDBGRPtr, #rBGREnd, LEDLoop
 RowNext:
                 CLR             C                 ; Need zero in Carry
                 MOV             A, LEDMask        ; Where are we in the mask?
@@ -295,6 +296,10 @@ RowNext:
                 MOV             pBlue,  LEDBlue
                 MOV             pGreen, LEDGreen
                 MOV             pRed,   LEDRed
+                AJMP            Timer0_Exit
+;...............................................................................
+UpdateRowLED:
+; One Colour each Row changes per cycle (B0.0-7,G0.0-7,) (8)
                 AJMP            Timer0_Exit
 ;...............................................................................
 CopyFrame:
