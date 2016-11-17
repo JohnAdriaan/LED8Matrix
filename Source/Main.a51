@@ -60,7 +60,7 @@
 
                 EXTERN   CODE   (CPU_Init)
                 EXTERN   CODE   (UART_2_Init)
-                EXTERN   CODE   (Timer_Init)
+                EXTERN   CODE   (Timer_0_Init)
                 EXTERN   CODE   (Flash_Init)
                 EXTERN   CODE   (DigiPot_Init)
                 EXTERN   CODE   (DigiPot_Set)
@@ -80,7 +80,7 @@ Reset_ISR:
                 MOV             A, #1             ; Move UART2 to Port 4
                 CALL            UART_2_Init       ; Initialise UART2
 
-                CALL            Timer_Init        ; Initialise Timer0
+                CALL            Timer_0_Init      ; Initialise Timer0
                 CALL            Flash_Init        ; Initialise Flash
                 CALL            DigiPot_Init      ; Initialise Digital Pots
                 CALL            LED_Init          ; Initialise LED matrix

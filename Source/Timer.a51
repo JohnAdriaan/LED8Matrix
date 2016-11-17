@@ -11,7 +11,8 @@
                 EXTERN   CODE   (Timer0_Handler)
 ;               EXTERN   CODE   (Timer1_Handler)
 
-                PUBLIC          Timer_Init
+                PUBLIC          Timer_0_Init
+                PUBLIC          Timer_1_Init
 
                 PUBLIC          Timer_0_ISR
 ;               PUBLIC          Timer_1_ISR
@@ -20,10 +21,14 @@
 Timer           SEGMENT         CODE
                 RSEG            Timer
 
-Timer_Init:
+Timer_0_Init:
                 RET
 
 ;-------------------------------------------------------------------------------
+Timer_1_Init:
+                RET
+
+;===============================================================================
 Timer_0_ISR:
                 PUSH            PSW
                 PUSH            ACC
@@ -33,7 +38,7 @@ Timer_0_ISR:
                 RETI
 
 ;-------------------------------------------------------------------------------
-;Timer_1ISR:
+;Timer_1_ISR:
 ;               PUSH            PSW
 ;               PUSH            ACC
 ;               ACALL           Timer1_Handler
