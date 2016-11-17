@@ -6,7 +6,8 @@
 ; mechanisms that I could use:
 ; * UPDATE is bit-clever, so the Update routine could test the different bits to
 ;   decide what to do. The problem is that that uses CPU cycles inside the
-;   interrupt to work out what to do - but the code would be smaller!
+;   interrupt to work out what to do (as opposed to cycles to determine which
+;   interrupt to vector off) - but the code could be smaller!
 ; * The alternative is to quickly vector off the current UPDATE to specific
 ;   routines, written to carefully maintain state within the register bank from
 ;   interrupt to interrupt. Cute - I just need to remember to zero the variables
@@ -187,6 +188,7 @@ InitIO:
                 MOV             pGreen, A
                 MOV             pBlue,  A
 
+                MOV             pAnode, #080h     ; Simulate end position
                 RET
 ;-------------------------------------------------------------------------------
 Timer0_Handler:                                   ; PSW and ACC saved
