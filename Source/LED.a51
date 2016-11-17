@@ -235,67 +235,62 @@ UpdateLEDRow:
 ;...............................................................................
 UpdateRowPixel:
 ; One whole Row changes per cycle (BGR0.01234567,)     (8*3)
-                DJNZ            LEDCycle, Cycle   ; Still in current cycle?
-
-                ; New row started!
-                MOV             A, #0FFh          ; Set all Cathodes high
-                MOV             pBlue,  A
-                MOV             pGreen, A
-                MOV             pRed,   A
-
-                CLR             C                 ; Need zero Carry
-                MOV             A, pAnode         ; Current Anode (init 000h)
-                RLC             A                 ; Change which Anode
-                JNZ             NewRow            ; A not zero (yet)
+                JNB             pAnode.7, NextRow ; Not at end of Anodes? Go on!
+                DJNZ            LEDCycle, NextRow ; Still in current cycle?
 
                 ; New frame started! Copy frame across
                 ACALL           CopyFrame
 
                 SETB            LED_Frame
                 MOV             LEDIndex, #aPWM
-                MOV             pAnode, #00000001b ; Restart Anode
                 SJMP            Cycle
 
-NewRow:
-                MOV             pAnode, A         ; Save new Row mask back
+NextRow:
                 MOV             A, LEDIndex       ; Current row
                 ADD             A, #nLEDsPerRow   ; New position
                 MOV             LEDIndex, A       ; Into index
 
 Cycle:
+                MOV             DPH, #000h         ; Decrement area
                 MOV             A, #0FFh           ; All bits off (Cathode!)
                 MOV             LEDBlue,  A
                 MOV             LEDGreen, A
                 MOV             LEDRed,   A
 
                 MOV             A, LEDIndex       ; Current Row index
-                MOV             R0, A             ; Into index register
+                MOV             DPL, A            ; Into pointer
 
                 MOV             A, #00000001b     ; Start LEDMask value
-RowLoop:
+PixelLoop:
                 MOV             LEDMask, A
                 MOV             LEDBGRPtr, #rBGRStart
 LEDLoop:
-                MOVX            A, @R0            ; Get current LED value
+                MOVX            A, @DPTR          ; Get current LED value
                 JZ              LEDNext           ; Jump if A is Zero
                 DEC             A                 ; PWM LED value
-                MOVX            @R0, A            ; and store back
-; *** Zero bit indicated by LEDMask in current colour register
+                MOVX            @DPTR, A          ; and store back
+
+; Zero bit indicated by LEDMask in current colour register
                 MOV             A, LEDMask        ; Get LED Mask
                 XRL             A, @LEDBGRPtr     ; XOR with current colour
                 MOV             @LEDBGRPtr, A     ; Save back
 LEDNext:
                 INC             LEDBGRPtr         ; Next colour
                 CJNE            LEDBGRPtr, #rBGREnd, LEDLoop
-RowNext:
+
                 CLR             C                 ; Need zero in Carry
                 MOV             A, LEDMask        ; Where are we in the mask?
                 RLC             A
-                JNZ             RowLoop           ; Still more to do
+                JNZ             PixelLoop         ; Still more to do
 
+                CLR             A                 ; Zero A
+                XCH             A, pAnode         ; Into current Anode
+                RL              A                 ; Change which Anode
                 MOV             pBlue,  LEDBlue
                 MOV             pGreen, LEDGreen
                 MOV             pRed,   LEDRed
+                MOV             pAnode, A         ; Save new Anode back
+
                 AJMP            Timer0_Exit
 ;...............................................................................
 UpdateRowLED:
@@ -305,15 +300,16 @@ UpdateRowLED:
 CopyFrame:
                 SETB            EA                ; Allow interrupts during copy
                 MOV             DPTR, #aFrame     ; Source area
-                MOV             R0, #aPWM         ; Destination area
 
                 MOV             R7, #nLEDs        ; This many LEDs
 CopyLoop:
-                MOVX            A, @DPTR
-                MOVX            @R0, A
-                INC             DPTR
-                INC             R0
+                MOVX            A, @DPTR          ; Get byte to copy
+                DEC             DPH               ; Destination area
+                MOVX            @DPTR, A          ; Store in decrement area
+                INC             DPH               ; Back to Source area
+                INC             DPTR              ; Next byte
                 DJNZ            R7, CopyLoop
+
                 CLR             EA                ; That's enough!
                 RET
 ;===============================================================================
