@@ -6,6 +6,9 @@
 
                 NAME            UART
 
+                $INCLUDE        (Options.inc)
+
+                $INCLUDE        (IE.inc)
                 $INCLUDE        (PSW.inc)
                 $INCLUDE        (AUXR1.inc)       ; Need AUX R1 SFRs
 
@@ -17,6 +20,8 @@
                 PUBLIC          UART_2_ISR
 
 UARTBank        EQU             1       ; Register bank used in UART interrupt
+
+UART_BRT        EQU             256 - (CPU_Freq/Baud_Rate/32)
 
 ;===============================================================================
 UARTBits        SEGMENT         BIT
@@ -56,22 +61,30 @@ UART_2_Init:
 UART_Init:
                 RET
 
-;-------------------------------------------------------------------------------
+;===============================================================================
+                USING           UARTBank
+
 UART_1_ISR:
-                USING           UARTBank
-
+                PUSH            ACC
+;                MOV             A, #
                 SJMP            UARTISR
-
-;-------------------------------------------------------------------------------
 UART_2_ISR:
-                USING           UARTBank
-
+                PUSH            ACC
+;                MOV             A, #
 ;               SJMP            UARTISR
 
 ;-------------------------------------------------------------------------------
 UARTISR:
-                USING           UARTBank
+                PUSH            PSW
+                SetBank         UARTBank
+                PUSH            DPL
+                PUSH            DPH
 
+
+                POP             DPH
+                POP             DPL
+                POP             PSW
+                POP             ACC
                 RETI
 
 ;===============================================================================

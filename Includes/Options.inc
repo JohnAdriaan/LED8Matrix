@@ -22,12 +22,14 @@ BOARD_DigiPot   EQU             2
 BOARD           EQU             BOARD_DigiPot
 
 IF (BOARD=BOARD_Resistor)
-CPU_Freq        EQU             21600
+CPU_Freq        EQU             21600  ; 11,059,200 Hz in 512*Hz
 ELSEIF (BOARD=BOARD_DigiPot)
-CPU_Freq        EQU             64800
+CPU_Freq        EQU             64800  ; 33,177,600 Hz in 512*Hz
 ELSE
 __ERROR__       "BOARD not defined!"
 ENDIF
+
+Baud_Rate       EQU             225    ; 115,200 in 512*Hz
 
 ; * A "cycle" is a single count downwards of the LED value(s) - one PWM cycle.
 ;   - This is embodied in a single interrupt - whatever the interrupt does.
