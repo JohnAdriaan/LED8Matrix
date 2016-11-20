@@ -36,19 +36,20 @@ nLEDs           EQU             nLEDsPerRow * nRows
 
 LEDBank         EQU             3  ; Register bank used in LED interrupt
 
-LEDPtr          EQU             R0
+LEDPtr          EQU             R0 ; Pointer into decrement area
 
-LEDBGRPtr       EQU             R1
+LEDBGRPtr       EQU             R1 ; Pointer to LED Color bit registers
                 SFR rBGRStart = LEDBank*8 + 2
 LEDBlue         EQU             R2
 LEDGreen        EQU             R3
 LEDRed          EQU             R4
                 SFR rBGREnd   = LEDBank*8 + 5
 
-LEDMask         EQU             R5 ; Current LED Mask to set
-LEDIndex        EQU             R6 ; Index of row into decrement area
-LEDCycle        EQU             R7 ; Where we are in the countdown cycle
-                SFR rLEDCycle = LEDBank*8 + 7
+LEDAnode        EQU             R5 ; Current Anode
+                SFR rLEDAnode = LEDBank*8 + 5
+
+LEDMask         EQU             R6 ; Current LED Mask to set
+LEDIndex        EQU             R7 ; Index of row into decrement area
 
 IF (BOARD=BOARD_Resistor)
                 SFR   pAnode  = pP2  ; 0A0h
@@ -81,7 +82,8 @@ LEDData         SEGMENT         DATA
                 RSEG            LEDData
 
 LED_Update:     DSB             1
-
+;-------------------------------------------------------------------------------
+LEDCycle:       DSB             1                 ; Where we are in the countdown
 ;===============================================================================
 LEDPWM          SEGMENT         XDATA AT 00000h
                 RSEG            LEDPWM
@@ -163,7 +165,8 @@ nLogoSize       EQU             $-Logo
 ;...............................................................................
 InitVars:
                 CLR             LED_Frame         ; Can't generate new frame yet
-                MOV             rLEDCycle, #1     ; Simulate new Frame
+                MOV             LEDCycle, #1      ; Pretend at end of Frame
+                MOV             rLEDAnode, #080h  ; Pretend at last Anode
                 RET
 
 ;...............................................................................
@@ -188,7 +191,6 @@ InitIO:
                 MOV             pGreen, A
                 MOV             pBlue,  A
 
-                MOV             pAnode, #080h     ; Simulate end position
                 RET
 ;-------------------------------------------------------------------------------
 Timer0_Handler:                                   ; PSW and ACC saved
@@ -197,8 +199,7 @@ Timer0_Handler:                                   ; PSW and ACC saved
                 PUSH            DPH
 
                 MOV             A, LED_Update     ; Get UPDATE method
-                CLR             C                 ; Need zero here
-                RLC             A                 ; AJMP is a two-byte opcode
+                ADD             A, ACC            ; AJMP is a two-byte opcode
                 MOV             DPTR, #UpdateTable ; Table of AJMPs
                 JMP             @A+DPTR           ; Do it!
 Timer0_Exit:
@@ -237,7 +238,7 @@ UpdateLEDRow:
 ;...............................................................................
 UpdateRowPixel:
 ; One whole Row changes per cycle (BGR0.01234567,)     (8*3)
-                JNB             pAnode.7, NextRow ; Not at end of Anodes? Go on!
+                CJNE            LEDAnode, #080h, NextRow ; Not at end of Anodes?
                 DJNZ            LEDCycle, NextRow ; Still in current cycle?
 
                 ; New frame started! Copy frame across
@@ -259,8 +260,7 @@ Cycle:
                 MOV             LEDGreen, A
                 MOV             LEDRed,   A
 
-                MOV             A, LEDIndex       ; Current Row index
-                MOV             DPL, A            ; Into pointer
+                MOV             DPL, LEDIndex     ; Current index into pointer
 
                 MOV             A, #00000001b     ; Start LEDMask value
 PixelLoop:
@@ -277,17 +277,19 @@ LEDLoop:
                 XRL             A, @LEDBGRPtr     ; XOR with current colour
                 MOV             @LEDBGRPtr, A     ; Save back
 LEDNext:
+                INC             DPTR              ; Next LED value
                 INC             LEDBGRPtr         ; Next colour
                 CJNE            LEDBGRPtr, #rBGREnd, LEDLoop
 
                 CLR             C                 ; Need zero in Carry
                 MOV             A, LEDMask        ; Where are we in the mask?
                 RLC             A
-                JNZ             PixelLoop         ; Still more to do
+                JNC             PixelLoop         ; Still more to do
 
-                CLR             A                 ; Zero A
-                XCH             A, pAnode         ; Into current Anode
+                MOV             A, LEDAnode       ; Get current LEDAnode
                 RL              A                 ; Change which Anode
+                MOV             LEDAnode, A       ; Remember for next time
+                MOV             pAnode, #0        ; Turn off Anodes
                 MOV             pBlue,  LEDBlue
                 MOV             pGreen, LEDGreen
                 MOV             pRed,   LEDRed
