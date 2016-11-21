@@ -6,6 +6,7 @@
 
                 NAME            Timer
 
+                $INCLUDE        (IE.inc)
                 $INCLUDE        (TCON.inc)
 
                 EXTERN   CODE   (Timer0_Handler)
@@ -22,6 +23,8 @@ Timer           SEGMENT         CODE
                 RSEG            Timer
 
 Timer_0_Init:
+                ORL             rIPH, #mPT0H      ; Set T0 int to priority 11b
+                oRL             rIP,  #mPT0
                 RET
 
 ;-------------------------------------------------------------------------------
