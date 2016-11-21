@@ -41,14 +41,16 @@ CPU             SEGMENT         CODE
 
 CPU_Init:
                 MOV             A, rPCON          ; Read Power Control
-                MOV             R0, #aPower       ; Index
-                MOVX            @R0, A            ; Save in CPUData
+                MOV             DPTR, #aPower     ; Index
+                MOVX            @DPTR, A          ; Save in CPUData
                 ANL             A, #NOT (mLVDF+mPOF); Now turn off these bits
                 MOV             rPCON, A
 
                 MOV             A, rWDT_CONTR     ; Get WatchDog timer
-                ANL             A, #mWDT_FLAG     ; Did it fire? ***
+                ANL             A, #mWDT_FLAG     ; Did it fire?
+                JZ              CPUNoWDT          ; No ***
 
+CPUNoWDT:
                 RET
 
 ;===============================================================================
