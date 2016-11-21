@@ -29,7 +29,7 @@ ELSE
 __ERROR__       "BOARD not defined!"
 ENDIF
 
-Baud_Rate       EQU             225    ; 115,200 in 512*Hz
+BAUD_Rate       EQU             225    ; 115,200 in 512*Hz
 
 ; * A "cycle" is a single count downwards of the LED value(s) - one PWM cycle.
 ;   - This is embodied in a single interrupt - whatever the interrupt does.

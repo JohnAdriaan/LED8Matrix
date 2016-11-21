@@ -428,6 +428,11 @@
               <FileType>5</FileType>
               <FilePath>.\Listings\LED.lst</FilePath>
             </File>
+            <File>
+              <FileName>UART.lst</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Listings\UART.lst</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
