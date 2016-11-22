@@ -1,12 +1,22 @@
 ;
 ; AUXR1.inc
 ;
-; This file defines the AUXR1 SFR and its fields
+; This file defines the AUXR1 SFR, its fields, and some useful definitions
 ;
 
                 $INCLUDE        (John.inc)
 
 DPTR1           EQU             DPTR    ; They're the same SFR - change DPS!
+DP1H            EQU             DPH     ; They're the same SFR - change DPS!
+DP1L            EQU             DPL     ; They're the same SFR - change DPS!
+
+UseDPTR         MACRO
+                ANL             rAUXR1, #NOT mDPS ; Use DPTR0
+                ENDM
+
+UseDPTR1        MACRO
+                ORL             rAUXR1, #mDPS     ; Use DPTR1
+                ENDM
 
 ; AUXiliary1 Register
                 SFR   rAUXR1  =  0A2h
