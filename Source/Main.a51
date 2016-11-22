@@ -67,12 +67,19 @@
                 EXTERN   CODE   (LED_Init)
                 EXTERN   CODE   (LED_Reset)
 
+                EXTERN   CODE   (UART_RX)
+                EXTERN   CODE   (UART_TX_Hex)
+                EXTERN   CODE   (UART_TX_Char)
+                EXTERN   CODE   (UART_TX_Code)
+
                 EXTERN   BIT    (LED_Frame)
                 EXTERN   BIT    (UART_RXed)
 
 ;===============================================================================
 Main            SEGMENT         CODE
                 RSEG            Main
+
+Prompt:         DB              "LED8x8> ", 0
 
 Reset_ISR:
                 MOV             SP, #CPU_Stack-1  ; Better (upgoing) Stack addr
@@ -86,9 +93,13 @@ Reset_ISR:
                 CALL            LED_Init          ; Initialise LED matrix
 
                 MOV             A, #UPDATE        ; Starting mode
+
 Recycle:
                 CALL            DigiPot_Set
                 SETB            EA                ; Enable all interrupts
+TXPrompt:
+                MOV             DPTR, #Prompt
+                CALL            UART_TX_Code
 Executive:
                 JBC             LED_Frame, NextFrame  ; Next frame flag? Clear!
                 JBC             UART_RXed, ProcessCmd ; Next command flag? Clear!
