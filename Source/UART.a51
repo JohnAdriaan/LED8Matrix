@@ -17,13 +17,14 @@
                 PUBLIC          UART_2_Init
 
                 PUBLIC          UART_RX
-                PUBLIC          UART_RXed
                 PUBLIC          UART_TX_Hex
                 PUBLIC          UART_TX_Char
                 PUBLIC          UART_TX_Code
 
                 PUBLIC          UART_1_ISR
                 PUBLIC          UART_2_ISR
+
+                PUBLIC          UART_RXed
 
 EOL             EQU             13      ; Carriage return is end-of-line
 
@@ -66,16 +67,24 @@ BuffersHigh     EQU             003h
 Buffers         SEGMENT         XDATA AT BuffersHigh * 100h
                 RSEG            Buffers
 
-nRXBuff         EQU             192
+BufferSize      EQU             080h ; Set to allow bit manipulation for wrap
 
 aRXBuff         EQU             000h
-                DSB             nRXBuff
-aRXBuffEnd      EQU             LOW (aRXBuff + nRXBuff)
+                DSB             BufferSize
+aTXBuff         EQU             BufferSize
+                DSB             BufferSize
 
-nTXBuff         EQU             64
-aTXBuff         EQU             aRXBuffEnd
-                DSB             nTXBuff
-aTXBuffEnd      EQU             LOW (aTXBuff + nTXBuff)
+WrapRX          MACRO           Reg
+                INC             Reg               ; Zero high bit
+                ANL             Reg, #NOT BufferSize
+                ENDM
+
+; ONLY WrapTX a register (not a variable) when interrupts can happen!
+; This is non-atomic, so there'd be a (small) chance of failure!
+WrapTX          MACRO           Reg
+                INC             Reg               ; Set high bit
+                ORL             Reg, #BufferSize
+                ENDM
 ;===============================================================================
 UART            SEGMENT         CODE
                 RSEG            UART
@@ -118,11 +127,50 @@ UART_TX_Hex: ; ***
                 RET
 ;===============================================================================
 ; Call with A holding character to transmit
-UART_TX_Char: ; ***
+UART_TX_Char:
+                MOV             DPH, #BuffersHigh ; Point to TX Buffer
+                MOV             DPL, TXHead       ; With both halves
+
+                MOVX            @DPTR, A          ; Store character
+
+; DO NOT WrapTX TXHead! It's non-atomic...
+                WrapTX          DPL               ; Move to next TX position
+                MOV             TXHead, DPL       ; Save back
+
+; This should only called when TXEmpty is known to be set (but cleared with JBC)
+TXChar:
+                MOV             DPL, TXTail       ; Get Tail
+                MOVX            A, @DPTR          ; Get char to TX
+
+                WrapTX          TXTail            ; Move to next TX position
+
+                MOV             rS2SBUF, A        ; And transmit it
                 RET
 ;===============================================================================
-; Call with DPTR pointing to ASCIIZ Code string to buffer for transmission
-UART_TX_Code: ; ***
+; Call with DPTR pointing to ASCIIZ string (in CODE) to buffer for transmission
+; Modifies A, R7 and DPTR1
+UART_TX_Code:
+                UseDPTR1                          ; DPTR1 will point to TX buffer
+                MOV             DP1H, #BuffersHigh ; Initialise DPTR1 High
+                MOV             DP1L, TXHead      ; Initialise DPTR1 Low
+TXCodeLoop:
+                UseDPTR                           ; Start with DPTR (into CODE)
+                CLR             A                 ; Need zero here
+                MOVC            A, @A+DPTR        ; Get byte to store
+                JZ              TXCodeEndLoop     ; NUL? Leave!
+                INC             DPTR              ; Next source byte
+
+                UseDPTR1                          ; Switch to DPTR1
+                MOVX            @DPTR1, A         ; Store in TX buffer
+
+; DO NOT WrapTX TXHead! It's non-atomic...
+                WrapTX          DP1L              ; Move to next TX position
+                MOV             TXHead, DP1L      ; Save away while available
+                SJMP            TXCodeLoop        ; And keep going
+
+TXCodeEndLoop:                                    ; At this point, DPTR is back
+                MOV             DPH, #BuffersHigh ; Point to TXBuffer
+                JBC             TXEmpty, TXChar   ; Start TX if Empty (& clear)
                 RET
 ;===============================================================================
 UART_1_ISR:
@@ -155,22 +203,18 @@ ISRLoop:
 RXInt:
                 ANL             rS2CON, #NOT mS2RI ; Reset interrupt flag
 
-                MOV             A, RXHead          ; Where are we up to?
-                MOV             DPL, A             ; Pointer to store to 
-
-                INC             A                  ; Move Head
-                CJNE            A, #aRXBuffEnd, TestFull ; Reached end?
-                MOV             A, #aRXBuff        ; Yes, so wrap buffer
-TestFull:
-                CJNE            A, RXTail, RXStore ; Bumped into Tail?
-                SETB            UART_RXed          ; Yes, so pretend EOL
-RXStore:
-                MOV             RXHead, A          ; Save Head back
+                MOV             DPL, RXHead        ; Where are we up to?
+                WrapRX          RXHead             ; Next RX position
 
                 MOV             A, rS2SBUF         ; Get RXed byte
                 MOVX            @DPTR, A           ; Store it away
 
-                CJNE            A, #EOL, ISRLoop   ; Received End Of Line?
+                CJNE            A, #EOL, RXNotEOL  ; Received end of line?
+                SJMP            RXed               ; Yes! Flag main process
+RXNotEOL:
+                MOV             A, DPL             ; Test for collision
+                CJNE            A, RXTail, ISRLoop ; Collided with RXTail?
+RXed:
                 SETB            UART_RXed          ; Yes, so mark for attention
                 SJMP            ISRLoop            ; Nothing more to do
 ;-------------------------------------------------------------------------------
@@ -178,21 +222,16 @@ TXInt:
                 ANL             rS2CON, #NOT mS2TI ; Reset interrupt flag
 
                 MOV             A, TXTail          ; Where are we up to?
-                CJNE            A, TXHead, MarkEmpty ; End of TX buffer?
+                CJNE            A, TXHead, DoTXInt ; End of TX buffer?
+                SETB            TXEmpty            ; Yes! Mark as empty
+                SJMP            ISRLoop
 
+DoTXInt:
+                WrapTX          TXTail             ; Next TX position
                 MOV             DPL, A             ; Pointer to read from
-
-                INC             A                  ; Move Tail
-                CJNE            A, #aTXBuffEnd, TXNoWrap ; Reached end?
-                MOV             A, #aTXBuff        ; Yes, so wrap buffer
-TXNoWrap:
-                MOV             TXTail, A          ; Save Tail back
 
                 MOVX            A, @DPTR           ; Byte to transmit
                 MOV             rS2SBUF, A         ; Transmit it
-                SJMP            ISRLoop
-MarkEmpty:
-                SETB            TXEmpty            ; Mark as empty
                 SJMP            ISRLoop
 ;===============================================================================
                 END
