@@ -17,7 +17,7 @@
                 PUBLIC          UART_2_Init
 
                 PUBLIC          UART_RX
-                PUBLIC          UART_TX_Hex
+                PUBLIC          UART_TX_Num
                 PUBLIC          UART_TX_Char
                 PUBLIC          UART_TX_Code
 
@@ -67,7 +67,7 @@ BuffersHigh     EQU             003h
 Buffers         SEGMENT         XDATA AT BuffersHigh * 100h
                 RSEG            Buffers
 
-BufferSize      EQU             080h ; Set to allow bit manipulation for wrap
+BufferSize      EQU             080h ; Sized to allow bit manipulation for wrap
 
 aRXBuff         EQU             000h
                 DSB             BufferSize
@@ -93,9 +93,7 @@ UART_1_Init:
                 RET
 
 UART_2_Init:
-                JZ              UART2NoMove
                 ORL             rAUXR1, #mS2_P4   ; Move UART2 to P4
-UART2NoMove:
                 CLR             UART_RXed         ; No command received
                 MOV             RXHead, #aRXBuff
                 MOV             RXTail, #aRXBuff
@@ -106,7 +104,7 @@ UART2NoMove:
                 MOV             rBRT, #UART_BRT   ; Baud Rate Timer value
 
                 ANL             rAUXR, #NOT mBRTx12  ; Don't multiply by 12
-                ORL             rAUXR, #mBRTR        ; Start Buad rate timer
+                ORL             rAUXR, #mBRTR        ; Start Baud rate timer
 
                 ORL             rS2CON, #mS2REN   ; Enable Receive
 
@@ -117,13 +115,72 @@ UART2NoMove:
 
                 RET
 ;===============================================================================
-; Call when UART_RXed indicates something to receive.        (Use JBC UART_RXed)
-; Assigns DPTR to buffer in XRAM, and R7 as # bytes to process. (Could be zero!)
-UART_RX: ; ***
+; ONLY call when UART_RXed indicates something to receive.  (Use JBC UART_RXed,)
+; Returns received byte in A - and could re-set UART_RXed to 1.
+; Modifies DPTR.
+UART_RX:
+                MOV             DPH, #BuffersHigh ; Point to RXBuffer
+                MOV             A, RXTail         ; Current position
+                MOV             DPL, A            ; Into DPTR Low
+                WrapRX          A                 ; Move to next byte
+                MOV             RXTail, A         ; Save it away
+
+                CJNE            A, RXHead, ReRXed ; Reached end of receive?
+                SJMP            RXByte
+ReRXed:
+                SETB            UART_RXed         ; Set flag (might be set!)
+RXByte:
+                MOVX            A, @DPTR          ; Get received byte
                 RET
 ;===============================================================================
-; Call with A holding Hex byte to transmit
-UART_TX_Hex: ; ***
+; Call with A holding number to transmit
+; Modifies B, F1
+UART_TX_Num:
+                MOV             DPH, #BuffersHigh ; Point to TX Buffer
+                MOV             DPL, TXHead       ; With both halves
+
+                CLR             F1                ; Leading zero suppression
+;TXDiv100:
+                MOV             B, #100           ; Divisor
+                DIV             AB                ; A/100->A, A%100->B
+;               JB              F1, TXNum100      ; TX regardless of zero
+                JZ              TXDiv10           ; Zero? Don't TX
+
+;TXNum100:
+                SETB            F1                ; Don't suppress zeroes
+                ADD             A, #'0'           ; Convert to ASCII
+                MOVX            @DPTR, A          ; Store in TX Buffer
+; DO NOT WrapTX TXHead! It's non-atomic...
+                WrapTX          DPL               ; Move to next TX position
+
+TXDiv10:
+                MOV             A, B              ; Get remainder back into A
+                MOV             B, #10            ; Divisor
+                DIV             AB                ; A/10->A, A%10->B
+                JB              F1, TXNum10       ; Print regardless of zero
+                JZ              TXDiv1            ; Zero? Don't print
+
+TXNum10:
+;               SETB            F1                ; Don't suppress zeroes
+                ADD             A, #'0'           ; Convert to ASCII
+                MOVX            @DPTR, A
+; DO NOT WrapTX TXHead! It's non-atomic...
+                WrapTX          DPL               ; Move to next TX position
+
+TXDiv1:
+                MOV             A, B              ; Get remainder back into A
+;               MOV             B, #1             ; Divisor
+;               DIV             AB                ; Not necessary!
+;               JB              F1,               ; Always print final zero
+;               JZ              
+
+                ADD             A, #'0'           ; Convert to ASCII
+                MOVX            @DPTR, A
+; DO NOT WrapTX TXHead! It's non-atomic...
+                WrapTX          DPL               ; Move to next TX position
+TXNumEnd:
+                MOV             TXHead, DPL       ; Save back
+                JBC             TXEmpty, TXChar   ; Transmit this if necessary
                 RET
 ;===============================================================================
 ; Call with A holding character to transmit
@@ -136,8 +193,13 @@ UART_TX_Char:
 ; DO NOT WrapTX TXHead! It's non-atomic...
                 WrapTX          DPL               ; Move to next TX position
                 MOV             TXHead, DPL       ; Save back
+                JBC             TXEmpty, TXChar   ; Transmit this if necessary
+                RET
 
-; This should only called when TXEmpty is known to be set (but cleared with JBC)
+; Jump here if need to set DPH
+TXCharDPH:
+                MOV             DPH, #BuffersHigh ; Point to TXBuffer
+; Only jump here when TXEmpty is known to be set (but already cleared with JBC)
 TXChar:
                 MOV             DPL, TXTail       ; Get Tail
                 MOVX            A, @DPTR          ; Get char to TX
@@ -168,9 +230,8 @@ TXCodeLoop:
                 MOV             TXHead, DP1L      ; Save away while available
                 SJMP            TXCodeLoop        ; And keep going
 
-TXCodeEndLoop:                                    ; At this point, DPTR is back
-                MOV             DPH, #BuffersHigh ; Point to TXBuffer
-                JBC             TXEmpty, TXChar   ; Start TX if Empty (& clear)
+TXCodeEndLoop:                                    ; At this point, back to DPTR
+                JBC             TXEmpty, TXCharDPH; Start TX if Empty (& clear)
                 RET
 ;===============================================================================
 UART_1_ISR:

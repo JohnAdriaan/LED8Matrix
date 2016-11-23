@@ -68,13 +68,18 @@
                 EXTERN   CODE   (LED_Reset)
 
                 EXTERN   CODE   (UART_RX)
-                EXTERN   CODE   (UART_TX_Hex)
+                EXTERN   CODE   (UART_TX_Num)
                 EXTERN   CODE   (UART_TX_Char)
                 EXTERN   CODE   (UART_TX_Code)
 
                 EXTERN   BIT    (LED_Frame)
                 EXTERN   BIT    (UART_RXed)
 
+;===============================================================================
+                USING           3                 ; Inform compiler Reg Bank
+                USING           2
+                USING           1
+                USING           0
 ;===============================================================================
 Main            SEGMENT         CODE
                 RSEG            Main
@@ -84,8 +89,7 @@ Prompt:         DB              "LED8x8> ", 0
 Reset_ISR:
                 MOV             SP, #CPU_Stack-1  ; Better (upgoing) Stack addr
                 CALL            CPU_Init          ; Initialise CPU SFRs
-                MOV             A, #1             ; Move UART2 to Port 4
-                CALL            UART_2_Init       ; Initialise UART2
+                CALL            UART_2_Init       ; Initialise UART2 (Port 4)
 
                 CALL            Timer_0_Init      ; Initialise Timer0
                 CALL            Flash_Init        ; Initialise Flash
