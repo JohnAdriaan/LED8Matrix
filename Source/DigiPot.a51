@@ -64,8 +64,8 @@ DigiPot_Init:
 IF     (BOARD=BOARD_Resistor)
                 RET
 ELSEIF ((BOARD=BOARD_DigiPot) OR (BOARD=BOARD_PLCC40))
-                ORL             rDigiPotM0, #mDigiPot     ; Push/Pull is 1 in M0
-                ANL             rDigiPotM1, #NOT mDigiPot ; ...and 0 in M1
+;               ANL             rDigiPotM1, #NOT mDigiPot ; Push/Pull is 0 in M1
+                ORL             rDigiPotM0, #mDigiPot     ; ...and 1 in M0
                 RET
 
 ;-------------------------------------------------------------------------------

@@ -51,7 +51,7 @@ LEDAnode        EQU             R5 ; Current Anode
 LEDMask         EQU             R6 ; Current LED Mask to set
 LEDIndex        EQU             R7 ; Index of row into decrement area
 
-IF (BOARD=BOARD_PLCC40)
+IF     (BOARD=BOARD_PLCC40)
                 SFR   pAnode  = pP0  ; 080h
                 SFR   pBlue   = pP2  ; 0A0h
                 SFR   pGreen  = pP2  ; 0A0h
@@ -180,11 +180,11 @@ InitIO:
                 MOV             pAnode, A       ; Anodes off
 
                 ; Push/Pull is rPxM1=0 and rPxM0=1
-                MOV             rP0M1, A
-                MOV             rP2M1, A
+;               MOV             rP0M1, A
+;               MOV             rP2M1, A
 IF (BOARD!=BOARD_PLCC40)
-                MOV             rP1M1, A
-                MOV             rP3M1, A
+;               MOV             rP1M1, A
+;               MOV             rP3M1, A
 ENDIF
 
                 CPL             A               ; 0FFh

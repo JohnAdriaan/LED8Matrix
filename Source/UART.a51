@@ -127,13 +127,13 @@ ENDIF
 
                 MOV             rBRT, #UART_BRT   ; Baud Rate Timer value
 
-                ANL             rAUXR, #NOT mBRTx12  ; Don't multiply by 12
+;               ANL             rAUXR, #NOT mBRTx12  ; Don't multiply by 12
                 ORL             rAUXR, #mBRTR        ; Start Baud rate timer
 
                 ORL             rS2CON, #mS2REN   ; Enable Receive
 
                 ORL             rIP2H, #mPS2H     ; Set S2 int to priority 10b
-                ANL             rIP2,  #NOT mPS2
+;               ANL             rIP2,  #NOT mPS2
 
                 ORL             rIE2, #mES2       ; Enable Serial 2 interrupts
 
