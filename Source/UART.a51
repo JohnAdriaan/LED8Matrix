@@ -8,8 +8,10 @@
 
                 $INCLUDE        (Options.inc)
 
-                $INCLUDE        (IE.inc)
                 $INCLUDE        (PSW.inc)
+                $INCLUDE        (IE.inc)
+                $INCLUDE        (P1.inc)
+                $INCLUDE        (P4.inc)
                 $INCLUDE        (AUXR.inc)
                 $INCLUDE        (AUXR1.inc)       ; Need AUX R1 SFRs
 
@@ -45,6 +47,18 @@ DefineBit       S2RI,  rS2CON, 0        ; Serial 2 Receive Interrupt Flag
                 SFR  rBRT   =   09Ch
 
 UART_BRT        EQU             256 - (CPU_Freq/BAUD_Rate/32)
+
+IF (BOARD=BOARD_PLCC40)
+                SFR  pS2    =   pP1
+                SFR  rS2M0  =   rP1M0
+                SFR  rS2M1  =   rP1M1
+ELSE
+                SFR  pS2    =   pP4
+                SFR  rS2M0  =   rP4M0
+                SFR  rS2M1  =   rP4M1
+ENDIF
+DefineBit       S2TX, pS2, 3
+DefineBit       S2RX, pS2, 2
 
 ;===============================================================================
 UARTBits        SEGMENT         BIT
@@ -103,6 +117,13 @@ UART_2_Init:
 IF (BOARD!=BOARD_PLCC40)
                 ORL             rAUXR1, #mS2_P4   ; Move UART2 to P4
 ENDIF
+
+                ; Push/Pull (TX) is rPxM1=0 and rPxM0=1
+                ; Input (RX) is the exact opposite
+;               ANL             rS2M1, #NOT mS2TX
+;               ANL             rS2M0, #NOT mS2RX
+                ORL             rS2M1, #mS2RX
+                ORL             rS2M0, #mS2TX
 
                 MOV             rBRT, #UART_BRT   ; Baud Rate Timer value
 
