@@ -51,16 +51,21 @@ LEDAnode        EQU             R5 ; Current Anode
 LEDMask         EQU             R6 ; Current LED Mask to set
 LEDIndex        EQU             R7 ; Index of row into decrement area
 
-IF (BOARD=BOARD_Resistor)
-                SFR   pAnode  = pP2  ; 0A0h
-                SFR   pBlue   = pP1  ; 090h
-                SFR   pGreen  = pP0  ; 080h
-                SFR   pRed    = pP3  ; 0B0h
+IF (BOARD=BOARD_PLCC40)
+                SFR   pAnode  = pP0  ; 080h
+                SFR   pBlue   = pP2  ; 0A0h
+                SFR   pGreen  = pP2  ; 0A0h
+                SFR   pRed    = pP2  ; 0A0h
 ELSEIF (BOARD=BOARD_DigiPot)
                 SFR   pAnode  = pP0  ; 080h
                 SFR   pBlue   = pP3  ; 0B0h
                 SFR   pGreen  = pP2  ; 0A0h
                 SFR   pRed    = pP1  ; 090h
+ELSEIF (BOARD=BOARD_Resistor)
+                SFR   pAnode  = pP2  ; 0A0h
+                SFR   pBlue   = pP1  ; 090h
+                SFR   pGreen  = pP0  ; 080h
+                SFR   pRed    = pP3  ; 0B0h
 ELSE
 __ERROR__       "BOARD not defined!"
 ENDIF
@@ -176,15 +181,19 @@ InitIO:
 
                 ; Push/Pull is rPxM1=0 and rPxM0=1
                 MOV             rP0M1, A
-                MOV             rP1M1, A
                 MOV             rP2M1, A
+IF (BOARD!=BOARD_PLCC40)
+                MOV             rP1M1, A
                 MOV             rP3M1, A
+ENDIF
 
                 CPL             A               ; 0FFh
                 MOV             rP0M0, A
-                MOV             rP1M0, A
                 MOV             rP2M0, A
+IF (BOARD!=BOARD_PLCC40)
+                MOV             rP1M0, A
                 MOV             rP3M0, A
+ENDIF
 
                 ; Set all Cathodes high (LEDs off)
                 MOV             pRed,   A
@@ -198,10 +207,12 @@ Timer0_Handler:                                   ; PSW and ACC saved
                 PUSH            DPL               ; Need these registers too...
                 PUSH            DPH
 
+IF (BOARD!=BOARD_PLCC40)
                 MOV             A, LED_Update     ; Get UPDATE method
                 ADD             A, ACC            ; AJMP is a two-byte opcode
                 MOV             DPTR, #UpdateTable ; Table of AJMPs
                 JMP             @A+DPTR           ; Do it!
+ENDIF
 Timer0_Exit:
                 POP             DPH               ; Restore these
                 POP             DPL
@@ -315,6 +326,7 @@ CopyLoop:
                 DJNZ            R7, CopyLoop
 
                 CLR             EA                ; That's enough!
+
                 RET
 ;===============================================================================
                 END

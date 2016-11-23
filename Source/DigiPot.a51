@@ -28,15 +28,22 @@
 
                 $INCLUDE        (John.inc)
                 $INCLUDE        (Options.inc)
+                $INCLUDE        (P1.inc)
                 $INCLUDE        (P4.inc)
 
                 PUBLIC          DigiPot_Init
-IF (BOARD=BOARD_DigiPot)
+IF ((BOARD=BOARD_PLCC40) OR (BOARD=BOARD_DigiPot))
                 PUBLIC          DigiPot_Set
 
+IF (BOARD=BOARD_PLCC40)
+                SFR  pDigiPot   = pP1
+                SFR  rDigiPotM0 = rP1M0
+                SFR  rDigiPotM1 = rP1M1
+ELSE
                 SFR  pDigiPot   = pP4
                 SFR  rDigiPotM0 = rP4M0
                 SFR  rDigiPotM1 = rP4M1
+ENDIF
 
 DefineBit       ShDn, pDigiPot, 4
 DefineBit       CS,   pDigiPot, 0
@@ -56,7 +63,7 @@ DigiPot         SEGMENT         CODE
 DigiPot_Init:
 IF     (BOARD=BOARD_Resistor)
                 RET
-ELSEIF (BOARD=BOARD_DigiPot)
+ELSEIF ((BOARD=BOARD_DigiPot) OR (BOARD=BOARD_PLCC40))
                 ORL             rDigiPotM0, #mDigiPot     ; Push/Pull is 1 in M0
                 ANL             rDigiPotM1, #NOT mDigiPot ; ...and 0 in M1
                 RET

@@ -93,13 +93,16 @@ UART_1_Init:
                 RET
 
 UART_2_Init:
-                ORL             rAUXR1, #mS2_P4   ; Move UART2 to P4
                 CLR             UART_RXed         ; No command received
                 MOV             RXHead, #aRXBuff
                 MOV             RXTail, #aRXBuff
                 MOV             TXHead, #aTXBuff
                 MOV             TXTail, #aTXBuff
                 SETB            TXEmpty           ; TX Buffer is empty
+
+IF (BOARD!=BOARD_PLCC40)
+                ORL             rAUXR1, #mS2_P4   ; Move UART2 to P4
+ENDIF
 
                 MOV             rBRT, #UART_BRT   ; Baud Rate Timer value
 

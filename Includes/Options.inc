@@ -10,21 +10,24 @@ $SET (OPTIONS_INC)
 
                 $INCLUDE        (John.inc)
 
-; There are two boards:
-; * BOARD_Resistor has fixed resistors.
+; There are three boards:
+; * BOARD_PLCC40 has no LED, only one single DigiPot
 ; * BOARD_DigiPot has digital potentiometers.
+; * BOARD_Resistor has fixed resistors.
 ; Other than the obvious, the differences are:
+; * 
 ; * For board layout reasons, Cathodes and Anodes are on different I/O ports;
-; * The two boards use different clocks (CPU_Freq, in 512*Hz).
-BOARD_Resistor  EQU             1
-BOARD_DigiPot   EQU             2
+; * The boards boards use different clocks (CPU_Freq, in 512*Hz).
+BOARD_PLCC40    EQU             0
+BOARD_DigiPot   EQU             1
+BOARD_Resistor  EQU             2
 
-BOARD           EQU             BOARD_DigiPot
+BOARD           EQU             BOARD_PLCC40
 
-IF (BOARD=BOARD_Resistor)
-CPU_Freq        EQU             21600  ; 11,059,200 Hz in 512*Hz
-ELSEIF (BOARD=BOARD_DigiPot)
+IF ((BOARD=BOARD_PLCC40) OR (BOARD=BOARD_DigiPot))
 CPU_Freq        EQU             64800  ; 33,177,600 Hz in 512*Hz
+ELSEIF (BOARD=BOARD_Resistor)
+CPU_Freq        EQU             21600  ; 11,059,200 Hz in 512*Hz
 ELSE
 __ERROR__       "BOARD not defined!"
 ENDIF
