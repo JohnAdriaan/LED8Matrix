@@ -1,53 +1,38 @@
 ;
-; Timer.a51
+; Timer0.a51
 ;
-; This file defines the Timer interrupt ISRs, and some useful functions.
+; This file defines the Timer0 ISR, and some useful functions.
 ;
 
-                NAME            Timer
+                NAME            Timer0
 
+                $INCLUDE        (Options.inc)
+
+$IF (TIMER0_Enable)
                 $INCLUDE        (IE.inc)
                 $INCLUDE        (TCON.inc)
 
                 EXTERN   CODE   (Timer0_Handler)
-;               EXTERN   CODE   (Timer1_Handler)
 
-                PUBLIC          Timer_0_Init
-                PUBLIC          Timer_1_Init
-
-                PUBLIC          Timer_0_ISR
-;               PUBLIC          Timer_1_ISR
+                PUBLIC          Timer0_Init
+                PUBLIC          Timer0_ISR
 
 ;===============================================================================
-Timer           SEGMENT         CODE
-                RSEG            Timer
+Timer0          SEGMENT         CODE
+                RSEG            Timer0
 
-Timer_0_Init:
+Timer0_Init:
                 ORL             rIPH, #mPT0H      ; Set T0 int to priority 11b
-                oRL             rIP,  #mPT0
+                ORL             rIP,  #mPT0
                 RET
-
-;-------------------------------------------------------------------------------
-Timer_1_Init:
-                RET
-
 ;===============================================================================
-Timer_0_ISR:
+Timer0_ISR:
                 PUSH            PSW
                 PUSH            ACC
                 ACALL           Timer0_Handler
                 POP             ACC
                 POP             PSW
                 RETI
-
-;-------------------------------------------------------------------------------
-;Timer_1_ISR:
-;               PUSH            PSW
-;               PUSH            ACC
-;               ACALL           Timer1_Handler
-;               POP             ACC
-;               POP             PSW
-;               RETI
-
 ;===============================================================================
+$ENDIF
                 END
