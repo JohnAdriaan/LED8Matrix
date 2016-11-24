@@ -10,6 +10,20 @@ $SET (OPTIONS_INC)
 
                 $INCLUDE        (John.inc)
 
+;$SET (INT0_Enable)
+$SET (TIMER0_Enable)
+;$SET (INT1_Enable)
+;$SET (TIMER1_Enable)
+;$SET (UART1_Enable)
+;$SET (ADC_Enable)
+;$SET (LVD_Enable)
+;$SET (PCA_Enable)
+$SET (UART2_Enable)
+;$SET (SPI_Enable)
+$SET (FLASH_Enable)
+$SET (DIGIPOT_Enable)
+$SET (LED8X8_Enable)
+
 ; There are three boards:
 ; * BOARD_PLCC40 has no LED, only one single DigiPot
 ; * BOARD_DigiPot has digital potentiometers.

@@ -2,80 +2,62 @@
 ; Vector.a51
 ;
 ; This file defines the interrupt vectors at the beginning of the memory map.
-; Not all will be defined, so they're commented out and replaced by RETIs.
+; Not all will be defined, so they're replaced by RETIs.
 ;
 ; It is, of course, possible to remove even these - to save space in the code
 ; memory - but I don't think that's going to be an issue...
 ;
 
+                $INCLUDE       (Options.inc)
+
                 NAME            Vector
 
+Entry           MACRO Enable, Symbol
+$IF (Enable)
+                EXTRN   CODE   (Symbol)
+                JMP             Symbol
+$ELSE
+                RETI
+$ENDIF
+                ENDM
+
                 EXTRN   CODE   (Reset_ISR)
-;               EXTRN   CODE   (Int_0_ISR)
-                EXTRN   CODE   (Timer_0_ISR)
-;               EXTRN   CODE   (Int_1_ISR)
-;               EXTRN   CODE   (Timer_1_ISR)
-;               EXTRN   CODE   (UART_1_ISR)
-;               EXTRN   CODE   (LVD_ISR)
-;               EXTRN   CODE   (ADC_ISR)
-;               EXTRN   CODE   (PCA_ISR)
-                EXTRN   CODE   (UART_2_ISR)
-;               EXTRN   CODE   (SPI_ISR)
 
 ;===============================================================================
 Vector          SEGMENT         CODE AT 00000h
                 RSEG            Vector
 
                 ORG             00000h
-ResetVector:    JMP             Reset_ISR
+                JMP             Reset_ISR
 
-;-------------------------------------------------------------------------------
                 ORG             00003h
-;Int0Vector:    JMP             Int_0ISR
-                RETI
+                Entry           INT0_Enable,    Int0_ISR
 
-;-------------------------------------------------------------------------------
                 ORG             0000Bh
-Timer0Vector:   JMP             Timer_0_ISR
+                Entry           TIMER0_Enable,  Timer0_ISR
 
-;-------------------------------------------------------------------------------
                 ORG             00013h
-;Int1Vector:    JMP             Int_1_ISR
-                RETI
+                Entry           INT1_Enable,    Int1_ISR
 
-;-------------------------------------------------------------------------------
                 ORG             0001Bh
-;Timer1Vector:  JMP             Timer_1_ISR
-                RETI
+                Entry           TIMER1_Enable,  Timer1_ISR
 
-;-------------------------------------------------------------------------------
                 ORG             00023h
-;UART1Vector:   JMP             UART_1_ISR
-                RETI
+                Entry           UART1_Enable,   UART1_ISR
 
-;-------------------------------------------------------------------------------
                 ORG             0002Bh
-;ADCVector:     JMP             ADC_ISR
-                RETI
+                Entry           ADC_Enable,     ADC_ISR
 
-;-------------------------------------------------------------------------------
                 ORG             00033h
-;LVDVector:     JMP             LVD_ISR
-                RETI
+                Entry           LVD_Enable,     LVD_ISR
 
-;-------------------------------------------------------------------------------
                 ORG             0003Bh
-;PCAVector:     JMP             PCA_ISR
-                RETI
+                Entry           PCA_Enable,     PCA_ISR
 
-;-------------------------------------------------------------------------------
                 ORG             00043h
-UART2Vector:    JMP             UART_2_ISR
+                Entry           UART2_Enable,   UART2_ISR
 
-;-------------------------------------------------------------------------------
                 ORG             0004Bh
-;SPIVector:     JMP             SPI_ISR
-                RETI
+                Entry           SPI_Enable,     SPI_ISR
 
-;===============================================================================
                 END
