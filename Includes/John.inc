@@ -4,7 +4,7 @@
 ; This file holds support definitions for standardisation.
 ;
 
-$IF  (JOHN_INC=0)
+$IF  (NOT JOHN_INC)
 $SET (JOHN_INC)
 
 $GEN                            ; Enable macro expansions in listings

@@ -26,8 +26,8 @@
 
                 NAME            DigiPot
 
-                $INCLUDE        (John.inc)
                 $INCLUDE        (Options.inc)
+
                 $INCLUDE        (P1.inc)
                 $INCLUDE        (P4.inc)
 

@@ -5,7 +5,7 @@
 ; * How different UPDATEs work - and the resultant constants
 ;
 
-$IF  (OPTIONS_INC=0)
+$IF  (NOT OPTIONS_INC)
 $SET (OPTIONS_INC)
 
                 $INCLUDE        (John.inc)
@@ -38,7 +38,9 @@ BOARD_Resistor  EQU             2
 
 BOARD           EQU             BOARD_PLCC40
 
-IF ((BOARD=BOARD_PLCC40) OR (BOARD=BOARD_DigiPot))
+IF     (BOARD=BOARD_PLCC40)
+CPU_Freq        EQU             21600  ; 11,059,200 Hz in 512*Hz
+ELSEIF (BOARD=BOARD_DigiPot)
 CPU_Freq        EQU             64800  ; 33,177,600 Hz in 512*Hz
 ELSEIF (BOARD=BOARD_Resistor)
 CPU_Freq        EQU             21600  ; 11,059,200 Hz in 512*Hz
