@@ -50,33 +50,36 @@
 
                 NAME            Main
 
+                $INCLUDE        (Options.inc)
+
                 $INCLUDE        (IE.inc)          ; Need Interrupt Enable SFRs
                 $INCLUDE        (PCON.inc)        ; Need Power Control SFRs
-                $INCLUDE        (Options.inc)
 
                 PUBLIC          Reset_ISR         ; Publish this for Vectors
 
                 EXTERN   DATA   (CPU_Stack)
-
                 EXTERN   CODE   (CPU_Init)
-                EXTERN   CODE   (UART_2_Init)
-                EXTERN   CODE   (Timer_0_Init)
+
+                EXTERN   CODE   (Timer0_Init)
+
+                EXTERN   CODE   (UART2_Init)
+                EXTERN   BIT    (UART2_RXed)
+                EXTERN   CODE   (UART2_RX)
+                EXTERN   CODE   (UART2_TX_Num)
+                EXTERN   CODE   (UART2_TX_Char)
+                EXTERN   CODE   (UART2_TX_Code)
+
                 EXTERN   CODE   (Flash_Init)
+
                 EXTERN   CODE   (DigiPot_Init)
                 EXTERN   CODE   (DigiPot_Set)
+
                 EXTERN   CODE   (LED_Init)
                 EXTERN   CODE   (LED_Reset)
-
-                EXTERN   CODE   (UART_RX)
-                EXTERN   CODE   (UART_TX_Num)
-                EXTERN   CODE   (UART_TX_Char)
-                EXTERN   CODE   (UART_TX_Code)
-
                 EXTERN   BIT    (LED_Frame)
-                EXTERN   BIT    (UART_RXed)
 
 ;===============================================================================
-                USING           3                 ; Inform compiler Reg Bank
+                USING           3                 ; Inform compiler of Reg Banks
                 USING           2
                 USING           1
                 USING           0
@@ -89,9 +92,9 @@ Prompt:         DB              "LED8x8> ", 0
 Reset_ISR:
                 MOV             SP, #CPU_Stack-1  ; Better (upgoing) Stack addr
                 CALL            CPU_Init          ; Initialise CPU SFRs
-                CALL            UART_2_Init       ; Initialise UART2 (Port 4)
+                CALL            UART2_Init        ; Initialise UART2 (Port 4)
 
-                CALL            Timer_0_Init      ; Initialise Timer0
+                CALL            Timer0_Init       ; Initialise Timer0
                 CALL            Flash_Init        ; Initialise Flash
                 CALL            DigiPot_Init      ; Initialise Digital Pots
                 CALL            LED_Init          ; Initialise LED matrix
@@ -103,10 +106,10 @@ Recycle:
                 SETB            EA                ; Enable all interrupts
 TXPrompt:
                 MOV             DPTR, #Prompt
-                CALL            UART_TX_Code
+                CALL            UART2_TX_Code
 Executive:
-                JBC             LED_Frame, NextFrame  ; Next frame flag? Clear!
-                JBC             UART_RXed, ProcessCmd ; Next command flag? Clear!
+                JBC             LED_Frame, NextFrame   ; Next frame flag? Clear!
+                JBC             UART2_RXed, ProcessCmd ; Next command flag? Clear!
                 GoToSleep               ; Nothing to do until next interrupt
                 SJMP            Executive         ; Start again
 
