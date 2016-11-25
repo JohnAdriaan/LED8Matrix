@@ -11,18 +11,18 @@
                 $INCLUDE        (PSW.inc)
                 $INCLUDE        (WDT.inc)
 
-                PUBLIC          CPU_Stack
+                PUBLIC          CPU_Stack_Top
                 PUBLIC          CPU_Init
 
 ;===============================================================================
-StackSegment    SEGMENT         DATA AT 00030h
-                RSEG            StackSegment
+CPU_Stack       SEGMENT         DATA AT 00030h
+                RSEG            CPU_Stack
 
-CPU_Stack:      DSB             32      ; How big should this be?
+CPU_Stack_Top:  DSB             32      ; How big should this be?
 
 ;===============================================================================
-CPUData         SEGMENT         XDATA AT 000F0h
-                RSEG            CPUData
+CPU_Data        SEGMENT         XDATA AT 000F0h
+                RSEG            CPU_Data
 
 aPower:         DSB             1
 aID:            DSB             7                 ; Put here at power-on
@@ -30,8 +30,8 @@ aFreqLast:      DSD             1                 ; Put here at power-on
 aFreqFactory:   DSD             1                 ; Put here at power-on
 
 ;-------------------------------------------------------------------------------
-ExternalRAM     SEGMENT         XDATA AT 00400h
-                RSEG            ExternalRAM
+RAM_External    SEGMENT         XDATA AT 00400h
+                RSEG            RAM_External
 
 NonExistent:    DSB             0FC00h            ; Force "overlay" error
 

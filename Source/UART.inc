@@ -46,15 +46,15 @@ DefineBit       S{U}TI, rS{U}CON, 1     ; Serial Transmit Interrupt Flag
 DefineBit       S{U}RI, rS{U}CON, 0     ; Serial Receive Interrupt Flag
 
 ;===============================================================================
-UART{U}Bits     SEGMENT         BIT
-                RSEG            UART{U}Bits
+UART{U}_Bits    SEGMENT         BIT
+                RSEG            UART{U}_Bits
 
 UART{U}_RXed:   DBIT            1                 ; Set when data received
 ;-------------------------------------------------------------------------------
 TXEmpty:        DBIT            1                 ; Set when TX buffer empty
 ;===============================================================================
-UART{U}Data     SEGMENT         DATA
-                RSEG            UART{U}Data
+UART{U}_Data    SEGMENT         DATA
+                RSEG            UART{U}_Data
 
 RXHead:         DSB             1                 ; In at the Head
 RXTail:         DSB             1

@@ -57,7 +57,7 @@
 
                 PUBLIC          Reset_ISR         ; Publish this for Vectors
 
-                EXTERN   DATA   (CPU_Stack)
+                EXTERN   DATA   (CPU_Stack_Top)
                 EXTERN   CODE   (CPU_Init)
 
                 EXTERN   CODE   (Timer0_Init)
@@ -77,7 +77,7 @@
 
                 EXTERN   CODE   (LED_Init)
                 EXTERN   CODE   (LED_Reset)
-                EXTERN   BIT    (LED_Frame)
+                EXTERN   BIT    (LED_NewFrame)
 
 ;===============================================================================
                 USING           3                 ; Inform compiler of Reg Banks
@@ -91,7 +91,7 @@ Main            SEGMENT         CODE
 Prompt:         DB              "LED8x8> ", 0
 
 Reset_ISR:
-                MOV             SP, #CPU_Stack-1  ; Better (upgoing) Stack addr
+                MOV             SP, #CPU_Stack_Top-1 ; Better (upgoing) Stack addr
                 CALL            CPU_Init          ; Initialise CPU SFRs
                 CALL            Baud_Init         ; Initiaise Baud Rate Timer
                 CALL            UART2_Init        ; Initialise UART2
@@ -110,8 +110,8 @@ TXPrompt:
                 MOV             DPTR, #Prompt
                 CALL            UART2_TX_Code
 Executive:
-                JBC             LED_Frame, NextFrame   ; Next frame flag? Clear!
-                JBC             UART2_RXed, ProcessCmd ; Next command flag? Clear!
+                JBC             LED_NewFrame, NextFrame ; Next frame flag? Clear!
+                JBC             UART2_RXed, ProcessCmd  ; Next command flag? Clear!
                 GoToSleep               ; Nothing to do until next interrupt
                 SJMP            Executive         ; Start again
 

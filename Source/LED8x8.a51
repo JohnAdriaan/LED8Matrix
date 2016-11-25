@@ -73,32 +73,32 @@ ENDIF
 
                 PUBLIC          LED_Init
                 PUBLIC          LED_Reset
-                PUBLIC          LED_Frame
+                PUBLIC          LED_NewFrame
                 PUBLIC          LED_Update
                 PUBLIC          Timer0_Handler
 
 ;===============================================================================
-LEDBits         SEGMENT         BIT
-                RSEG            LEDBits
+LED_Bits        SEGMENT         BIT
+                RSEG            LED_Bits
 
-LED_Frame:      DBIT            1                 ; Set when Frame buffer ready
+LED_NewFrame:   DBIT            1                 ; Set when Frame buffer ready
 
 ;===============================================================================
-LEDData         SEGMENT         DATA
-                RSEG            LEDData
+LED_Data        SEGMENT         DATA
+                RSEG            LED_Data
 
 LED_Update:     DSB             1
 ;-------------------------------------------------------------------------------
 LEDCycle:       DSB             1                 ; Where we are in the countdown
 ;===============================================================================
-LEDPWM          SEGMENT         XDATA AT 00000h
-                RSEG            LEDPWM
+LED_PWM         SEGMENT         XDATA AT 00000h
+                RSEG            LED_PWM
 
 aPWM:           DSB             nLEDs
 
 ;-------------------------------------------------------------------------------
-LEDFrame        SEGMENT         XDATA AT 00100h
-                RSEG            LEDFrame
+LED_Frame       SEGMENT         XDATA AT 00100h
+                RSEG            LED_Frame
 
 aFrame:         DSB             nLEDs
 
@@ -170,7 +170,7 @@ nLogoSize       EQU             $-Logo
 
 ;...............................................................................
 InitVars:
-                CLR             LED_Frame         ; Can't generate new frame yet
+                CLR             LED_NewFrame      ; Can't generate new frame yet
                 MOV             LEDCycle, #1      ; Pretend at end of Frame
                 MOV             rLEDAnode, #080h  ; Pretend at last Anode
                 RET
@@ -256,7 +256,7 @@ UpdateRowPixel:
                 ; New frame started! Copy frame across
                 ACALL           CopyFrame
 
-                SETB            LED_Frame
+                SETB            LED_NewFrame
                 MOV             LEDIndex, #aPWM
                 SJMP            Cycle
 
