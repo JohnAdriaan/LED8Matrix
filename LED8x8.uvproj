@@ -379,14 +379,54 @@
               <FilePath>.\Source\CPU.a51</FilePath>
             </File>
             <File>
+              <FileName>Timer0.a51</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\Source\Timer0.a51</FilePath>
+            </File>
+            <File>
+              <FileName>Timer1.a51</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\Source\Timer1.a51</FilePath>
+            </File>
+            <File>
+              <FileName>Baud.a51</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\Source\Baud.a51</FilePath>
+            </File>
+            <File>
+              <FileName>UART.inc</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Source\UART.inc</FilePath>
+              <FileOption>
+                <CommonProperty>
+                  <UseCPPCompiler>2</UseCPPCompiler>
+                  <RVCTCodeConst>0</RVCTCodeConst>
+                  <RVCTZI>0</RVCTZI>
+                  <RVCTOtherData>0</RVCTOtherData>
+                  <ModuleSelection>0</ModuleSelection>
+                  <IncludeInBuild>0</IncludeInBuild>
+                  <AlwaysBuild>0</AlwaysBuild>
+                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
+                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
+                  <PublicsOnly>0</PublicsOnly>
+                  <StopOnExitCode>11</StopOnExitCode>
+                  <CustomArgument></CustomArgument>
+                  <IncludeLibraryModules></IncludeLibraryModules>
+                  <ComprImg>1</ComprImg>
+                  <BankNo>65535</BankNo>
+                </CommonProperty>
+                <File51/>
+              </FileOption>
+            </File>
+            <File>
               <FileName>UART.a51</FileName>
               <FileType>2</FileType>
               <FilePath>.\Source\UART.a51</FilePath>
             </File>
             <File>
-              <FileName>Timer.a51</FileName>
+              <FileName>UART2.a51</FileName>
               <FileType>2</FileType>
-              <FilePath>.\Source\Timer.a51</FilePath>
+              <FilePath>.\Source\UART2.a51</FilePath>
             </File>
             <File>
               <FileName>Flash.a51</FileName>
@@ -399,9 +439,9 @@
               <FilePath>.\Source\DigiPot.a51</FilePath>
             </File>
             <File>
-              <FileName>LED.a51</FileName>
+              <FileName>LED8x8.a51</FileName>
               <FileType>2</FileType>
-              <FilePath>.\Source\LED.a51</FilePath>
+              <FilePath>.\Source\LED8x8.a51</FilePath>
             </File>
           </Files>
         </Group>
@@ -427,6 +467,11 @@
               <FileName>LED.lst</FileName>
               <FileType>5</FileType>
               <FilePath>.\Listings\LED.lst</FilePath>
+            </File>
+            <File>
+              <FileName>Main.lst</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Listings\Main.lst</FilePath>
             </File>
             <File>
               <FileName>UART.lst</FileName>
