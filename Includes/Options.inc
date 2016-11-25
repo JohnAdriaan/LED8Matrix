@@ -1,6 +1,7 @@
 ;
 ; Options.inc
 ; This file defines which way the code should operate:
+; * Which modules to Enable
 ; * How different BOARDs work - and the resultant constants
 ; * How different UPDATEs work - and the resultant constants
 ;
@@ -27,11 +28,11 @@ $SET (DIGIPOT_Enable)           ; Set to enable DigiPot code
 $SET (LED8X8_Enable)            ; Set to enable LED 8x8 matrix code
 
 ; There are three boards:
-; * BOARD_PLCC40 has no LED, only one single DigiPot
-; * BOARD_DigiPot has digital potentiometers.
+; * BOARD_PLCC40 has no LED, and only one single DigiPot;
+; * BOARD_DigiPot has digital potentiometers;
 ; * BOARD_Resistor has fixed resistors.
 ; Other than the obvious, the differences are:
-; * 
+; * For testing purposes, spare Ports on the PLCC40 version are used for LEDs;
 ; * For board layout reasons, Cathodes and Anodes are on different I/O ports;
 ; * The boards boards use different clocks (CPU_Freq, in 512*Hz).
 BOARD_PLCC40    EQU             0
