@@ -1,7 +1,7 @@
 ;
 ; UART1.a51
 ;
-; This file defines the UART1 ISR, and some useful functiona.
+; This file defines the UART ISR, and some useful functiona.
 ;
 
                 NAME            UART1
@@ -10,23 +10,27 @@
 
 $IF (UART1_Enable)
 
-UART            LIT             'UART1'
+U               LIT             ''                ; UART
 
-                $INCLUDE        (PSW.inc)
-                $INCLUDE        (IE.inc)
-                $INCLUDE        (P1.inc)
-                $INCLUDE        (AUXR.inc)
+                $INCLUDE        (P3.inc)
 
-                PUBLIC          {UART}_Init
-                PUBLIC          {UART}_RXed
+                SFR  rSBUF  =  099h     ; Serial Buffer (RX and TX)
 
-                PUBLIC          {UART}_RX
-                PUBLIC          {UART}_TX_Num
-                PUBLIC          {UART}_TX_Char
-                PUBLIC          {UART}_TX_Code
+                SFR  rSCON  =  098h     ; Serial Control
 
-                PUBLIC          {UART}_ISR
+                SFR  pS     =   pP3
+                SFR  rSM0   =   rP3M0
+                SFR  rSM1   =   rP3M1
+DefineBit       TxD, pS, 1
+DefineBit       RxD, pS, 0
 
+;===============================================================================
+BuffersHigh     EQU             002h
+
+UART_Move       MACRO
+                ENDM
+
+                $INCLUDE        (UART.inc)
 ;===============================================================================
 $ENDIF
                 END
