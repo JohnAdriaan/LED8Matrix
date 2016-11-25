@@ -3,23 +3,23 @@
 ;
 ; This file defines the Digital Potentiometer, and gives some useful functions.
 ;
-; The DigiPot used is the Analog Devices AD8403: quad; 256-step; 10kOhm max.
+; The DigiPot used is the Analog Devices AD5204: quad; 256-step; 10kOhm max.
 ;
 ; All timings are provided as "settle times" - don't do the next step until the
 ; indicated time has elapsed. But also note that a 33.1776 MHz processor does
 ; the simplest instruction in 30 ns...
 ;
 ; The DigiPot command word is sent MSb first:
-;  A1 A0 D7 D6 D5 D4 D3 D2 D1 D0
+;  A2 A1 A0 D7 D6 D5 D4 D3 D2 D1 D0
 ; 
 ; A DigiPot is commanded by:
 ; * Lower CLK   (P4.5)                ( 0ns);
-; * Lower CS    (P4.0)                (10ns);
-; * Repeat for 10n bits (n=#DigiPots in chain):
+; * Lower CS    (P4.0)                (15ns);
+; * Repeat for 11n bits (n=#DigiPots in chain):
 ;   - Set SDI     (P4.1)                ( 5ns);
-;   - Raise CLK   (P4.5)                (10ns);
-;   - Lower CLK   (P4.5)                (10ns, 25ns if chained);
-; * Raise CS    (P4.0)                (10ns)
+;   - Raise CLK   (P4.5)                ( 5ns);
+;   - Lower CLK   (P4.5)                (20ns, 25ns if chained);
+; * Raise CS    (P4.0)                (40ns)
 ;
 ; Note that lowering SHDN (P4.4) open-circuits the DigiPot.
 ;
@@ -105,7 +105,9 @@ SetSend:
                 MOV             A, R1         ; DigiPot to set
                 RR              A             ; Need bottom two bits up high
                 RR              A             ; (since MSb is sent first)
-                MOV             R7, #2        ; Number of bits to send
+                CLR             C
+                RRC             A             ; But third bit needs to be 0
+                MOV             R7, #3        ; Number of bits to send
                 ACALL           SetBits
                 MOV             A, R0         ; Get value to set back
                 MOV             R7, #8        ; Number of bits to send
