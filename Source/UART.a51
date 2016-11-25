@@ -18,16 +18,16 @@ U               LIT             ''                ; UART
 
                 SFR  rSCON  =  098h     ; Serial Control
 
-                SFR  pS     =   pP3
-                SFR  rSM0   =   rP3M0
-                SFR  rSM1   =   rP3M1
-DefineBit       TxD, pS, 1
-DefineBit       RxD, pS, 0
+                SFR  pUART  =  pP3
+                SFR  rSM0   =  rP3M0
+                SFR  rSM1   =  rP3M1
+DefineBit       TxD, pUART, 1
+DefineBit       RxD, pUART, 0
 
 ;===============================================================================
 BuffersHigh     EQU             002h
 
-UART_Move       MACRO
+UART_Move       MACRO                   ; UART can't be moved
                 ENDM
 
                 $INCLUDE        (UART.inc)

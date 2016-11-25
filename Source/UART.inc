@@ -7,11 +7,11 @@
 ;
 ; U           : The LITeral to allow UART{U}_RXed etc. to be defined.
 ; BuffersHigh : The high byte of the XDATA pointer for the RX and TX Buffers.
-; pS{U}       : The Port containing the UART pins
-; rS{U}CON    : The UART CONtrol register
-;   mS{U}REN  ; The Receive Enable mask
+; pUART{U}    : The Port containing the UART pins
 ; rS{U}M[01]  : The M1 and M0 registers for defining UART pin directions
 ;   m[RT]xD{U}: The masks for the RxD and TxD pins on the UART Port
+; rS{U}CON    : The UART CONtrol register
+;   mS{U}REN  ; The Receive Enable mask
 ; rIPS{U}[H]  : The Interrupt Priority High and Low registers
 ;   mPS{U}[H] : The Interrupt Priority High and Low masks
 ; rIES{U}     : The Interrupt Enable register for the UART
@@ -20,6 +20,7 @@
 
                 $INCLUDE        (PSW.inc)
                 $INCLUDE        (IE.inc)
+                $INCLUDE        (AUXR1.inc)       ; Need AUX R1 SFRs
 
                 PUBLIC          UART{U}_Init
                 PUBLIC          UART{U}_RXed
