@@ -1,7 +1,7 @@
 ;
 ; UART2.a51
 ;
-; This file defines the UART2 definitions and some useful functions.
+; This file defines the UART2 symbols and some useful functions.
 ; Those functions are actually defined in UART.inc - to commonalise the code.
 ;
 
@@ -13,18 +13,17 @@ $IF (UART2_Enable)
 
 U               LIT             '2'               ; UART2
 
-                $INCLUDE        (P1.inc)
-                $INCLUDE        (P4.inc)
-
                 SFR  rS2BUF  =  09Bh    ; Serial 2 Buffer (RX and TX)
 
                 SFR  rS2CON  =  09Ah    ; Serial 2 Control
 
 $IF (UART2_Alt)
+                $INCLUDE        (P1.inc)
                 SFR  pUART2 =   pP1
                 SFR  rS2M0  =   rP1M0
                 SFR  rS2M1  =   rP1M1
 $ELSE
+                $INCLUDE        (P4.inc)
                 SFR  pUART2 =   pP4
                 SFR  rS2M0  =   rP4M0
                 SFR  rS2M1  =   rP4M1
@@ -41,7 +40,7 @@ $IF (UART2_Alt)
 $ENDIF
                 ENDM
 
-                $INCLUDE        (UART.inc)
+                $INCLUDE        (UART.inc)        ; Include generic code
 ;===============================================================================
 $ENDIF
                 END

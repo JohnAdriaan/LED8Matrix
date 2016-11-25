@@ -16,4 +16,4 @@ DefineBit       BRTR,      rAUXR, 4     ; Baud Rate Timer Run
 DefineBit       S2SMOD,    rAUXR, 3     ; UART2 Double speed
 DefineBit       BRTx12,    rAUXR, 2     ; Baud Rate Timer x12 speed
 DefineBit       EXTRAM,    rAUXR, 1     ; External RAM only
-DefineBit       S1BRS,     rAUXR, 0     ; UART1 Use Baud Rate Timer (not Timer1)
+DefineBit       S1BRS,     rAUXR, 0     ; Serial 1 use Baud Rate Timer (not Timer1)

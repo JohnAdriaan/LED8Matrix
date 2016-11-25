@@ -43,7 +43,7 @@ Vector          SEGMENT         CODE AT 00000h
                 Entry           TIMER1_Enable,  Timer1_ISR
 
                 ORG             00023h
-                Entry           UART1_Enable,   UART1_ISR
+                Entry           UART_Enable,    UART_ISR
 
                 ORG             0002Bh
                 Entry           ADC_Enable,     ADC_ISR

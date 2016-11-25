@@ -24,7 +24,7 @@ Timer1          SEGMENT         CODE
 
 Timer1_Init:
                 ORL             rIPH, #mPT1H      ; Set T1 int to priority 11b
-                oRL             rIP,  #mPT1
+                ORL             rIP,  #mPT1
                 RET
 ;===============================================================================
 Timer1_ISR:
