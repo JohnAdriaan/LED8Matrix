@@ -1,7 +1,6 @@
 ;
-; LED.a51
+; LED8x8.a51
 ;
-
 ; Given that there are multiple UPDATE options (see Options.inc), there are two
 ; mechanisms that I could use:
 ; * UPDATE is bit-clever, so the Update routine could test the different bits to
@@ -16,7 +15,7 @@
 ; going to blow that. Of course, there are techniques that I could use to burn
 ; the font table independent of the code. Hmmm...
 
-                NAME            LED
+                NAME            LED8x8
 
                 $INCLUDE        (Options.inc)
 
