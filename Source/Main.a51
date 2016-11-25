@@ -62,6 +62,7 @@
 
                 EXTERN   CODE   (Timer0_Init)
 
+                EXTERN   CODE   (Baud_Init)
                 EXTERN   CODE   (UART2_Init)
                 EXTERN   BIT    (UART2_RXed)
                 EXTERN   CODE   (UART2_RX)
@@ -92,7 +93,8 @@ Prompt:         DB              "LED8x8> ", 0
 Reset_ISR:
                 MOV             SP, #CPU_Stack-1  ; Better (upgoing) Stack addr
                 CALL            CPU_Init          ; Initialise CPU SFRs
-                CALL            UART2_Init        ; Initialise UART2 (Port 4)
+                CALL            Baud_Init         ; Initiaise Baud Rate Timer
+                CALL            UART2_Init        ; Initialise UART2
 
                 CALL            Timer0_Init       ; Initialise Timer0
                 CALL            Flash_Init        ; Initialise Flash

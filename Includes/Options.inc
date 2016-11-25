@@ -15,6 +15,7 @@ $SET (OPTIONS_INC)
 $SET (TIMER0_Enable)            ; Set to enable Timer0 code
 ;$SET (INT1_Enable)             ; Set to enable External Int 1 code
 ;$SET (TIMER1_Enable)           ; Set to enable Timer1 code
+$SET (BAUD_Enable)              ; Set to enable Baud Rate Generator
 ;$SET (UART1_Enable)            ; Set to enable UART1 code
 ;$SET (ADC_Enable)              ; Set to enable Analog-digital converter code
 ;$SET (LVD_Enable)              ; Set to enable Low-Voltage Detect code
@@ -26,6 +27,8 @@ $SET (FLASH_Enable)             ; Set to enable Flash memory code
 
 $SET (DIGIPOT_Enable)           ; Set to enable DigiPot code
 $SET (LED8X8_Enable)            ; Set to enable LED 8x8 matrix code
+
+BAUD_Rate       EQU             225    ; 115,200 in 512*Hz
 
 ; There are three boards:
 ; * BOARD_PLCC40 has no LED, and only one single DigiPot;
@@ -53,8 +56,6 @@ CPU_Freq        EQU             21600  ; 11,059,200 Hz in 512*Hz
 ELSE
 __ERROR__       "BOARD not defined!"
 ENDIF
-
-BAUD_Rate       EQU             225    ; 115,200 in 512*Hz
 
 ; * A "cycle" is a single count downwards of the LED value(s) - one PWM cycle.
 ;   - This is embodied in a single interrupt - whatever the interrupt does.
