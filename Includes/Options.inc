@@ -16,7 +16,7 @@ $SET (TIMER0_Enable)            ; Set to enable Timer0 code
 ;$SET (INT1_Enable)             ; Set to enable External Int 1 code
 ;$SET (TIMER1_Enable)           ; Set to enable Timer1 code
 $SET (BAUD_Enable)              ; Set to enable Baud Rate Generator
-;$SET (UART1_Enable)            ; Set to enable UART1 code
+;$SET (UART_Enable)             ; Set to enable UART code
 ;$SET (ADC_Enable)              ; Set to enable Analog-digital converter code
 ;$SET (LVD_Enable)              ; Set to enable Low-Voltage Detect code
 ;$SET (PCA_Enable)              ; Set to enable Programmable Counter code

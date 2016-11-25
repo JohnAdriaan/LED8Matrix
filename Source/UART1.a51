@@ -1,14 +1,14 @@
 ;
-; UART1.a51
+; UART.a51
 ;
 ; This file defines the UART ISR, and some useful functiona.
 ;
 
-                NAME            UART1
+                NAME            UART
 
                 $INCLUDE        (Options.inc)
 
-$IF (UART1_Enable)
+$IF (UART_Enable)
 
 U               LIT             ''                ; UART
 
