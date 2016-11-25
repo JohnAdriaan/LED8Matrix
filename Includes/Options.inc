@@ -10,19 +10,21 @@ $SET (OPTIONS_INC)
 
                 $INCLUDE        (John.inc)
 
-;$SET (INT0_Enable)
-$SET (TIMER0_Enable)
-;$SET (INT1_Enable)
-;$SET (TIMER1_Enable)
-;$SET (UART1_Enable)
-;$SET (ADC_Enable)
-;$SET (LVD_Enable)
-;$SET (PCA_Enable)
-$SET (UART2_Enable)
-;$SET (SPI_Enable)
-$SET (FLASH_Enable)
-$SET (DIGIPOT_Enable)
-$SET (LED8X8_Enable)
+;$SET (INT0_Enable)             ; Set to enable Externel Int 0 code
+$SET (TIMER0_Enable)            ; Set to enable Timer0 code
+;$SET (INT1_Enable)             ; Set to enable External Int 1 code
+;$SET (TIMER1_Enable)           ; Set to enable Timer1 code
+;$SET (UART1_Enable)            ; Set to enable UART1 code
+;$SET (ADC_Enable)              ; Set to enable Analog-digital converter code
+;$SET (LVD_Enable)              ; Set to enable Low-Voltage Detect code
+;$SET (PCA_Enable)              ; Set to enable Programmable Counter code
+$SET (UART2_Enable)             ; Set to enable UART2 code
+$SET (UART2_Alt)                ; Set to move UART2 to alternate pins
+;$SET (SPI_Enable)              ; Set to enable Serial Peripheral Interface code
+$SET (FLASH_Enable)             ; Set to enable Flash memory code
+
+$SET (DIGIPOT_Enable)           ; Set to enable DigiPot code
+$SET (LED8X8_Enable)            ; Set to enable LED 8x8 matrix code
 
 ; There are three boards:
 ; * BOARD_PLCC40 has no LED, only one single DigiPot

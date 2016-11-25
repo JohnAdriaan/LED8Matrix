@@ -28,6 +28,8 @@
 
                 $INCLUDE        (Options.inc)
 
+$IF (DIGIPOT_Enable)
+
                 $INCLUDE        (P1.inc)
                 $INCLUDE        (P4.inc)
 
@@ -165,4 +167,6 @@ Set_Row_Colour:  DB             %Entry(Port_uA_Colour)
 ELSE
 __ERROR__       "BOARD not defined!"
 ENDIF
+;===============================================================================
+$ENDIF
                 END

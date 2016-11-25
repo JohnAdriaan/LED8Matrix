@@ -50,7 +50,7 @@
 
                 NAME            Main
 
-                $INCLUDE        (Options.inc)
+                $INCLUDE        (Options.inc)     ; Enabled options
 
                 $INCLUDE        (IE.inc)          ; Need Interrupt Enable SFRs
                 $INCLUDE        (PCON.inc)        ; Need Power Control SFRs

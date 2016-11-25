@@ -20,6 +20,8 @@
 
                 $INCLUDE        (Options.inc)
 
+$IF (LED8X8_Enable)
+
                 $INCLUDE        (PSW.inc)
                 $INCLUDE        (IE.inc)
                 $INCLUDE        (P0.inc)
@@ -329,4 +331,5 @@ CopyLoop:
 
                 RET
 ;===============================================================================
+$ENDIF
                 END
