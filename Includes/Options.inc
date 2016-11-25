@@ -28,7 +28,12 @@ $SET (FLASH_Enable)             ; Set to enable Flash memory code
 $SET (DIGIPOT_Enable)           ; Set to enable DigiPot code
 $SET (LED8X8_Enable)            ; Set to enable LED 8x8 matrix code
 
-BAUD_Rate       EQU             225    ; 115,200 in 512*Hz
+BAUD_9600       EQU              75   ;   9,600 baud in 128 Hz steps
+BAUD_19200      EQU             150   ;  19,200 baud in 128 Hz steps
+BAUD_38400      EQU             300   ;  38,400 baud in 128 Hz steps
+BAUD_57600      EQU             450   ;  57,600 baud in 128 Hz steps
+BAUD_115200     EQU             900   ; 115,200 baud in 128 Hz steps
+BAUD_Rate       EQU             BAUD_115200
 
 ; There are three boards:
 ; * BOARD_PLCC40 has no LED, and only one single DigiPot;
@@ -44,15 +49,18 @@ BOARD_Resistor  EQU             2
 
 BOARD           EQU             BOARD_PLCC40
 
+CPU_11059200    EQU             21600  ; 11.0592 MHz in 512 Hz steps
+CPU_33177600    EQU             64800  ; 33.1776 MHz in 512 Hz steps
+
 IF     (BOARD=BOARD_PLCC40)
 ;$SET (UART2_Alt)               ; Set to move UART2 to alternate pins
-CPU_Freq        EQU             21600  ; 11,059,200 Hz in 512*Hz
+CPU_Freq        EQU             CPU_11059200
 ELSEIF (BOARD=BOARD_DigiPot)
 $SET (UART2_Alt)                ; Set to move UART2 to alternate pins
-CPU_Freq        EQU             64800  ; 33,177,600 Hz in 512*Hz
+CPU_Freq        EQU             CPU_33177600
 ELSEIF (BOARD=BOARD_Resistor)
 $SET (UART2_Alt)                ; Set to move UART2 to alternate pins
-CPU_Freq        EQU             21600  ; 11,059,200 Hz in 512*Hz
+CPU_Freq        EQU             CPU_11059200
 ELSE
 __ERROR__       "BOARD not defined!"
 ENDIF

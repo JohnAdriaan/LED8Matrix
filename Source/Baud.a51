@@ -16,14 +16,15 @@ $IF (Baud_Enable)
 
                 SFR  rBRT   =   09Ch
 
-UART_BRT        EQU             256 - (CPU_Freq/BAUD_Rate/32)
+;                                      /512 Hz  /128 Hz
+Baud_BRT        EQU             256 - (CPU_Freq/BAUD_Rate*4/32)
 
 ;===============================================================================
 Baud            SEGMENT         CODE
                 RSEG            Baud
 
 Baud_Init:
-                MOV             rBRT, #UART_BRT   ; Baud Rate Timer value
+                MOV             rBRT, #Baud_BRT   ; Baud Rate Timer value
 
 ;               ANL             rAUXR, #NOT mBRTx12 ; Don't multiply by 12
                 ORL             rAUXR, #mBRTR       ; Start Baud rate timer
