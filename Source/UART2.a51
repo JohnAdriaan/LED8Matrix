@@ -9,6 +9,9 @@
                 $INCLUDE        (Options.inc)
 
 $IF (UART2_Enable)
+
+UART            LIT             'UART2'
+
                 $INCLUDE        (PSW.inc)
                 $INCLUDE        (IE.inc)
                 $INCLUDE        (P1.inc)
@@ -16,16 +19,15 @@ $IF (UART2_Enable)
                 $INCLUDE        (AUXR.inc)
                 $INCLUDE        (AUXR1.inc)       ; Need AUX R1 SFRs
 
-                PUBLIC          UART2_Init
+                PUBLIC          {UART}_Init
+                PUBLIC          {UART}_RXed
 
-                PUBLIC          UART2_RX
-                PUBLIC          UART2_TX_Num
-                PUBLIC          UART2_TX_Char
-                PUBLIC          UART2_TX_Code
+                PUBLIC          {UART}_RX
+                PUBLIC          {UART}_TX_Num
+                PUBLIC          {UART}_TX_Char
+                PUBLIC          {UART}_TX_Code
 
-                PUBLIC          UART2_ISR
-
-                PUBLIC          UART2_RXed
+                PUBLIC          {UART}_ISR
 
 EOL             EQU             13      ; Carriage return is end-of-line
 
@@ -47,28 +49,28 @@ DefineBit       S2RI,  rS2CON, 0        ; Serial 2 Receive Interrupt Flag
 
 UART_BRT        EQU             256 - (CPU_Freq/BAUD_Rate/32)
 
-IF (BOARD=BOARD_PLCC40)
+$IF (UART2_Alt)
                 SFR  pS2    =   pP1
                 SFR  rS2M0  =   rP1M0
                 SFR  rS2M1  =   rP1M1
-ELSE
+$ELSE
                 SFR  pS2    =   pP4
                 SFR  rS2M0  =   rP4M0
                 SFR  rS2M1  =   rP4M1
-ENDIF
+$ENDIF
 DefineBit       TxD2, pS2, 3
 DefineBit       RxD2, pS2, 2
 
 ;===============================================================================
-UART2Bits       SEGMENT         BIT
-                RSEG            UART2Bits
+{UART}Bits      SEGMENT         BIT
+                RSEG            {UART}Bits
 
-UART2_RXed:     DBIT            1                 ; Set when Command received
+{UART}_RXed:    DBIT            1                 ; Set when data received
 ;-------------------------------------------------------------------------------
 TXEmpty:        DBIT            1                 ; Set when TX buffer empty
 ;===============================================================================
-UART2Data       SEGMENT         DATA
-                RSEG            UART2Data
+{UART}Data      SEGMENT         DATA
+                RSEG            {UART}Data
 
 RXHead:         DSB             1                 ; In at the Head
 RXTail:         DSB             1
@@ -99,20 +101,20 @@ WrapTX          MACRO           Reg
                 ORL             Reg, #BufferSize
                 ENDM
 ;===============================================================================
-UART2           SEGMENT         CODE
-                RSEG            UART2
+{UART}          SEGMENT         CODE
+                RSEG            {UART}
 
-UART2_Init:
-                CLR             UART2_RXed        ; No command received
+{UART}_Init:
+                CLR             {UART}_RXed       ; No data received
                 MOV             RXHead, #aRXBuff
                 MOV             RXTail, #aRXBuff
                 MOV             TXHead, #aTXBuff
                 MOV             TXTail, #aTXBuff
                 SETB            TXEmpty           ; TX Buffer is empty
 
-IF (BOARD!=BOARD_PLCC40)
-                ORL             rAUXR1, #mS2_P4   ; Move UART2 to P4
-ENDIF
+$IF ({UART}_Alt)
+                ORL             rAUXR1, #mS2_P4   ; Move UART to P4
+$ENDIF
 
                 ; Push/Pull (TX) is rPxM1=0 and rPxM0=1
                 ; Input (RX) is the exact opposite
@@ -138,7 +140,7 @@ ENDIF
 ; ONLY call when UART_RXed indicates something to receive.  (Use JBC UART_RXed,)
 ; Returns received byte in A - and could re-set UART_RXed to 1.
 ; Modifies DPTR.
-UART2_RX:
+{UART}_RX:
                 MOV             DPH, #BuffersHigh ; Point to RXBuffer
                 MOV             A, RXTail         ; Current position
                 MOV             DPL, A            ; Into DPTR Low
@@ -148,14 +150,14 @@ UART2_RX:
                 CJNE            A, RXHead, ReRXed ; Reached end of receive?
                 SJMP            RXByte
 ReRXed:
-                SETB            UART2_RXed        ; Set flag (might be set!)
+                SETB            {UART}_RXed        ; Set flag (might be set!)
 RXByte:
                 MOVX            A, @DPTR          ; Get received byte
                 RET
 ;===============================================================================
 ; Call with A holding number to transmit
 ; Modifies B, F1
-UART2_TX_Num:
+{UART}_TX_Num:
                 MOV             DPH, #BuffersHigh ; Point to TX Buffer
                 MOV             DPL, TXHead       ; With both halves
 
@@ -204,7 +206,7 @@ TXNumEnd:
                 RET
 ;===============================================================================
 ; Call with A holding character to transmit
-UART2_TX_Char:
+{UART}_TX_Char:
                 MOV             DPH, #BuffersHigh ; Point to TX Buffer
                 MOV             DPL, TXHead       ; With both halves
 
@@ -231,7 +233,7 @@ TXChar:
 ;===============================================================================
 ; Call with DPTR pointing to ASCIIZ string (in CODE) to buffer for transmission
 ; Modifies A, R7 and DPTR1
-UART2_TX_Code:
+{UART}_TX_Code:
                 UseDPTR1                          ; DPTR1 will point to TX buffer
                 MOV             DP1H, #BuffersHigh ; Initialise DPTR1 High
                 MOV             DP1L, TXHead      ; Initialise DPTR1 Low
@@ -254,7 +256,7 @@ TXCodeEndLoop:                                    ; At this point, back to DPTR
                 JBC             TXEmpty, TXCharDPH; Start TX if Empty (& clear)
                 RET
 ;===============================================================================
-UART2_ISR:
+{UART}_ISR:
                 PUSH            PSW
                 PUSH            ACC
                 PUSH            DPL
@@ -287,7 +289,7 @@ RXNotEOL:
                 MOV             A, DPL             ; Test for collision
                 CJNE            A, RXTail, ISRLoop ; Collided with RXTail?
 RXed:
-                SETB            UART2_RXed         ; Yes, so mark for attention
+                SETB            {UART}_RXed        ; Yes, so mark for attention
                 SJMP            ISRLoop            ; Nothing more to do
 ;-------------------------------------------------------------------------------
 TXInt:

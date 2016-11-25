@@ -9,20 +9,24 @@
                 $INCLUDE        (Options.inc)
 
 $IF (UART1_Enable)
+
+UART            LIT             'UART1'
+
                 $INCLUDE        (PSW.inc)
                 $INCLUDE        (IE.inc)
                 $INCLUDE        (P1.inc)
                 $INCLUDE        (AUXR.inc)
 
-                PUBLIC          UART1_Init
-                PUBLIC          UART1_RXed
+                PUBLIC          {UART}_Init
+                PUBLIC          {UART}_RXed
 
-                PUBLIC          UART1_RX
-                PUBLIC          UART1_TX_Num
-                PUBLIC          UART1_TX_Char
-                PUBLIC          UART1_TX_Code
+                PUBLIC          {UART}_RX
+                PUBLIC          {UART}_TX_Num
+                PUBLIC          {UART}_TX_Char
+                PUBLIC          {UART}_TX_Code
 
-                PUBLIC          UART1_ISR
+                PUBLIC          {UART}_ISR
 
+;===============================================================================
 $ENDIF
                 END

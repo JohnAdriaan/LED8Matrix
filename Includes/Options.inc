@@ -20,7 +20,7 @@ $SET (TIMER0_Enable)            ; Set to enable Timer0 code
 ;$SET (LVD_Enable)              ; Set to enable Low-Voltage Detect code
 ;$SET (PCA_Enable)              ; Set to enable Programmable Counter code
 $SET (UART2_Enable)             ; Set to enable UART2 code
-$SET (UART2_Alt)                ; Set to move UART2 to alternate pins
+;$SET (UART2_Alt)               ; Set to move UART2 to alternate pins
 ;$SET (SPI_Enable)              ; Set to enable Serial Peripheral Interface code
 $SET (FLASH_Enable)             ; Set to enable Flash memory code
 
@@ -42,10 +42,13 @@ BOARD_Resistor  EQU             2
 BOARD           EQU             BOARD_PLCC40
 
 IF     (BOARD=BOARD_PLCC40)
+;$SET (UART2_Alt)               ; Set to move UART2 to alternate pins
 CPU_Freq        EQU             21600  ; 11,059,200 Hz in 512*Hz
 ELSEIF (BOARD=BOARD_DigiPot)
+$SET (UART2_Alt)                ; Set to move UART2 to alternate pins
 CPU_Freq        EQU             64800  ; 33,177,600 Hz in 512*Hz
 ELSEIF (BOARD=BOARD_Resistor)
+$SET (UART2_Alt)                ; Set to move UART2 to alternate pins
 CPU_Freq        EQU             21600  ; 11,059,200 Hz in 512*Hz
 ELSE
 __ERROR__       "BOARD not defined!"
