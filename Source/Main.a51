@@ -53,9 +53,6 @@
                 $INCLUDE        (Options.inc)     ; Enabled options
 
                 $INCLUDE        (IE.inc)          ; Need Interrupt Enable SFRs
-IF (BOARD=BOARD_PLCC40)
-                $INCLUDE        (P1.inc)          ; For Sleep LED
-ENDIF
                 $INCLUDE        (PCON.inc)        ; Need Power Control SFRs
 
                 PUBLIC          Reset_ISR         ; Publish this for Vectors
@@ -82,13 +79,6 @@ ENDIF
                 EXTERN   CODE   (LED_Reset)
                 EXTERN   BIT    (LED_NewFrame)
 
-IF (BOARD=BOARD_PLCC40)
-                SFR  pSleepLED   = pP1
-                SFR  rSleepLEDM0 = rP1M0
-                SFR  rSleepLEDM1 = rP1M1
-DefineBit       SleepLED, pSleepLED, 7
-ENDIF
-
 ;===============================================================================
                 USING           3                 ; Inform compiler of Reg Banks
                 USING           2
@@ -111,13 +101,8 @@ Reset_ISR:
                 CALL            DigiPot_Init      ; Initialise Digital Pots
                 CALL            LED_Init          ; Initialise LED matrix
 
-IF (BOARD=BOARD_PLCC40)
-                ; Set Sleep LED as Push/Pull
-;               ANL             rSleepLEDM1, #NOT mSleepLED
-                ORL             rSleepLEDM0, #mSleepLED
-ENDIF
-
                 MOV             A, #UPDATE        ; Starting mode
+
 Recycle:
                 CALL            DigiPot_Set
                 SETB            EA                ; Enable all interrupts
@@ -127,13 +112,7 @@ TXPrompt:
 Executive:
                 JBC             LED_NewFrame, NextFrame ; Next frame flag? Clear!
                 JBC             UART2_RXed, ProcessCmd  ; Next command flag? Clear!
-IF (BOARD=BOARD_PLCC40)
-                CLR             SleepLED          ; Close eyes
-ENDIF
                 GoToSleep               ; Nothing to do until next interrupt
-IF (BOARD=BOARD_PLCC40)
-                SETB            SleepLED          ; Open eyes
-ENDIF
                 SJMP            Executive         ; Start again
 
 ;-------------------------------------------------------------------------------
