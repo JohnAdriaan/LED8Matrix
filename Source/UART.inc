@@ -103,12 +103,19 @@ UART{U}_Init:
                 ORL             rS{U}M1, #mRxD{U}
                 ORL             rS{U}M0, #mTxD{U}
 
-                ORL             rS{U}CON, #mS{U}REN ; Enable Receive
+                ; Serial Mode 001b
+;               ANL             rS{U}CON, #NOT (mS{U}M0+mS{U}M2)
+                ORL             rS{U}CON, #mS{U}M1
 
-                ORL             rIP{U}H, #mPS{U}H   ; Set int to priority 10b
+                ; Enable Receive
+                ORL             rS{U}CON, #mS{U}REN
+
+                ; Set int to priority 10b
+                ORL             rIP{U}H, #mPS{U}H
 ;               ANL             rIP{U},  #NOT mPS{U}
 
-                ORL             rIE{U}, #mES{U}     ; Enable UART interrupts
+                ; Enable UART interrupts
+                ORL             rIE{U}, #mES{U}
 
                 RET
 ;===============================================================================
