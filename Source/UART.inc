@@ -268,7 +268,7 @@ RXInt:
                 CJNE            A, #EOL, RXNotEOL  ; Received end of line?
                 SJMP            RXed               ; Yes! Flag main process
 RXNotEOL:
-                MOV             A, DPL             ; Test for collision
+                MOV             A, RXHead          ; Test for collision
                 CJNE            A, RXTail, ISRLoop ; Collided with RXTail?
 RXed:
                 SETB            UART{U}_RXed       ; Yes, so mark for attention
