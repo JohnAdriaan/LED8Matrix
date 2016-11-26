@@ -78,12 +78,12 @@ DigiPot_Set:
                 CLR             C             ; Need zero here
                 RLC             A             ; Two entries per table row
                 MOV             R2, A         ; Save table offset away
-                ADD             A, #Set_Table-AnodeOffset ; Offset for Anode
+                ADD             A, #cSet_Table-AnodeOffset ; Offset for Anode
                 MOVC            A, @A+PC      ; Weird PC-relative index
 AnodeOffset:
 
                 XCH             A, R2         ; Save, and restore table offset
-                ADD             A, #Set_Table-RedOffset+1 ; Offset for Red
+                ADD             A, #cSet_Table-RedOffset+1 ; Offset for Red
                 MOVC            A, @A+PC      ; Weird PC-relative index
 RedOffset:
 
@@ -157,14 +157,14 @@ mV_CPU          EQU             5000
 ; Create Entry in Table from uA with Anode, Red settings
 %*DEFINE         (Entry(uA))    (%Setting(%OHMS_Anode(%uA)), %Setting(%OHMS_Red(%uA)))
 
-Set_Table:
-Set_Pixel:       DB             %Entry(Port_uA_Pixel)
-Set_LED_Pixel:   DB             %Entry(Port_uA_LED)
-Set_LED_Colour:  DB             %Entry(Port_uA_LED)
-Set_LED_Row:     DB             %Entry(Port_uA_LED)
-Set_Row_Pixel:   DB             %Entry(Port_uA_Row)
-Set_Row_LED:     DB             %Entry(Port_uA_Colour)
-Set_Row_Colour:  DB             %Entry(Port_uA_Colour)
+cSet_Table:
+cSet_Pixel:      DB             %Entry(Port_uA_Pixel)
+cSet_LED_Pixel:  DB             %Entry(Port_uA_LED)
+cSet_LED_Colour: DB             %Entry(Port_uA_LED)
+cSet_LED_Row:    DB             %Entry(Port_uA_LED)
+cSet_Row_Pixel:  DB             %Entry(Port_uA_Row)
+cSet_Row_LED:    DB             %Entry(Port_uA_Colour)
+cSet_Row_Colour: DB             %Entry(Port_uA_Colour)
 
 ELSE
 __ERROR__       "BOARD not defined!"

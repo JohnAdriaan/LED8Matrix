@@ -118,7 +118,7 @@ LED_Reset:
 InitFrame:
                 MOV             DPTR, #aFrame     ; Store in the Frame area
 
-                MOV             R6, #Logo - LogoOffset ; Start offset
+                MOV             R6, #cLogo - LogoOffset ; Start offset
                 MOV             R7, #nLogoSize    ; Number of Logo bytes
 InitFrameLoop:
                 MOV             A, R6             ; Get current offset
@@ -158,7 +158,7 @@ InitColour:
 ; * Top to bottom;
 ; * 4 bits per pixel (IBGR);
 ; * MSn to LSn=left to right
-Logo:
+cLogo:
                 DB              044h, 044h, 0D0h, 0D4h
                 DB              044h, 0DDh, 000h, 00Dh
                 DB              04Dh, 00Dh, 000h, 00Dh
@@ -166,7 +166,7 @@ Logo:
                 DB              04Dh, 00Dh, 000h, 00Dh
                 DB              044h, 0DDh, 000h, 00Dh
                 DB              044h, 044h, 04Dh, 044h
-nLogoSize       EQU             $-Logo
+nLogoSize       EQU             $-cLogo
 
 ;...............................................................................
 InitVars:

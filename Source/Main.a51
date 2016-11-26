@@ -88,7 +88,7 @@
 Main            SEGMENT         CODE
                 RSEG            Main
 
-Prompt:         DB              "LED8x8> ", 0
+cPrompt:        DB              "LED8x8> ", 0
 
 Reset_ISR:
                 MOV             SP, #CPU_Stack_Top-1 ; Better (upgoing) Stack addr
@@ -107,7 +107,7 @@ Recycle:
                 CALL            DigiPot_Set
                 SETB            EA                ; Enable all interrupts
 TXPrompt:
-                MOV             DPTR, #Prompt
+                MOV             DPTR, #cPrompt
                 CALL            UART2_TX_Code
 Executive:
                 JBC             LED_NewFrame, NextFrame ; Next frame flag? Clear!

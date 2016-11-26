@@ -37,5 +37,7 @@ All public symbols will start with their module name followed by an underscore.
    module can PUBLIC that name.
 
 Within a module:
- * 'a' means a (data) address (code addresses (labels) have no prefix);
+ * 'a' means a data address in Data space;
+ * 'c' means a data address in Code space;
+ * Code addresses in Code space (labels) have no prefix;
  * 'n' means a numerical value - requiring a '#' in the code!
