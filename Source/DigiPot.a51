@@ -18,7 +18,7 @@
 ; * Repeat for 11n bits (n=#DigiPots in chain):
 ;   - Set SDI     (P4.1)                ( 5ns);
 ;   - Raise CLK   (P4.5)                ( 5ns);
-;   - Lower CLK   (P4.5)                (20ns, 25ns if chained);
+;   - Lower CLK   (P4.5)                (20ns);
 ; * Raise CS    (P4.0)                (40ns)
 ;
 ; Note that lowering SHDN (P4.4) open-circuits the DigiPot and disables SDO.
@@ -116,9 +116,9 @@ SetSend:
 SetBits:
                 RLC             A             ; Get high bit in Carry
                 MOV             SDI, C        ; Write Carry to data bit
-                SETB            Clk           ; Raise Clk
-                NOP                           ; Not required?
                 CLR             Clk           ; Lower Clk
+                NOP                           ; Needed for SDO propagation
+                SETB            Clk           ; Raise Clk
                 DJNZ            R7, SetBits
                 RET
 ;===============================================================================
