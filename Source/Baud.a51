@@ -25,9 +25,7 @@ Baud            SEGMENT         CODE
 
 Baud_Init:
                 MOV             rBRT, #Baud_BRT   ; Baud Rate Timer value
-
-;               ANL             rAUXR, #NOT mBRTx12 ; Don't multiply by 12
-                ORL             rAUXR, #mBRTR       ; Start Baud rate timer
+                ORL             rAUXR, #(mBRTx12+mBRTR) ; x12, and start BRT
 
                 RET
 ;===============================================================================
