@@ -21,7 +21,7 @@
 ;   - Lower CLK   (P4.5)                (20ns, 25ns if chained);
 ; * Raise CS    (P4.0)                (40ns)
 ;
-; Note that lowering SHDN (P4.4) open-circuits the DigiPot.
+; Note that lowering SHDN (P4.4) open-circuits the DigiPot and disables SDO.
 ;
 
                 NAME            DigiPot
@@ -68,13 +68,14 @@ IF     (BOARD=BOARD_Resistor)
 ELSEIF ((BOARD=BOARD_DigiPot) OR (BOARD=BOARD_PLCC40))
 ;               ANL             rDigiPotM1, #NOT mDigiPot ; Push/Pull is 0 in M1
                 ORL             rDigiPotM0, #mDigiPot     ; ...and 1 in M0
+
+;               SETB            ShDn                      ; Enable DigiPots
                 RET
 
 ;-------------------------------------------------------------------------------
 ; Call with A set to desired mode
-; Modifies: A, R0, R1, R2, R7
+; Modifies: A, R0, R1, R2, R3, R7
 DigiPot_Set:
-                CLR             ShDn          ; Open-circuit DigiPots
                 CLR             C             ; Need zero here
                 RLC             A             ; Two entries per table row
                 MOV             R2, A         ; Save table offset away
@@ -87,17 +88,18 @@ AnodeOffset:
                 MOVC            A, @A+PC      ; Weird PC-relative index
 RedOffset:
 
+                MOV             R3, A         ; Save Red Cathode away
                 MOV             R1, #nDigiPots; DigiPot to set (0, 3, 2, 1)
                 CLR             Clk           ; Set Clk low
 SetLoop:
                 CLR             CS            ; Set CS low
+                MOV             A, R3         ; Restore Red Cathode
                 ACALL           SetSend       ; Send Red Cathode to this DigiPot
-                MOV             A, R2         ; Restore saved value
+                MOV             A, R2         ; Restore Anode
                 ACALL           SetSend       ; Send Anode to this DigiPot
                 SETB            CS            ; Set CS high again
                 DJNZ            R1, SetLoop   ; One less DigiPot
 
-                SETB            ShDn          ; Turn on DigiPots
                 RET
 
 SetSend:
@@ -115,7 +117,7 @@ SetBits:
                 RLC             A             ; Get high bit in Carry
                 MOV             SDI, C        ; Write Carry to data bit
                 SETB            Clk           ; Raise Clk
-;               NOP                           ; Not required
+                NOP                           ; Not required?
                 CLR             Clk           ; Lower Clk
                 DJNZ            R7, SetBits
                 RET
