@@ -213,22 +213,4 @@ FPS_Rate_Colour EQU             8*3
 FPS_Rate_Pixel  EQU             8*8
 FPS_Rate_LED    EQU             8*8*3
 
-IF     (UPDATE=UPDATE_Pixel)
-FPS_Rate        EQU             FPS_Rate_Pixel
-ELSEIF (UPDATE=UPDATE_LED_Pixel)
-FPS_Rate        EQU             FPS_Rate_LED
-ELSEIF (UPDATE=UPDATE_LED_Colour)
-FPS_Rate        EQU             FPS_Rate_LED
-ELSEIF (UPDATE=UPDATE_LED_Row)
-FPS_Rate        EQU             FPS_Rate_LED
-ELSEIF (UPDATE=UPDATE_Row_Pixel)
-FPS_Rate        EQU             FPS_Rate_Row
-ELSEIF (UPDATE=UPDATE_Row_LED)
-FPS_Rate        EQU             FPS_Rate_Colour
-ELSEIF (UPDATE=UPDATE_Row_Colour)
-FPS_Rate        EQU             FPS_Rate_Colour
-ELSE
-__ERROR__       "UPDATE invalid!"
-ENDIF
-
 $ENDIF ; OPTIONS_INC

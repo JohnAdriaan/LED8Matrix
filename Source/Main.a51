@@ -61,6 +61,8 @@
                 EXTERN   CODE   (CPU_Init)
 
                 EXTERN   CODE   (Timer0_Init)
+                EXTERN   CODE   (Timer0_Set)
+                EXTERN   CODE   (Timer0_Start)
 
                 EXTERN   CODE   (Baud_Init)
                 EXTERN   CODE   ({SERIAL}_Init)
@@ -77,6 +79,7 @@
 
                 EXTERN   CODE   (LED_Init)
                 EXTERN   CODE   (LED_Reset)
+                EXTERN   DATA   (LED_Update)
                 EXTERN   BIT    (LED_NewFrame)
 
 ;===============================================================================
@@ -98,13 +101,14 @@ Reset_ISR:
 
                 CALL            Timer0_Init       ; Initialise Timer0
                 CALL            Flash_Init        ; Initialise Flash
+$IF (DIGIPOT_Enable)
                 CALL            DigiPot_Init      ; Initialise Digital Pots
+$ENDIF
                 CALL            LED_Init          ; Initialise LED matrix
 
                 MOV             A, #UPDATE        ; Starting mode
-
-ReCycle:
-                CALL            DigiPot_Set
+                ACALL           SetUpdate
+                CALL            Timer0_Start
                 SETB            EA                ; Enable all interrupts
 TXPrompt:
                 MOV             DPTR, #cPrompt
@@ -127,9 +131,28 @@ ProcessCmd:
                 CJNE            A, #13, CmdByte
                 SJMP            TXPrompt
 CmdByte:
-                CLR             EA                ; Stop timer (well, everything)
-                CALL            LED_Reset         ; Turn off LEDs
-                SJMP            ReCycle           ; Start again
+                SJMP            Executive
+;                CLR             EA                ; Stop timer (well, everything)
+;                CALL            LED_Reset         ; Turn off LEDs
+;                SJMP            ReCycle           ; Start again
+
+SetUpdate:
+                MOV             LED_Update, A
+                ADD             A, #cTimer_Table - TimerOffset
+                MOVC            A, @A+PC           ; Weird PC-relative index
+TimerOffset:
+
+                CALL            Timer0_Set
+                RET
+
+cTimer_Table:
+cTimer_Pixel:      DB           FPS_Rate_Pixel  ; 8*8
+cTimer_LED_Pixel:  DB           FPS_Rate_LED    ; 8*8*3
+cTimer_LED_Colour: DB           FPS_Rate_LED    ; 8*8*3
+cTimer_LED_Row:    DB           FPS_Rate_LED    ; 8*8*3
+cTimer_Row_Pixel:  DB           FPS_Rate_Row    ; 8
+cTimer_Row_LED:    DB           FPS_Rate_Colour ; 8*3
+cTimer_Row_Colour: DB           FPS_Rate_Colour ; 8*3
 
 ;===============================================================================
                 END
