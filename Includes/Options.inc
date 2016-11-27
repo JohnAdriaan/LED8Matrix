@@ -50,9 +50,9 @@ TIMER_Mode_16   EQU             01b    ; 16-bit timer/counter
 TIMER_Mode_8_Auto EQU           10b    ; 8-bit timer/counter, auto-reloaded
 TIMER_Mode_8    EQU             11b    ; 2x8_bit timer/counters
 TIMER_Mode_Mask EQU             11b    ; Mask for just Mode value
-TIMER_Mode_x12  EQU             080h   ; Mask to indicate x12 mode
+TIMER_Mode_x12  EQU             10000000b ; Mask to indicate x12 mode
 ;TIMER0_Mode    EQU             TIMER_Mode_x12+TIMER_Mode_8_Auto ; Example
-;TIMER1_Mode    EQU             TIMER_Mode_16                    ; Example
+;TIMER1_Mode    EQU             TIMER_Mode_16
 
 ; This is the rate of the Baud Rate Timer. It's factored down to avoid 32 bits
 BAUD_x1         EQU             08000h ; Mask to flag to NOT use x12
@@ -71,14 +71,14 @@ BAUD_115200     EQU              7200 ; 115,200 baud in 16 Hz steps
 BAUD_345600     EQU             21600 ; 345,600 baud in 16 Hz steps
 ;BAUD_Rate      EQU             BAUD_115200 ; Example
 
-UART_Mode_x2     EQU            080h  ; Mask to double UART baud rate (not 000b)
-UART_Mode_BRG    EQU            040h  ; Mask to use BRG, not Timer1  (not UART2)
-UART_Mode_8Shift EQU            0000b
-UART_Mode_8Var   EQU            0010b
-UART_Mode_9Shift EQU            0100b
-UART_Mode_9Var   EQU            0110b
-UART_Mode_Frame  EQU            0001b ; Mask to enable Frame Error Checking
-UART_Mode_Mask   EQU            0111b ; Mask for just Mode value
+UART_Mode_x2     EQU            10000000b ; Mask to double UART baud rate (not 000b)
+UART_Mode_BRG    EQU            01000000b ; Mask to use BRG, not Timer1  (not UART2)
+UART_Mode_8Shift EQU                 000b
+UART_Mode_8Var   EQU                 010b
+UART_Mode_9Shift EQU                 100b
+UART_Mode_9Var   EQU                 110b
+UART_Mode_Frame  EQU                 001b ; Mask to enable Frame Error Checking
+UART_Mode_Mask   EQU                0111b ; Mask for just Mode value
 ;UART_Mode       EQU            UART_Mode_BRG+UART_Mode_8Var ; Examples
 ;UART2_Mode      EQU            UART_Mode_x2+UART_Mode_8Var+UART_Mode_Frame
 
@@ -205,6 +205,7 @@ UPDATE_Row_Pixel  EQU           100b    ; BGR0.01234567,...                 (24)
 UPDATE_Row_LED    EQU           101b    ; B0.01234567,G0.01234567,...        (8)
 UPDATE_Row_Colour EQU           110b    ; B0.01234567,B1.01234567,...        (8)
 UPDATE_Row_Frame  EQU           111b    ;                                 (192!)
+UPDATE_Row_End    EQU           UPDATE_Row_Frame
 
 UPDATE          EQU             UPDATE_Row_Pixel
 
