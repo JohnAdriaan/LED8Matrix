@@ -110,9 +110,8 @@ UART{U}_Init:
                 ; Enable Receive
                 ORL             rS{U}CON, #mS{U}REN
 
-                ; Set int to priority 10b
-                ORL             rIP{U}H, #mPS{U}H
-;               ANL             rIP{U},  #NOT mPS{U}
+                ; Set int to desired priority
+                SetPriority{U}  bPS{U}, UART{U}_Priority
 
                 ; Enable UART interrupts
                 ORL             rIE{U}, #mES{U}
