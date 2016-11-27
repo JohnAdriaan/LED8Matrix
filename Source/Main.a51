@@ -75,8 +75,9 @@
 
                 EXTERN   CODE   (Flash_Init)
 
+$IF (DIGIPOT_Enable)
                 EXTERN   CODE   (DigiPot_Init)
-                EXTERN   CODE   (DigiPot_Set)
+$ENDIF
 
                 EXTERN   CODE   (LED_Init)
                 EXTERN   CODE   (LED_Reset)
@@ -143,11 +144,15 @@ ProcessCmd:
                 CJNE            A, #13, CmdByte
                 SJMP            TXPrompt
 CmdByte:
+                CLR             C                 ; Need zero here
+                SUBB            A, #'0'           ; Convert ASCII to byte
+                JC              Executive         ; Underflow!
+                SUBB            A, #UPDATE_Row_Frame
+                JNC             Executive         ; Too big!
+                ADD             A, #UPDATE_Row_Frame
+                ACALL           SetUpdate
                 SJMP            Executive
-;                CLR             EA                ; Stop timer (well, everything)
-;                CALL            LED_Reset         ; Turn off LEDs
-;                SJMP            ReCycle           ; Start again
-
+;-------------------------------------------------------------------------------
 SetUpdate:
                 MOV             LED_Update, A
                 ADD             A, #cTimer_Table - TimerOffset
@@ -157,14 +162,17 @@ TimerOffset:
                 CALL            Timer0_Set
                 RET
 
+; Assumes pixel depth (thus cycle) of 256
+;                                      /512        /256 = *2
+%*DEFINE        (Timer(Rate))   (256 - CPU_Freq/FPS*2/%Rate)
 cTimer_Table:
-cTimer_Pixel:      DB           FPS_Rate_Pixel  ; 8*8
-cTimer_LED_Pixel:  DB           FPS_Rate_LED    ; 8*8*3
-cTimer_LED_Colour: DB           FPS_Rate_LED    ; 8*8*3
-cTimer_LED_Row:    DB           FPS_Rate_LED    ; 8*8*3
-cTimer_Row_Pixel:  DB           FPS_Rate_Row    ; 8
-cTimer_Row_LED:    DB           FPS_Rate_Colour ; 8*3
-cTimer_Row_Colour: DB           FPS_Rate_Colour ; 8*3
+cTimer_Pixel:      DB           %Timer(FPS_Rate_Pixel)  ; 8*8
+cTimer_LED_Pixel:  DB           %Timer(FPS_Rate_LED)    ; 8*8*3
+cTimer_LED_Colour: DB           %Timer(FPS_Rate_LED)    ; 8*8*3
+cTimer_LED_Row:    DB           %Timer(FPS_Rate_LED)    ; 8*8*3
+cTimer_Row_Pixel:  DB           %Timer(FPS_Rate_Row)    ; 8
+cTimer_Row_LED:    DB           %Timer(FPS_Rate_Colour) ; 8*3
+cTimer_Row_Colour: DB           %Timer(FPS_Rate_Colour) ; 8*3
 
 ;===============================================================================
                 END
