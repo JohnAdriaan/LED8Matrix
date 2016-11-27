@@ -106,7 +106,7 @@ IF     (BOARD=BOARD_PLCC40)
    $SET     (DIGIPOT_Enable)
    CPU_Freq          EQU        CPU_11059200
    {SERIAL}_Priority EQU        INT_Priority_2
-   UART2_Mode        EQU        UART_Mode_x2 + UART_Mode_8Var
+   UART2_Mode        EQU        UART_Mode_8Var
 ELSEIF (BOARD=BOARD_DigiPot)
    SERIAL       LIT             'UART2'
    $SET     (UART2_Enable)
@@ -132,7 +132,7 @@ ENDIF
 ;   - Depending on colour depth (bits per colour(LED): 1/2/4/6/8), that could be
 ;     1, 4, 16, 64 or 256 cycles (interrupts) per LED per frame (grouped as
 ;     configured).
-FPS             EQU             24 ; Frames Per Second. Sets the interrupt rate.
+FPS             EQU             25 ; Frames Per Second. Sets the interrupt rate.
                                    ; Note that the timer could use x12 mode...
 
 ; There are five ways to update the individual RGB pixels (some with options):
