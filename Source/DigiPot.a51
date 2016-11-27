@@ -17,8 +17,8 @@
 ; * Lower CS    (P4.0)                (15ns);
 ; * Repeat for 11n bits (n=#DigiPots in chain):
 ;   - Set SDI     (P4.1)                ( 5ns);
-;   - Raise CLK   (P4.5)                ( 5ns);
 ;   - Lower CLK   (P4.5)                (20ns);
+;   - Raise CLK   (P4.5)                ( 5ns);
 ; * Raise CS    (P4.0)                (40ns)
 ;
 ; Note that lowering SHDN (P4.4) open-circuits the DigiPot and disables SDO.
@@ -143,18 +143,18 @@ PORT_uA_LED     EQU             PORT_mA*1000          ; 20000
 BOARD_uA_LED    EQU             BOARD_mA*100/2*10     ; 60000
 
 ; Millivolts for different components
+mV_CPU          EQU             5000
 mV_Red          EQU             1720
 mV_Green        EQU             2300
 mV_Blue         EQU             2484
 mV_Anode        EQU             2300 ; *MIN*imum of mV_Blue and mV_Green
-mV_CPU          EQU             5000
 
 ; Convert uA to Ohms for the two resistor locations
 %*DEFINE       (OHMS_Anode(uA)) ((mV_CPU-mV_Anode)*10 / (%uA/100))
 %*DEFINE       (OHMS_Red(uA))   ((mV_CPU-mV_Anode-mV_Red)*10 / (%uA/100))
 
 ; Convert Ohms to DigiPot setting
-%*DEFINE         (Setting(O))  ((%O-DigiPotOhms)*4/10*64/1000) ; *Steps/MaxOhms
+%*DEFINE         (Setting(O))  (255- (%O-DigiPotOhms)*4/10*64/1000) ; *Steps/MaxOhms
 
 ; Create Entry in Table from uA with Anode, Red settings
 %*DEFINE         (Entry(uA))    (%Setting(%OHMS_Anode(%uA)), %Setting(%OHMS_Red(%uA)))
