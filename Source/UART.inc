@@ -116,7 +116,7 @@ IF (UART{U}_Mode AND UART_Mode_x2)
 ENDIF
 
 IF (UART{U}_Mode AND UART_Mode_BRG)
-                ORL             rAUXR, #mS{U}BRS  ; UART2 must error! Always BRG
+                ORL             rAUXR, #mS1BRS  ; UART2 always uses the BRG
 ENDIF
 
                 ; Enable Receive
