@@ -13,10 +13,6 @@ $IF (UART2_Enable)
 
 U               LIT             '2'               ; UART2
 
-                SFR  rS2BUF  =  09Bh    ; Serial 2 Buffer (RX and TX)
-
-                SFR  rS2CON  =  09Ah    ; Serial 2 Control
-
 $IF (UART2_Alt)
                 $INCLUDE        (P1.inc)
                 SFR  pUART2 =   pP1
@@ -30,6 +26,10 @@ $ELSE
 $ENDIF
 DefineBit       TxD2, pUART2, 3
 DefineBit       RxD2, pUART2, 2
+
+                SFR  rS2BUF  =  09Bh    ; Serial 2 Buffer (RX and TX)
+
+                SFR  rS2CON  =  09Ah    ; Serial 2 Control
 
 ;===============================================================================
 BuffersHigh     EQU             003h

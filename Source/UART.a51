@@ -13,16 +13,16 @@ $IF (UART_Enable)
 
 U               LIT             ''                ; UART
 
-                SFR  rSBUF  =  099h     ; Serial Buffer (RX and TX)
-
-                SFR  rSCON  =  098h     ; Serial Control
-
                 $INCLUDE        (P3.inc)
-                SFR  pUART  =  pP3
-                SFR  rSM0   =  rP3M0
-                SFR  rSM1   =  rP3M1
+                SFR  pUART  =   pP3
+                SFR  rSM0   =   rP3M0
+                SFR  rSM1   =   rP3M1
 DefineBit       TxD, pUART, 1
 DefineBit       RxD, pUART, 0
+
+                SFR  rSCON  =   098h     ; Serial Control
+
+                SFR  rSBUF  =   099h     ; Serial Buffer (RX and TX)
 
 ;===============================================================================
 BuffersHigh     EQU             002h

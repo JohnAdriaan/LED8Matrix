@@ -6,20 +6,20 @@
 ; then the generic versions required by this file;
 ;
 ; U           : The LITeral to allow UART{U}_RXed etc. to be defined.
-; BuffersHigh : The high byte of the XDATA pointer for the RX and TX Buffers.
 ; pUART{U}    : The Port containing the UART pins
+;   mS{U}REN  ; The Receive Enable mask
 ; rS{U}M[01]  : The M1 and M0 registers for defining UART pin directions
 ;   m[RT]xD{U}: The masks for the RxD and TxD pins on the UART Port
 ; rS{U}CON    : The UART CONtrol register
-;   mS{U}REN  ; The Receive Enable mask
-; rIPS{U}[H]  : The Interrupt Priority High and Low registers
-;   mPS{U}[H] : The Interrupt Priority High and Low masks
-; rIES{U}     : The Interrupt Enable register for the UART
-;   mES{U}    : The Interrupt Enable mask
+; rS{U}BUF    : The buffer register for the RX/TX byte
+; BuffersHigh : The high byte of the XDATA pointer for the RX and TX Buffers.
+; UART{U}_Move: A (possibly empty) macro to implement UART{U}_Alt
 ;
 
                 $INCLUDE        (PSW.inc)
                 $INCLUDE        (IE.inc)
+                $INCLUDE        (PCON.inc)
+                $INCLUDE        (AUXR.inc)
                 $INCLUDE        (AUXR1.inc)       ; Need AUX R1 SFRs
 
                 PUBLIC          UART{U}_Init
@@ -37,8 +37,8 @@ EOL             EQU             13      ; Carriage return is end-of-line
 DefineBit       S{U}M0, rS{U}CON, 7     ; Serial Mode 0
 DefineBit       S{U}M1, rS{U}CON, 6     ; Serial Mode 1
 DefineBit       S{U}M2, rS{U}CON, 5     ; Serial Mode 2
-  bS{U}M        EQU             bS{U}M2
-  mS{U}M        EQU            (mS{U}M2 + mS{U}M1 + mS{U}M0)
+   bS{U}M       EQU             bS{U}M2 ; Bit shift number
+   mS{U}M       EQU            (mS{U}M0 + mS{U}M1 + mS{U}M2)
 DefineBit       S{U}REN,rS{U}CON, 4     ; Serial RX Enable
 DefineBit       S{U}TB8,rS{U}CON, 3     ; Serial TX Bit 8
 DefineBit       S{U}RB8,rS{U}CON, 2     ; Serial RX Bit 8
@@ -99,13 +99,25 @@ UART{U}_Init:
                 ; Push/Pull (TX) is rPxM1=0 and rPxM0=1
                 ; Input (RX) is the exact opposite
 ;               ANL             rS{U}M1, #NOT mTxD{U}
+                ORL             rS{U}M1, #    mRxD{U}
 ;               ANL             rS{U}M0, #NOT mRxD{U}
-                ORL             rS{U}M1, #mRxD{U}
-                ORL             rS{U}M0, #mTxD{U}
+                ORL             rS{U}M0, #    mTxD{U}
 
-                ; Serial Mode 001b
-;               ANL             rS{U}CON, #NOT (mS{U}M0+mS{U}M2)
-                ORL             rS{U}CON, #mS{U}M1
+                ; Establish UART{U}_Mode
+;               ANL             rS{U}CON, #NOT ((UART{U}_Mode AND UART_Mode_Mask) SHL bS{U}M)
+                ORL             rS{U}CON, #    ((UART{U}_Mode AND UART_Mode_Mask) SHL bS{U}M)
+
+IF (UART{U}_Mode AND UART_Mode_x2)
+   IF   ({U}0=20) ; How to test which register and mask to use!
+                ORL             rAUXR, #mS{U}SMOD
+   ELSE
+                ORL             rPCON, #mS{U}MOD
+   ENDIF
+ENDIF
+
+IF (UART{U}_Mode AND UART_Mode_BRG)
+                ORL             rAUXR, #mS{U}BRS  ; UART2 must error! Always BRG
+ENDIF
 
                 ; Enable Receive
                 ORL             rS{U}CON, #mS{U}REN
