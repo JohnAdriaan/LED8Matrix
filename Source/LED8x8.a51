@@ -209,12 +209,10 @@ Timer0_Handler:                                   ; PSW and ACC saved
                 PUSH            DPL               ; Need these registers too...
                 PUSH            DPH
 
-IF (BOARD!=BOARD_PLCC40)
                 MOV             A, LED_Update     ; Get UPDATE method
                 ADD             A, ACC            ; AJMP is a two-byte opcode
                 MOV             DPTR, #UpdateTable ; Table of AJMPs
                 JMP             @A+DPTR           ; Do it!
-ENDIF
 Timer0_Exit:
                 POP             DPH               ; Restore these
                 POP             DPL
