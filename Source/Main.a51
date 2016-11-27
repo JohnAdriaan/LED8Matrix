@@ -63,12 +63,12 @@
                 EXTERN   CODE   (Timer0_Init)
 
                 EXTERN   CODE   (Baud_Init)
-                EXTERN   CODE   (UART2_Init)
-                EXTERN   BIT    (UART2_RXed)
-                EXTERN   CODE   (UART2_RX)
-                EXTERN   CODE   (UART2_TX_Num)
-                EXTERN   CODE   (UART2_TX_Char)
-                EXTERN   CODE   (UART2_TX_Code)
+                EXTERN   CODE   ({SERIAL}_Init)
+                EXTERN   BIT    ({SERIAL}_RXed)
+                EXTERN   CODE   ({SERIAL}_RX)
+                EXTERN   CODE   ({SERIAL}_TX_Num)
+                EXTERN   CODE   ({SERIAL}_TX_Char)
+                EXTERN   CODE   ({SERIAL}_TX_Code)
 
                 EXTERN   CODE   (Flash_Init)
 
@@ -94,7 +94,7 @@ Reset_ISR:
                 MOV             SP, #CPU_Stack_Top-1 ; Better (upgoing) Stack addr
                 CALL            CPU_Init          ; Initialise CPU SFRs
                 CALL            Baud_Init         ; Initiaise Baud Rate Timer
-                CALL            UART2_Init        ; Initialise UART2
+                CALL            {SERIAL}_Init     ; Initialise Serial port
 
                 CALL            Timer0_Init       ; Initialise Timer0
                 CALL            Flash_Init        ; Initialise Flash
@@ -103,15 +103,15 @@ Reset_ISR:
 
                 MOV             A, #UPDATE        ; Starting mode
 
-Recycle:
+ReCycle:
                 CALL            DigiPot_Set
                 SETB            EA                ; Enable all interrupts
 TXPrompt:
                 MOV             DPTR, #cPrompt
-                CALL            UART2_TX_Code
+                CALL            {SERIAL}_TX_Code
 Executive:
-                JBC             LED_NewFrame, NextFrame ; Next frame flag? Clear!
-                JBC             UART2_RXed, ProcessCmd  ; Next command flag? Clear!
+                JBC             LED_NewFrame, NextFrame   ; Next frame flag? Clear!
+                JBC             {SERIAL}_RXed, ProcessCmd ; Next command flag? Clear!
                 GoToSleep               ; Nothing to do until next interrupt
                 SJMP            Executive         ; Start again
 
@@ -123,9 +123,13 @@ NextFrame:
 ;-------------------------------------------------------------------------------
 ; Called to process next received command
 ProcessCmd:
+                CALL            {SERIAL}_RX       ; Get received byte
+                CJNE            A, #13, CmdByte
+                SJMP            TXPrompt
+CmdByte:
                 CLR             EA                ; Stop timer (well, everything)
                 CALL            LED_Reset         ; Turn off LEDs
-                SJMP            Recycle           ; Start again
+                SJMP            ReCycle           ; Start again
 
 ;===============================================================================
                 END
