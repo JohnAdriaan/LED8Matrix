@@ -40,7 +40,8 @@ ENDIF
                 SetPriority     bPT{T}, TIMER{T}_Priority
 
                 ; Enable Timer{T} interrupt
-                SETB            IE{T}
+                SETB            IE{T}             ; Enable in TCON
+                SETB            ET{T}             ; Enable in IE
                 RET
 ;===============================================================================
 ; Call with A (or BA for >8-bit values) set with desired value
