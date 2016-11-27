@@ -152,11 +152,11 @@ CmdByte:
                 ADD             A, #UPDATE_Row_Frame
                 ACALL           SetUpdate
                 SJMP            Executive
-;-------------------------------------------------------------------------------
+;===============================================================================
 SetUpdate:
                 MOV             LED_Update, A
                 ADD             A, #cTimer_Table - TimerOffset
-                MOVC            A, @A+PC           ; Weird PC-relative index
+                MOVC            A, @A+PC          ; Weird PC-relative index
 TimerOffset:
 
                 CALL            Timer0_Set

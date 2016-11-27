@@ -149,7 +149,7 @@ RXByte:
                 RET
 ;===============================================================================
 ; Call with A holding number to transmit
-; Modifies B, F1
+; Modifies DPTR, B, F1
 UART{U}_TX_Num:
                 MOV             DPH, #BuffersHigh ; Point to TX Buffer
                 MOV             DPL, TXHead       ; With both halves

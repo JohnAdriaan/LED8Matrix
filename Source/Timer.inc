@@ -3,7 +3,7 @@
 ;
 ; This file defines generic Timer routines to $INCLUDE into Timer modules.
 ; First define the T LITeral, then the required ports and bits,
-; then the generic versions required by this file;
+; then the generic versions required by this file:
 ;
 ; T             : The LITeral to allow Timer{T}_ISR etc. to be defined.
 ; rTL{T},rTH{T} : The Timer{T} Low and High count/reload registers
