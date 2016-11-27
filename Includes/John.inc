@@ -14,7 +14,7 @@ $GEN                            ; Enable macro expansions in listings
 ; It defines 2 or 3 symbols:
 ;    bName is the bit position (0-7)
 ;    Name  is the BIT Reg.bName definition (if bit is addressable)
-;    mName is the mask (1b shl bName)
+;    mName is the mask (01b shl bName)
 DefineBit       MACRO           Name, Reg, BitNum
 b&Name          EQU             BitNum
 IF ((Reg AND 007h)=000h) ; Bit directly addressable?

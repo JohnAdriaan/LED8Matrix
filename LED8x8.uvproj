@@ -474,9 +474,9 @@
               <FilePath>.\Listings\LED.lst</FilePath>
             </File>
             <File>
-              <FileName>Baud.lst</FileName>
+              <FileName>Main.lst</FileName>
               <FileType>5</FileType>
-              <FilePath>.\Listings\Baud.lst</FilePath>
+              <FilePath>.\Listings\Main.lst</FilePath>
             </File>
             <File>
               <FileName>UART2.lst</FileName>

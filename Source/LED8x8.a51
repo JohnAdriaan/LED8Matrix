@@ -180,7 +180,7 @@ InitIO:
                 CLR             A               ; 000h
                 MOV             pAnode, A       ; Anodes off
 
-                ; Push/Pull is rPxM1=0 and rPxM0=1
+                ; Push/Pull is rPxM1=0...
 ;               MOV             rP0M1, A
 ;               MOV             rP2M1, A
 IF (BOARD!=BOARD_PLCC40)
@@ -188,6 +188,7 @@ IF (BOARD!=BOARD_PLCC40)
 ;               MOV             rP3M1, A
 ENDIF
 
+                ; ...and rPxM0=1
                 CPL             A               ; 0FFh
                 MOV             rP0M0, A
                 MOV             rP2M0, A
