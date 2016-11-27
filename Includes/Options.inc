@@ -45,11 +45,12 @@ INT_Priority_3  EQU             11b     ; Highest priority
 
 ; The two Timers can be in different Modes - but if Timer0 is in Timer_Mode_8,
 ; then so will Timer1! (If only Timer1 is, then it is disabled.)
-TIMER_Mode_13   EQU             000b    ; 13-bit timer/counter
-TIMER_Mode_16   EQU             001b    ; 16-bit timer/counter
-TIMER_Mode_8_Auto EQU           010b    ; 8-bit timer/counter, auto-reloaded
-TIMER_Mode_8    EQU             011b    ; 2x8_bit timer/counters
-TIMER_Mode_x12  EQU             100b    ; Mask to indicate x12 mode
+TIMER_Mode_13   EQU             00b    ; 13-bit timer/counter
+TIMER_Mode_16   EQU             01b    ; 16-bit timer/counter
+TIMER_Mode_8_Auto EQU           10b    ; 8-bit timer/counter, auto-reloaded
+TIMER_Mode_8    EQU             11b    ; 2x8_bit timer/counters
+TIMER_Mode_Mask EQU             11b    ; Mask for just Mode value
+TIMER_Mode_x12  EQU             080h   ; Mask to indicate x12 mode
 ;TIMER0_Mode    EQU             TIMER_Mode_x12+TIMER_Mode_8_Auto ; Example
 ;TIMER1_Mode    EQU             TIMER_Mode_16                    ; Example
 
@@ -77,7 +78,7 @@ UART_Mode_8Var   EQU            0010b
 UART_Mode_9Shift EQU            0100b
 UART_Mode_9Var   EQU            0110b
 UART_Mode_Frame  EQU            0001b ; Mask to enable Frame Error Checking
-UART_Mode_Mask   EQU            0111b
+UART_Mode_Mask   EQU            0111b ; Mask for just Mode value
 ;UART_Mode       EQU            UART_Mode_BRG+UART_Mode_8Var ; Examples
 ;UART2_Mode      EQU            UART_Mode_x2+UART_Mode_8Var+UART_Mode_Frame
 

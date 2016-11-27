@@ -28,8 +28,8 @@ Timer{T}        SEGMENT         CODE
 
 Timer{T}_Init:
                 ; Set Timer mode
-;               ANL             rTMOD, #NOT ((TIMER{T}_Mode AND NOT TIMER_Mode_x12) SHL bM{T})
-                ORL             rTMOD, #    ((TIMER{T}_Mode AND NOT TIMER_Mode_x12) SHL bM{T})
+;               ANL             rTMOD, #NOT ((TIMER{T}_Mode AND TIMER_Mode_Mask) SHL bM{T})
+                ORL             rTMOD, #    ((TIMER{T}_Mode AND TIMER_Mode_Mask) SHL bM{T})
 
 IF (TIMER{T}_Mode AND TIMER_Mode_x12)
                 ORL             rAUXR, #mT{T}x12
@@ -38,7 +38,7 @@ ENDIF
                 ; Set interrupt priority
                 SetPriority     bPT{T}, TIMER{T}_Priority
 
-                ; Enable interrupts
+                ; Enable Timer{T} interrupt
                 SETB            IE{T}
                 RET
 ;===============================================================================
