@@ -44,10 +44,22 @@ ENDIF
 ;===============================================================================
 ; Call with A (or BA for >8-bit values) set with desired value
 Timer{T}_Set:
-IF     (TIMER{T}_Mode AND NOT TIMER_Mode_x12=TIMER_Mode_8)
-ELSEIF (TIMER{T}_Mode AND NOT TIMER_Mode_x12=TIMER_Mode_8_Auto)
-ELSEIF (TIMER{T}_Mode AND NOT TIMER_Mode_x12=TIMER_Mode_13)
-ELSEIF (TIMER{T}_Mode AND NOT TIMER_Mode_x12=TIMER_Mode_16)
+IF     ((TIMER{T}_Mode AND TIMER_Mode_Mask)=TIMER_Mode_8)
+   IF ({T}=0)
+                MOV             TL0, A
+   ELSE
+                MOV             TH0, A
+   ENDIF
+ELSEIF ((TIMER{T}_Mode AND TIMER_Mode_Mask)=TIMER_Mode_8_Auto)
+                MOV             TH{T}, A          ; Program reload value
+                MOV             TL{T}, A          ; Program current value
+ELSEIF ((TIMER{T}_Mode AND TIMER_Mode_Mask)=TIMER_Mode_13)
+                ANL             A, #1Fh           ; Lower 5 bits of TL!
+                MOV             TH{T}, B
+                MOV             TL{T}, A
+ELSEIF ((TIMER{T}_Mode AND TIMER_Mode_Mask)=TIMER_Mode_16)
+                MOV             TH{T}, B
+                MOV             TL{T}, A
 ELSE
 __ERROR__ "TIMER_Mode unknown!"
 ENDIF
