@@ -294,9 +294,8 @@ LEDNext:
                 INC             LEDBGRPtr         ; Next colour
                 CJNE            LEDBGRPtr, #rBGREnd, LEDLoop
 
-                CLR             C                 ; Need zero in Carry
                 MOV             A, LEDMask        ; Where are we in the mask?
-                RLC             A
+                ADD             A, ACC            ; A carryless shift left
                 JNC             PixelLoop         ; Still more to do
 
                 MOV             A, LEDAnode       ; Get current LEDAnode

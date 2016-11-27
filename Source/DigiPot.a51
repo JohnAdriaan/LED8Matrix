@@ -78,8 +78,7 @@ ELSEIF ((BOARD=BOARD_DigiPot) OR (BOARD=BOARD_PLCC40))
 ; Call with A set to desired mode
 ; Modifies: A, R0, R1, R2, R3, R7
 DigiPot_Set:
-                CLR             C             ; Need zero here
-                RLC             A             ; Two entries per table row
+                ADD             A, ACC        ; Two entries per table row
                 MOV             R2, A         ; Save table offset away
                 ADD             A, #cSet_Table-AnodeOffset ; Offset for Anode
                 MOVC            A, @A+PC      ; Weird PC-relative index
