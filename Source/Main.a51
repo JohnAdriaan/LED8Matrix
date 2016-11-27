@@ -53,6 +53,7 @@
                 $INCLUDE        (Options.inc)     ; Enabled options
 
                 $INCLUDE        (IE.inc)          ; Need Interrupt Enable SFRs
+                $INCLUDE        (P1.inc)
                 $INCLUDE        (PCON.inc)        ; Need Power Control SFRs
 
                 PUBLIC          Reset_ISR         ; Publish this for Vectors
@@ -81,6 +82,11 @@
                 EXTERN   CODE   (LED_Reset)
                 EXTERN   DATA   (LED_Update)
                 EXTERN   BIT    (LED_NewFrame)
+
+IF (BOARD=BOARD_PLCC40)
+                SFR  pSleep  =  pP1
+DefineBit       Eyes, pSleep, 7
+ENDIF
 
 ;===============================================================================
                 USING           3                 ; Inform compiler of Reg Banks
@@ -116,7 +122,13 @@ TXPrompt:
 Executive:
                 JBC             LED_NewFrame, NextFrame   ; Next frame flag? Clear!
                 JBC             {SERIAL}_RXed, ProcessCmd ; Next command flag? Clear!
+IF (BOARD=BOARD_PLCC40)
+                CLR             Eyes              ; Close eyes
+ENDIF
                 GoToSleep               ; Nothing to do until next interrupt
+IF (BOARD=BOARD_PLCC40)
+                SETB            Eyes              ; Open eyes
+ENDIF
                 SJMP            Executive         ; Start again
 
 ;-------------------------------------------------------------------------------
