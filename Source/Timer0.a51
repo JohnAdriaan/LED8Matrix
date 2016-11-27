@@ -13,8 +13,8 @@ $IF (TIMER0_Enable)
 
 T               LIT             '0'               ; Timer0
 
-                SFR    TL0  =   08Ah
-                SFR    TH0  =   08Ch
+                SFR   rTL0  =   08Ah
+                SFR   rTH0  =   08Ch
 
                 $INCLUDE        (Timer.inc)
 ;===============================================================================

@@ -29,6 +29,7 @@ Timer{T}        SEGMENT         CODE
 Timer{T}_Init:
                 ; Set Timer mode
 ;               ANL             rTMOD, #NOT ((TIMER{T}_Mode AND TIMER_Mode_Mask) SHL bM{T})
+;               ANL             rTMOD, #NOT CT{T} ; Set to Timer mode (vs Count)
                 ORL             rTMOD, #    ((TIMER{T}_Mode AND TIMER_Mode_Mask) SHL bM{T})
 
 IF (TIMER{T}_Mode AND TIMER_Mode_x12)
@@ -46,20 +47,20 @@ ENDIF
 Timer{T}_Set:
 IF     ((TIMER{T}_Mode AND TIMER_Mode_Mask)=TIMER_Mode_8)
    IF ({T}=0)
-                MOV             TL0, A
+                MOV             rTL0, A
    ELSE
-                MOV             TH0, A
+                MOV             rTH0, A
    ENDIF
 ELSEIF ((TIMER{T}_Mode AND TIMER_Mode_Mask)=TIMER_Mode_8_Auto)
-                MOV             TH{T}, A          ; Program reload value
-                MOV             TL{T}, A          ; Program current value
+                MOV             rTH{T}, A         ; Program reload value
+                MOV             rTL{T}, A         ; Program current value
 ELSEIF ((TIMER{T}_Mode AND TIMER_Mode_Mask)=TIMER_Mode_13)
-                ANL             A, #1Fh           ; Lower 5 bits of TL!
-                MOV             TH{T}, B
-                MOV             TL{T}, A
+                ANL             A, #01Fh          ; Lower 5 bits of TL!
+                MOV             rTH{T}, B
+                MOV             rTL{T}, A
 ELSEIF ((TIMER{T}_Mode AND TIMER_Mode_Mask)=TIMER_Mode_16)
-                MOV             TH{T}, B
-                MOV             TL{T}, A
+                MOV             rTH{T}, B
+                MOV             rTL{T}, A
 ELSE
 __ERROR__ "TIMER_Mode unknown!"
 ENDIF

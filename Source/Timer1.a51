@@ -13,8 +13,8 @@ $IF (TIMER1_Enable)
 
 T               LIT             '1'               ; Timer1
 
-                SFR    TL1  =   08Bh
-                SFR    TH1  =   08Dh
+                SFR   rTL1  =   08Bh
+                SFR   rTH1  =   08Dh
 
                 $INCLUDE        (Timer.inc)
 ;===============================================================================
