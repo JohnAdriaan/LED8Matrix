@@ -69,7 +69,9 @@ ELSEIF ((BOARD=BOARD_DigiPot) OR (BOARD=BOARD_PLCC40))
 ;               ANL             rDigiPotM1, #NOT mDigiPot ; Push/Pull is 0 in M1
                 ORL             rDigiPotM0, #    mDigiPot ; ...and 1 in M0
 
-;               SETB            ShDn                      ; Enable DigiPots
+                MOV             A, #UPDATE_LED_Pixel
+                ACALL           DigiPot_Set
+                SETB            ShDn                      ; Enable DigiPots
                 RET
 
 ;-------------------------------------------------------------------------------
