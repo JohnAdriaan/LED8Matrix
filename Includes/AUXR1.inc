@@ -15,7 +15,7 @@ UseDPTR         MACRO
                 ENDM
 
 UseDPTR1        MACRO
-                ORL             rAUXR1, #mDPS     ; Use DPTR1
+                ORL             rAUXR1, #    mDPS ; Use DPTR1
                 ENDM
 
 ; AUXiliary1 Register

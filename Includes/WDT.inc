@@ -16,5 +16,5 @@ DefineBit       IDLE_WDT, rWDT_CONTR, 3 ; Enable WatchDog Timer during IDLE
 DefineBit       PS2,      rWDT_CONTR, 2 ; Watchdog frequency selector mask
 DefineBit       PS1,      rWDT_CONTR, 1
 DefineBit       PS0,      rWDT_CONTR, 0
-bPS210          EQU       bPS0
-mPS210          EQU       (mPS2 + mPS1 + mPS0)
+   bPS210       EQU       bPS0          ; Selector shift number
+   mPS210       EQU      (mPS2 + mPS1 + mPS0)

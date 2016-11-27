@@ -67,7 +67,7 @@ IF     (BOARD=BOARD_Resistor)
                 RET
 ELSEIF ((BOARD=BOARD_DigiPot) OR (BOARD=BOARD_PLCC40))
 ;               ANL             rDigiPotM1, #NOT mDigiPot ; Push/Pull is 0 in M1
-                ORL             rDigiPotM0, #mDigiPot     ; ...and 1 in M0
+                ORL             rDigiPotM0, #    mDigiPot ; ...and 1 in M0
 
 ;               SETB            ShDn                      ; Enable DigiPots
                 RET
@@ -169,7 +169,7 @@ cSet_Row_LED:    DB             %Entry(Port_uA_Colour)
 cSet_Row_Colour: DB             %Entry(Port_uA_Colour)
 
 ELSE
-__ERROR__       "BOARD not defined!"
+__ERROR__       "BOARD unknown!"
 ENDIF
 ;===============================================================================
 $ENDIF

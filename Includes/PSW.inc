@@ -8,7 +8,7 @@
 
 SetBank         MACRO           Bank
 IF (Bank=00b)
-                ANL             PSW, #NOT (mRS1+mRS0)
+                ANL             PSW, #NOT mRS
 ELSEIF (Bank=01b)
                 CLR             RS1
                 SETB            RS0
@@ -16,7 +16,7 @@ ELSEIF (Bank=10b)
                 SETB            RS1
                 CLR             RS0
 ELSEIF (Bank=11b)
-                ORL             PSW, #mRS1+mRS0
+                ORL             PSW, #mRS
 ELSE
 __ERROR__       "Invalid Bank!"
 ENDIF
@@ -31,8 +31,8 @@ DefineBit       AC,  rPSW, 6            ; Auxiliary Carry flag (for BCD)
 DefineBit       F0,  rPSW, 5            ; (User) Flag 0
 DefineBit       RS1, rPSW, 4            ; Register bank Select 1
 DefineBit       RS0, rPSW, 3            ; Register bank Select 0
-bRS             EQU        bRS0          ; Register Bank shift number
-mRS             EQU        (mRS1 + mRS0) ; Register Bank mask
+   bRS          EQU             bRS0    ; Register Bank shift number
+   mRS          EQU            (mRS1 + mRS0) ; Register Bank mask
 
 ;DefineBit      OV,  rPSW, 2            ; OVerflow flag
 bOV             EQU             2

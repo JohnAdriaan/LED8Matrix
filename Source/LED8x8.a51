@@ -68,7 +68,7 @@ ELSEIF (BOARD=BOARD_Resistor)
                 SFR   pGreen  = pP0  ; 080h
                 SFR   pRed    = pP3  ; 0B0h
 ELSE
-__ERROR__       "BOARD not defined!"
+__ERROR__       "BOARD unknown!"
 ENDIF
 
                 PUBLIC          LED_Init
