@@ -379,6 +379,11 @@
               <FilePath>.\Source\CPU.a51</FilePath>
             </File>
             <File>
+              <FileName>Timer.inc</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Source\Timer.inc</FilePath>
+            </File>
+            <File>
               <FileName>Timer0.a51</FileName>
               <FileType>2</FileType>
               <FilePath>.\Source\Timer0.a51</FilePath>
@@ -469,14 +474,14 @@
               <FilePath>.\Listings\LED.lst</FilePath>
             </File>
             <File>
-              <FileName>Main.lst</FileName>
+              <FileName>Baud.lst</FileName>
               <FileType>5</FileType>
-              <FilePath>.\Listings\Main.lst</FilePath>
+              <FilePath>.\Listings\Baud.lst</FilePath>
             </File>
             <File>
-              <FileName>UART.lst</FileName>
+              <FileName>UART2.lst</FileName>
               <FileType>5</FileType>
-              <FilePath>.\Listings\UART.lst</FilePath>
+              <FilePath>.\Listings\UART2.lst</FilePath>
             </File>
           </Files>
         </Group>
@@ -532,6 +537,11 @@
               <FileName>TCON.inc</FileName>
               <FileType>5</FileType>
               <FilePath>.\Includes\TCON.inc</FilePath>
+            </File>
+            <File>
+              <FileName>TMOD.inc</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Includes\TMOD.inc</FilePath>
             </File>
             <File>
               <FileName>AUXR.inc</FileName>

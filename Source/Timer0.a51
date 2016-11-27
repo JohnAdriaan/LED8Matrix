@@ -1,7 +1,8 @@
 ;
 ; Timer0.a51
 ;
-; This file defines the Timer0 ISR, and some useful functions.
+; This file defines the Timer0 symbols and some useful functions.
+; Those functions are actually defined in Timer.inc - to commonalise the code.
 ;
 
                 NAME            Timer0
@@ -10,30 +11,12 @@
 
 $IF (TIMER0_Enable)
 
-                $INCLUDE        (IE.inc)
-                $INCLUDE        (TCON.inc)
+T               LIT             '0'               ; Timer0
 
-                EXTERN   CODE   (Timer0_Handler)
+                SFR    TL0  =   08Ah
+                SFR    TH0  =   08Ch
 
-                PUBLIC          Timer0_Init
-                PUBLIC          Timer0_ISR
-
-;===============================================================================
-Timer0          SEGMENT         CODE
-                RSEG            Timer0
-
-Timer0_Init:
-                ORL             rIPH, #mPT0H      ; Set T0 int to priority 11b
-                ORL             rIP,  #mPT0
-                RET
-;===============================================================================
-Timer0_ISR:
-                PUSH            PSW
-                PUSH            ACC
-                ACALL           Timer0_Handler
-                POP             ACC
-                POP             PSW
-                RETI
+                $INCLUDE        (Timer.inc)
 ;===============================================================================
 $ENDIF
                 END
