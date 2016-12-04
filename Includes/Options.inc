@@ -83,26 +83,43 @@ UART_Mode_Mask   EQU                0111b ; Mask for just Mode value
 ;UART2_Mode      EQU            UART_Mode_x2+UART_Mode_8Var+UART_Mode_Frame
 
 ; There are three boards:
-; * BOARD_PLCC40 has no LED, and only one single DigiPot;
+; * BOARD_PLCC40 has no LED Matrix, and one single DigiPot cascade;
 ; * BOARD_DigiPot has digital potentiometers;
 ; * BOARD_Resistor has fixed resistors.
 ; Other than the obvious, the differences are:
 ; * For testing purposes, spare Ports on the PLCC40 version are used for LEDs;
 ; * For board layout reasons, Cathodes and Anodes are on different I/O ports;
-; * The boards boards use different clocks (CPU_Freq, in 512*Hz).
+; * The different boards use different CPU clocks.
 BOARD_PLCC40    EQU             0
 BOARD_DigiPot   EQU             1
 BOARD_Resistor  EQU             2
 
-BOARD           EQU             BOARD_PLCC40
-TIMER0_Mode     EQU             TIMER_Mode_x12+TIMER_Mode_8_Auto
+BOARD           EQU             BOARD_Resistor ; BOARD_PLCC40
+TIMER0_Mode     EQU             TIMER_Mode_8_Auto ; + TIMER_Mode_x12
 TIMER0_Priority EQU             INT_Priority_3
 BAUD_Rate       EQU             BAUD_115200
+
+IF              (BOARD=BOARD_PLCC40)
+                $INCLUDE        (P1.inc)
+                SFR  pSleep  =  pP1
+DefineBit       Eyes, pSleep, 7
+OpenEyes        MACRO
+                SETB            Eyes
+                ENDM
+CloseEyes       MACRO
+                CLR             Eyes
+                ENDM
+ELSE
+OpenEyes        MACRO
+                ENDM
+CloseEyes       MACRO
+                ENDM
+ENDIF
 
 IF     (BOARD=BOARD_PLCC40)
    SERIAL       LIT             'UART2'
    $SET     (UART2_Enable)
-   ;$SET    (UART2_Alt)
+;  $SET     (UART2_Alt)
    $SET     (DIGIPOT_Enable)
    CPU_Freq          EQU        CPU_11059200
    {SERIAL}_Priority EQU        INT_Priority_2

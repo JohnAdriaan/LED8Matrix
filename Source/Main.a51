@@ -84,11 +84,6 @@ $ENDIF
                 EXTERN   DATA   (LED_Update)
                 EXTERN   BIT    (LED_NewFrame)
 
-IF (BOARD=BOARD_PLCC40)
-                SFR  pSleep  =  pP1
-DefineBit       Eyes, pSleep, 7
-ENDIF
-
 ;===============================================================================
                 USING           3                 ; Inform compiler of Reg Banks
                 USING           2
@@ -103,6 +98,7 @@ cPrompt:        DB              "LED8x8> ", 0
 Reset_ISR:
                 MOV             SP, #CPU_Stack_Top-1 ; Better (upgoing) Stack addr
                 CALL            CPU_Init          ; Initialise CPU SFRs
+                CloseEyes
                 CALL            Baud_Init         ; Initiaise Baud Rate Timer
                 CALL            {SERIAL}_Init     ; Initialise Serial port
 
@@ -115,21 +111,18 @@ $ENDIF
 
                 MOV             A, #UPDATE        ; Starting mode
                 ACALL           SetUpdate
-                CALL            Timer0_Start
                 SETB            EA                ; Enable all interrupts
+
+                CALL            Timer0_Start
 TXPrompt:
                 MOV             DPTR, #cPrompt
                 CALL            {SERIAL}_TX_Code
 Executive:
                 JBC             LED_NewFrame, NextFrame   ; Next frame flag? Clear!
                 JBC             {SERIAL}_RXed, ProcessCmd ; Next command flag? Clear!
-IF (BOARD=BOARD_PLCC40)
-                CLR             Eyes              ; Close eyes
-ENDIF
+;               CloseEyes
                 GoToSleep               ; Nothing to do until next interrupt
-IF (BOARD=BOARD_PLCC40)
-                SETB            Eyes              ; Open eyes
-ENDIF
+;               OpenEyes
                 SJMP            Executive         ; Start again
 
 ;-------------------------------------------------------------------------------

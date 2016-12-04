@@ -364,6 +364,11 @@
           <GroupName>Source</GroupName>
           <Files>
             <File>
+              <FileName>Options.inc</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Includes\Options.inc</FilePath>
+            </File>
+            <File>
               <FileName>Vector.a51</FileName>
               <FileType>2</FileType>
               <FilePath>.\Source\Vector.a51</FilePath>
@@ -469,11 +474,6 @@
               <FilePath>.\Objects\LED8x8.hex</FilePath>
             </File>
             <File>
-              <FileName>LED.lst</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\Listings\LED.lst</FilePath>
-            </File>
-            <File>
               <FileName>Main.lst</FileName>
               <FileType>5</FileType>
               <FilePath>.\Listings\Main.lst</FilePath>
@@ -488,20 +488,25 @@
               <FileType>5</FileType>
               <FilePath>.\Listings\Timer0.lst</FilePath>
             </File>
+            <File>
+              <FileName>LED8x8.lst</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Listings\LED8x8.lst</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
           <GroupName>Includes</GroupName>
           <Files>
             <File>
-              <FileName>John.inc</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\Includes\John.inc</FilePath>
-            </File>
-            <File>
               <FileName>Options.inc</FileName>
               <FileType>5</FileType>
               <FilePath>.\Includes\Options.inc</FilePath>
+            </File>
+            <File>
+              <FileName>John.inc</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Includes\John.inc</FilePath>
             </File>
             <File>
               <FileName>PSW.inc</FileName>
