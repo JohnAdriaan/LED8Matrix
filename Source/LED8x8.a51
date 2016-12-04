@@ -223,8 +223,8 @@ UpdateTable:
                 AJMP            UpdateLEDPixel
                 AJMP            UpdateLEDColour
                 AJMP            UpdateLEDRow
-                AJMP            UpdateRowPixel
-                AJMP            UpdateRowLED
+                AJMP            UpdateRowPixel    ; BGR0.01234567,          (24)
+                AJMP            UpdateRowLED      ; B0.01234567,G0.01234567, (8)
 ;               AJMP            UpdateRowColour   ; Just being clever...
 ;...............................................................................
 UpdateRowColour:
@@ -250,7 +250,8 @@ UpdateLEDRow:
 UpdateRowPixel:
 ; One whole Row changes per cycle (BGR0.01234567,)     (8*3)
                 CJNE            LEDAnode, #080h, NextRow ; Not at end of Anodes?
-                DJNZ            LEDCycle, NextRow ; Still in current cycle?
+                MOV             LEDIndex, #aPWM   ; Restart LEDIndex
+                DJNZ            LEDCycle, Cycle   ; Still in current cycle?
 
                 ; New frame started! Copy frame across
                 ACALL           CopyFrame
