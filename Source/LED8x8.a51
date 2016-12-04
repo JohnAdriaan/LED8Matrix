@@ -37,7 +37,7 @@ nLEDs           EQU             nLEDsPerRow * nRows
 
 LEDBank         EQU             3  ; Register bank used in LED interrupt
 
-LEDPtr          EQU             R0 ; Pointer into decrement area
+LEDIndex        EQU             R0 ; Current pointer into decrement area
 
 LEDBGRPtr       EQU             R1 ; Pointer to LED Color bit registers
                 SFR rBGRStart = LEDBank*8 + 2
@@ -50,7 +50,8 @@ LEDAnode        EQU             R5 ; Current Anode
                 SFR rLEDAnode = LEDBank*8 + 5
 
 LEDMask         EQU             R6 ; Current LED Mask to set
-LEDIndex        EQU             R7 ; Index of row into decrement area
+LEDCycle        EQU             R7 ; Where we are in the countdown
+                SFR rLEDCycle = LEDBank*8 + 7
 
 IF     (BOARD=BOARD_PLCC40)
                 SFR   pAnode  = pP0  ; 080h
@@ -88,8 +89,6 @@ LED_Data        SEGMENT         DATA
                 RSEG            LED_Data
 
 LED_Update:     DSB             1
-;-------------------------------------------------------------------------------
-LEDCycle:       DSB             1                 ; Where we are in the countdown
 ;===============================================================================
 LED_PWM         SEGMENT         XDATA AT 00000h
                 RSEG            LED_PWM
@@ -172,7 +171,7 @@ nLogoSize       EQU             $-cLogo
 ;...............................................................................
 InitVars:
                 CLR             LED_NewFrame      ; Can't generate new frame yet
-                MOV             LEDCycle, #1      ; Pretend at end of Frame
+                MOV             rLEDCycle, #1     ; Pretend at end of Frame
                 MOV             rLEDAnode, #080h  ; Pretend at last Anode
                 RET
 
@@ -304,7 +303,7 @@ LEDNext:
                 MOV             pBlue,  LEDBlue
                 MOV             pGreen, LEDGreen
                 MOV             pRed,   LEDRed
-                MOV             pAnode, A         ; Save new Anode back
+                MOV             pAnode, A         ; Set new Anode
 
                 AJMP            Timer0_Exit
 ;...............................................................................
@@ -316,16 +315,16 @@ CopyFrame:
                 SETB            EA                ; Allow interrupts during copy
                 MOV             DPTR, #aFrame     ; Source area
 
-                MOV             R7, #nLEDs        ; This many LEDs
+                MOV             LEDCycle, #nLEDs  ; This many LEDs
 CopyLoop:
                 MOVX            A, @DPTR          ; Get byte to copy
                 DEC             DPH               ; Destination area
                 MOVX            @DPTR, A          ; Store in decrement area
                 INC             DPH               ; Back to Source area
                 INC             DPTR              ; Next byte
-                DJNZ            R7, CopyLoop
 
                 CLR             EA                ; That's enough!
+                DJNZ            LEDCycle, CopyLoop
 
                 RET
 ;===============================================================================
