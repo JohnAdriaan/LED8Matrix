@@ -129,7 +129,9 @@ InitNibbleLoop:
                 RLC             A                 ; Get Intensity bit into Carry
                 MOV             R2, A             ; Save value away
                 MOV             A, #0FFh          ; Full intensity
-                RRC             A                 ; Half intensity?
+                JC              InitSetNibble     ; Yes!
+                MOV             A, #00Fh          ; No...
+InitSetNibble:
                 XCH             A, R2             ; Swap back, and save intensity
 
                 MOV             R5, #nColours     ; Number of colours
@@ -257,7 +259,7 @@ UpdateRowPixel:
                 ACALL           CopyFrame
 
                 SETB            LED_NewFrame
-                MOV             LEDIndex, #aPWM
+                MOV             LEDCycle, #8      ; Next cycle
                 SJMP            Cycle
 
 NextRow:
@@ -282,7 +284,8 @@ PixelLoop:
 LEDLoop:
                 MOVX            A, @DPTR          ; Get current LED value
                 JZ              LEDNext           ; Jump if A is Zero
-                DEC             A                 ; PWM LED value
+                CLR             C                 ; Need zero here
+                RRC             A                 ; PWM LED value (Logarithmic!)
                 MOVX            @DPTR, A          ; and store back
 
 ; Zero bit indicated by LEDMask in current colour register
