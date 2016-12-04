@@ -263,6 +263,7 @@ NextRow:
                 MOV             A, LEDIndex       ; Current row
                 ADD             A, #nLEDsPerRow   ; New position
                 MOV             LEDIndex, A       ; Into index
+;               SJMP            Cycle
 
 Cycle:
                 MOV             DPH, #000h         ; Decrement area
@@ -284,8 +285,8 @@ LEDLoop:
                 MOVX            @DPTR, A          ; and store back
 
 ; Zero bit indicated by LEDMask in current colour register
-                MOV             A, LEDMask        ; Get LED Mask
-                XRL             A, @LEDBGRPtr     ; XOR with current colour
+                MOV             A, @LEDBGRPtr     ; Get current colour
+                XRL             A, LEDMask        ; XOR with LED Mask
                 MOV             @LEDBGRPtr, A     ; Save back
 LEDNext:
                 INC             DPTR              ; Next LED value
@@ -293,7 +294,7 @@ LEDNext:
                 CJNE            LEDBGRPtr, #rBGREnd, LEDLoop
 
                 MOV             A, LEDMask        ; Where are we in the mask?
-                ADD             A, ACC            ; A carryless shift left
+                ADD             A, ACC            ; A no-carry-in shift left
                 JNC             PixelLoop         ; Still more to do
 
                 MOV             A, LEDAnode       ; Get current LEDAnode
@@ -312,7 +313,7 @@ UpdateRowLED:
                 AJMP            Timer0_Exit
 ;...............................................................................
 CopyFrame:
-                SETB            EA                ; Allow interrupts during copy
+;               SETB            EA                ; Allow interrupts during copy
                 MOV             DPTR, #aFrame     ; Source area
 
                 MOV             LEDCycle, #nLEDs  ; This many LEDs
@@ -322,9 +323,8 @@ CopyLoop:
                 MOVX            @DPTR, A          ; Store in decrement area
                 INC             DPH               ; Back to Source area
                 INC             DPTR              ; Next byte
-
-                CLR             EA                ; That's enough!
                 DJNZ            LEDCycle, CopyLoop
+;               CLR             EA                ; That's enough!
 
                 RET
 ;===============================================================================
