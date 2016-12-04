@@ -118,10 +118,10 @@ LED_Reset:
 InitFrame:
                 MOV             DPTR, #aFrame     ; Store in the Frame area
 
-                MOV             R6, #cLogo - LogoOffset ; Start offset
+                MOV             R0, #cLogo - LogoOffset ; Start offset
                 MOV             R7, #nLogoSize    ; Number of Logo bytes
 InitFrameLoop:
-                MOV             A, R6             ; Get current offset
+                MOV             A, R0             ; Get current offset
                 MOVC            A, @A+PC          ; Weird PC-relative indexing
 LogoOffset:                                       ; (Base to offset from)
 
@@ -149,7 +149,7 @@ InitColour:
 
                 JBC             F0, InitNibbleLoop ; Go around for next nibble?
 
-                INC             R6                ; Next byte in Logo
+                INC             R0                ; Next byte in Logo
                 DJNZ            R7, InitFrameLoop
 
                 RET
@@ -159,13 +159,14 @@ InitColour:
 ; * 4 bits per pixel (IBGR);
 ; * MSn to LSn=left to right
 cLogo:
-                DB              044h, 044h, 0D0h, 0D4h
+                DB              044h, 044h, 0D9h, 0D4h
                 DB              044h, 0DDh, 000h, 00Dh
                 DB              04Dh, 00Dh, 000h, 00Dh
                 DB              0D0h, 000h, 000h, 0D4h
                 DB              04Dh, 00Dh, 000h, 00Dh
                 DB              044h, 0DDh, 000h, 00Dh
-                DB              044h, 044h, 04Dh, 044h
+                DB              044h, 044h, 0D9h, 0D4h
+                DB              044h, 044h, 044h, 044h
 nLogoSize       EQU             $-cLogo
 
 ;...............................................................................
@@ -198,9 +199,9 @@ IF (BOARD!=BOARD_PLCC40)
 ENDIF
 
                 ; Set all Cathodes high (LEDs off)
-                MOV             pRed,   A
-                MOV             pGreen, A
-                MOV             pBlue,  A
+;               MOV             pRed,   A
+;               MOV             pGreen, A
+;               MOV             pBlue,  A
 
                 RET
 ;-------------------------------------------------------------------------------
