@@ -53,6 +53,19 @@ LEDMask         EQU             R6 ; Current LED Mask to set
 LEDCycle        EQU             R7 ; Where we are in the countdown
                 SFR rLEDCycle = LEDBank*8 + 7
 
+; Different PWM algorithms implemented here
+LED_DoPWM       MACRO           LEDNext
+                MOVX            A, @DPTR          ; Get current LED value
+                JZ              LEDNext           ; Zero? Nothing to do.
+
+;               DEC             A                 ; PWM down one (Arithmetic!)
+
+                CLR             C                 ; Need zero here
+                RRC             A                 ; PWM LED value (Logarithmic!)
+
+                MOVX            @DPTR, A          ; and store back
+                ENDM
+
 IF     (BOARD=BOARD_PLCC40)
                 SFR   pAnode  = pP0  ; 080h
                 SFR   pBlue   = pP2  ; 0A0h
@@ -325,11 +338,7 @@ PixelLoop:
                 MOV             LEDMask, A
                 MOV             LEDBGRPtr, #rBGRStart
 LEDLoop:
-                MOVX            A, @DPTR          ; Get current LED value
-                JZ              LEDNext           ; Jump if A is Zero
-                CLR             C                 ; Need zero here
-                RRC             A                 ; PWM LED value (Logarithmic!)
-                MOVX            @DPTR, A          ; and store back
+                LED_DoPWM       LEDNext
 
 ; Zero bit indicated by LEDMask in current colour register
                 MOV             A, @LEDBGRPtr     ; Get current colour
