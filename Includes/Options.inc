@@ -68,6 +68,7 @@ BAUD_19200      EQU              1200 ;  19,200 baud in 16 Hz steps
 BAUD_38400      EQU              2400 ;  38,400 baud in 16 Hz steps
 BAUD_57600      EQU              3600 ;  57,600 baud in 16 Hz steps
 BAUD_115200     EQU              7200 ; 115,200 baud in 16 Hz steps
+BAUD_230400     EQU             14400 ; 230,400 baud in 16 Hz steps
 BAUD_345600     EQU             21600 ; 345,600 baud in 16 Hz steps
 ;BAUD_Rate      EQU             BAUD_115200 ; Example
 
@@ -94,7 +95,7 @@ BOARD_PLCC40    EQU             0
 BOARD_DigiPot   EQU             1
 BOARD_Resistor  EQU             2
 
-BOARD           EQU             BOARD_Resistor ; BOARD_PLCC40
+BOARD           EQU             BOARD_Resistor
 TIMER0_Mode     EQU             TIMER_Mode_8_Auto ; + TIMER_Mode_x12
 TIMER0_Priority EQU             INT_Priority_3
 BAUD_Rate       EQU             BAUD_115200
@@ -109,10 +110,15 @@ OpenEyes        MACRO
 CloseEyes       MACRO
                 CLR             Eyes
                 ENDM
+ToggleEyes      MACRO
+                CPL             Eyes
+                ENDM
 ELSE
 OpenEyes        MACRO
                 ENDM
 CloseEyes       MACRO
+                ENDM
+ToggleEyes      MACRO
                 ENDM
 ENDIF
 
@@ -142,9 +148,14 @@ ELSE
    __ERROR__       "BOARD unknown!"
 ENDIF
 
-; * A "cycle" is a single count downwards of the LED value(s) - one PWM cycle.
+; * A "cycle" is a single count downwards of the LED value(s) - one PWM cycle:
 ;   - This is embodied in a single interrupt - whatever the interrupt does.
-; * A "frame" is an update of the entire matrix.
+; * A "count" is either a decrement or a shift right:
+;   - A decrement means that the full 256-count (16+ million colours) can be
+;     shown. However, this won't PWM well.
+;   - A shift right means that there are only really 9 possible values, with
+;     ever-greater ranges for larger and larger numbers. Logarithmic, in fact!
+; * A "frame" is an update of the entire matrix:
 ;   - For persistence of vision, there have to be many Frames Per Second (FPS).
 ;   - Depending on colour depth (bits per colour(LED): 1/2/4/6/8), that could be
 ;     1, 4, 16, 64 or 256 cycles (interrupts) per LED per frame (grouped as
@@ -156,19 +167,23 @@ FPS             EQU             25 ; Frames Per Second. Sets the interrupt rate.
 ; 0) Each cycle, update the whole frame.
 ;    * There aren't enough individual I/Os for that - there'd need to be 192!
 ;    * And, the LED Matrix isn't designed that way.
-;    * There would need to be FPS*Cycle interrupts per second.
+;    * There would need to be FPS*Cycle interrupts per second:
+;      - Assuming 25 FPS and 256 cycles, that's 6,400 interrupts per second;
+;      - Assuming 25 FPS and 8 cycles, that's 200 interrupts per second.
 ; 1) Each cycle, update one whole row (All the colours of each pixel).
 ;    * This would have up to 24 LEDs lit at once.
 ;      Given a 120mA chip maximum (not forgetting that the anode is shared!),
 ;      with a per-pin 20 mA, each LED can use a maximum of 0.833 mA.
-;    * There needs to be FPS*Cycle*8 interrupts per second.
-;      Assuming 24 FPS and 256 colours, that's 49,152 interrupts per second!
+;    * There needs to be FPS*Cycle*8 interrupts per second:
+;      - Assuming 25 FPS and 256 cycles, that's 51,200 interrupts per second!
+;      - Assuming 25 FPS and 8 cycles, that's 1,600 interrupts per second.
 ; 2) Each cycle, update one colour in each row (All the Blues, Greens or Reds).
 ;    * This would have up to 8 LEDs lit at once.
 ;      Given a 120mA chip maximum (not forgetting that the anode is shared!),
 ;      with a per-pin 20 mA, each LED can use a maximum of 2.5 mA.
 ;    * There needs to be FPS*Cycle*8*3 interrupts per second.
-;      Assuming 24 FPS and 256 colours, that's 147,456 interrupts per second!
+;      - Assuming 25 FPS and 256 cycles, that's 153,600 interrupts per second!
+;      - Assuming 25 FPS and 8 cycles, that's  4,800 interrupts per second.
 ;    * Note that either:
 ;      a) Each colour in one row is updated before the next row is started;
 ;      b) Each colour in all rows is updated before the next colour is started.
@@ -177,13 +192,15 @@ FPS             EQU             25 ; Frames Per Second. Sets the interrupt rate.
 ;      Given a 120mA chip maximum (not forgetting that the anode is shared!),
 ;      with a per-pin 20 mA, each LED can use a maximum of 6.66 mA.
 ;    * There needs to be FPS*Cycle*8*8 interrupts per second.
-;      Assuming 24 FPS and 256 colours, that's 393,216 interrupts per second!
+;      - Assuming 25 FP5 and 256 cycles, that's 409,600 interrupts per second!
+;      - Assuming 25 FPS and 8 cycles, that's 12,800 interrupts per second.
 ; 4) Each cycle, update one LED in each row.
 ;    * This would have up to 1 LED lit at once.
 ;      Given a 120mA chip maximum with a per-pin 20 mA, each LED can use a
 ;      maximum of 20 mA.
 ;    * There needs to be FPS*Cycle*8*8*3 interrupts per second.
-;      Assuming 24 FPS and 256 colours, that's 1,179,648 interrupts per second!
+;      - Assuming 25 FPS and 256 cycles, that's 1,228,800 interrupts per second!
+;      - Assuming 25 FPS and 8 cycles, that's 38,400 interrupts per second.
 ;    * Note that either:
 ;      a) Each colour in one pixel is updated before the next pixel is started;
 ;      b) Each colour in one row of pixels is updated before the next row is
@@ -222,7 +239,7 @@ UPDATE_Row_Pixel  EQU           100b    ; BGR0.01234567,...                 (24)
 UPDATE_Row_LED    EQU           101b    ; B0.01234567,G0.01234567,...        (8)
 UPDATE_Row_Colour EQU           110b    ; B0.01234567,B1.01234567,...        (8)
 UPDATE_Row_Frame  EQU           111b    ;                                 (192!)
-UPDATE_Row_End    EQU           UPDATE_Row_Frame
+UPDATE_Row_Last   EQU           UPDATE_Row_Frame
 
 UPDATE          EQU             UPDATE_Row_Pixel
 
