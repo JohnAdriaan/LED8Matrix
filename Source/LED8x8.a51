@@ -190,8 +190,9 @@ nLogoSize       EQU             $-cLogo
 ;...............................................................................
 InitVars:
                 CLR             LED_NewFrame      ; Can't generate new frame yet
-                MOV             rLEDCycle, #1     ; Pretend at end of Frame
-                MOV             rLEDAnode, #080h  ; Pretend at last Anode
+                MOV             rLEDAnode, #001h  ; Start at first Anode
+                MOV             rLEDIndex, #nLEDs ; Pretend at end of Frame
+                MOV             rLEDCycle, #1     ; Pretend at last Cycle
                 RET
 
 ;...............................................................................
@@ -310,21 +311,12 @@ UpdateLEDRow:
 ;...............................................................................
 UpdateRowPixel:
 ; One whole Row changes per cycle (BGR0.01234567,)     (8*3)
-                CJNE            LEDAnode, #080h, NextRow ; Not at end of Anodes?
-                MOV             LEDIndex, #aPWM   ; Restart LEDIndex
-                DJNZ            LEDCycle, Cycle   ; Still in current cycle?
+                CJNE            LEDIndex, #nLEDs, URP_Cycle ; Past LEDs?
+                MOV             LEDIndex, #aPWM             ; Restart LEDIndex
+                DJNZ            LEDCycle, URP_Cycle   ; Still in current cycle?
 
                 ; New frame started! Copy frame across
                 ACALL           CopyFrame
-
-                SETB            LED_NewFrame
-                MOV             LEDCycle, #8      ; Next cycle
-                SJMP            Cycle
-
-NextRow:
-                MOV             A, LEDIndex       ; Current row
-                ADD             A, #nLEDsPerRow   ; New position
-                MOV             LEDIndex, A       ; Into index
 ;               SJMP            URP_Cycle
 URP_Cycle:
                 MOV             DPH, #000h         ; Decrement area
@@ -356,13 +348,17 @@ URP_LEDNext:
                 JNC             URP_PixelLoop     ; Still more to do
 
                 MOV             A, LEDAnode       ; Get current LEDAnode
-                RL              A                 ; Change which Anode
-                MOV             LEDAnode, A       ; Remember for next time
                 MOV             pAnode, #0        ; Turn off Anodes
                 MOV             pBlue,  LEDBlueRow
                 MOV             pGreen, LEDGreenRow
                 MOV             pRed,   LEDRedRow
                 MOV             pAnode, A         ; Set new Anode
+                RL              A                 ; Change which Anode
+                MOV             LEDAnode, A       ; Remember for next time
+
+                MOV             A, LEDIndex       ; Current row
+                ADD             A, #nLEDsPerRow   ; New position
+                MOV             LEDIndex, A       ; Into index
 
                 AJMP            Timer0_Exit
 ;...............................................................................
@@ -387,6 +383,8 @@ CopyLoop:
                 DJNZ            LEDCycle, CopyLoop
 ;               CLR             EA                ; That's enough!
 
+                SETB            LED_NewFrame      ; Set NewFrame flag
+                MOV             LEDCycle, #8      ; Next cycle
                 RET
 ;===============================================================================
 $ENDIF
