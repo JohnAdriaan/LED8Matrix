@@ -9,8 +9,8 @@
 ;   interrupt to vector off) - but the code could be smaller!
 ; * The alternative is to quickly vector off the current UPDATE to specific
 ;   routines, written to carefully maintain state within the register bank from
-;   interrupt to interrupt. Cute - I just need to remember to zero the variables
-;   when changing UPDATE.
+;   interrupt to interrupt. Cute - I just need to remember to initialise the
+;   variables when changing UPDATE.
 ; My concern is that I have a 2,048-byte code limit. When I add a font table I'm
 ; going to blow that. Of course, there are techniques that I could use to burn
 ; the font table independent of the code. Hmmm...
@@ -38,12 +38,15 @@ nLEDs           EQU             nLEDsPerRow * nRows
 LEDBank         EQU             3  ; Register bank used in LED interrupt
 
 LEDIndex        EQU             R0 ; Current pointer into decrement area
+                SFR rLEDIndex = LEDBank*8 + 0
 
-LEDBGRPtr       EQU             R1 ; Pointer to LED Color bit registers
+LEDBGRPtr       EQU             R1 ; Pointer to LED Color bit ports/registers
+                SFR rLEDBGRPtr = LEDBank*8 + 1
+
                 SFR rBGRStart = LEDBank*8 + 2
-LEDBlue         EQU             R2
-LEDGreen        EQU             R3
-LEDRed          EQU             R4
+LEDBlueRow      EQU             R2 ; Accumulators when doing RGB simultaneously
+LEDGreenRow     EQU             R3
+LEDRedRow       EQU             R4
                 SFR rBGREnd   = LEDBank*8 + 5
 
 LEDAnode        EQU             R5 ; Current Anode
@@ -322,44 +325,43 @@ NextRow:
                 MOV             A, LEDIndex       ; Current row
                 ADD             A, #nLEDsPerRow   ; New position
                 MOV             LEDIndex, A       ; Into index
-;               SJMP            Cycle
-
-Cycle:
+;               SJMP            URP_Cycle
+URP_Cycle:
                 MOV             DPH, #000h         ; Decrement area
                 MOV             A, #0FFh           ; All bits off (Cathode!)
-                MOV             LEDBlue,  A
-                MOV             LEDGreen, A
-                MOV             LEDRed,   A
+                MOV             LEDBlueRow,  A
+                MOV             LEDGreenRow, A
+                MOV             LEDRedRow,   A
 
                 MOV             DPL, LEDIndex     ; Current index into pointer
 
                 MOV             A, #00000001b     ; Start LEDMask value
-PixelLoop:
+URP_PixelLoop:
                 MOV             LEDMask, A
                 MOV             LEDBGRPtr, #rBGRStart
-LEDLoop:
-                LED_DoPWM       LEDNext
+URP_LEDLoop:
+                LED_DoPWM       URP_LEDNext
 
-; Zero bit indicated by LEDMask in current colour register
+                ; Zero bit indicated by LEDMask in current colour register
                 MOV             A, @LEDBGRPtr     ; Get current colour
                 XRL             A, LEDMask        ; XOR with LED Mask
                 MOV             @LEDBGRPtr, A     ; Save back
-LEDNext:
+URP_LEDNext:
                 INC             DPTR              ; Next LED value
                 INC             LEDBGRPtr         ; Next colour
-                CJNE            LEDBGRPtr, #rBGREnd, LEDLoop
+                CJNE            LEDBGRPtr, #rBGREnd, URP_LEDLoop
 
                 MOV             A, LEDMask        ; Where are we in the mask?
                 ADD             A, ACC            ; A no-carry-in shift left
-                JNC             PixelLoop         ; Still more to do
+                JNC             URP_PixelLoop     ; Still more to do
 
                 MOV             A, LEDAnode       ; Get current LEDAnode
                 RL              A                 ; Change which Anode
                 MOV             LEDAnode, A       ; Remember for next time
                 MOV             pAnode, #0        ; Turn off Anodes
-                MOV             pBlue,  LEDBlue
-                MOV             pGreen, LEDGreen
-                MOV             pRed,   LEDRed
+                MOV             pBlue,  LEDBlueRow
+                MOV             pGreen, LEDGreenRow
+                MOV             pRed,   LEDRedRow
                 MOV             pAnode, A         ; Set new Anode
 
                 AJMP            Timer0_Exit
@@ -368,6 +370,9 @@ UpdateRowLED:
 ; One Colour each Row changes per cycle (B0.0-7,G0.0-7,) (8)
                 AJMP            Timer0_Exit
 ;...............................................................................
+; This function copies the Frame buffer into the Decrement Area.
+; It modifies A, DPTR and LEDCycle (reinitialisng the latter to start again).
+; It also sets the LED_NewFrame flag.
 CopyFrame:
 ;               SETB            EA                ; Allow interrupts during copy
                 MOV             DPTR, #aFrame     ; Source area
