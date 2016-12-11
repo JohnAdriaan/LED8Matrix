@@ -49,6 +49,9 @@ LEDGreenRow     EQU             R3
 LEDRedRow       EQU             R4
                 SFR rBGREnd   = LEDBank*8 + 5
 
+LEDRow          EQU             R4 ; Current LED Row mask
+                SFR rLEDRow   = LEDBank*8 + 4
+
 LEDAnode        EQU             R5 ; Current Anode
                 SFR rLEDAnode = LEDBank*8 + 5
 
@@ -191,6 +194,8 @@ nLogoSize       EQU             $-cLogo
 InitVars:
                 CLR             LED_NewFrame      ; Can't generate new frame yet
                 MOV             rLEDAnode, #001h  ; Start at first Anode
+                MOV             rLEDBGRPtr, #rLEDBGRPtr ; Start with (safe) nonsense
+
                 MOV             rLEDIndex, #nLEDs ; Pretend at end of Frame
                 MOV             rLEDCycle, #1     ; Pretend at last Cycle
                 RET
@@ -364,6 +369,64 @@ URP_LEDNext:
 ;...............................................................................
 UpdateRowLED:
 ; One Colour each Row changes per cycle (B0.0-7,G0.0-7,) (8)
+                CJNE            LEDIndex, #nLEDs, URL_Cycle ; Past LEDs?
+                MOV             LEDIndex, #aPWM             ; Restart LEDIndex
+                DJNZ            LEDCycle, URL_Cycle   ; Still in current cycle?
+
+                ; New frame started! Copy frame across
+                ACALL           CopyFrame
+;               SJMP            URL_Cycle
+URL_Cycle:
+                MOV             DPH, #000h        ; Decrement area
+                MOV             LEDRow, #0FFh     ; All bits off (Cathode!)
+                MOV             DPL, LEDIndex     ; Current index into pointer
+
+                MOV             A, #00000001b     ; Start LEDMask value
+URL_LEDLoop:
+                MOV             LEDMask, A
+
+                LED_DoPWM       URL_LEDNext
+
+                MOV             A, LEDMask        ; Where are we in the mask?
+                XRL             rLEDRow, A        ; Illuminate this LED in Row
+URL_LEDNext:
+                INC             DPTR              ; Move to next colour byte
+                INC             DPTR              ; of the same colour. This is
+                INC             DPTR              ; smaller/easier than DPTR+3
+
+                MOV             A, LEDMask        ; Where are we in the mask?
+                ADD             A, ACC            ; A no-carry-in shift left
+                JNC             URL_LEDLoop       ; Still more to do
+
+                INC             LEDIndex          ; Next colour byte in row
+                CJNE            LEDBGRPtr, #pBlue, URL_CheckGreen ; Currently blue?
+                MOV             A, #pGreen        ; Yes, so now green
+                SJMP            URL_NextRow
+URL_CheckGreen:
+                CJNE            LEDBGRPtr, #pGreen, URL_CheckRed ; Currently green?
+                MOV             A, #pRed          ; Yes, so now red
+                SJMP            URL_NextRow
+URL_CheckRed:
+                CJNE            LEDBGRPtr, #pRed, URL_FirstRow ; Currently red?
+                MOV             A, LEDIndex       ; Index into colour bytes
+                ADD             A, #nLEDsPerRow-3 ; Next block of bytes (-3 INCs)
+                MOV             LEDIndex, A       ; Back into Index
+
+                MOV             A, LEDAnode       ; Get current LEDAnode
+                MOV             @LEDBGRPtr, #0FFh ; Need to clear row before anode
+                MOV             pAnode, A         ; Set new anode
+                RL              A                 ; Change which Anode
+                MOV             LEDAnode, A       ; Remember for next time
+
+URL_FirstRow:
+                MOV             A, #pBlue         ; Back to blue
+;               SJMP            URL_NewRow
+URL_NextRow:
+                MOV             @LEDBGRPtr, #0FFh ; Clear old cathodes
+                MOV             LEDBGRPtr, A      ; Set new BGRPtr
+                MOV             A, LEDRow         ; Get row to set
+                MOV             @LEDBGRPtr, A
+
                 AJMP            Timer0_Exit
 ;...............................................................................
 ; This function copies the Frame buffer into the Decrement Area.
