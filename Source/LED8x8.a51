@@ -74,6 +74,7 @@ ENDIF
 
                 PUBLIC          LED_Init
                 PUBLIC          LED_Reset
+                PUBLIC          LED_Scroll
                 PUBLIC          LED_NewFrame
                 PUBLIC          LED_Update
                 PUBLIC          Timer0_Handler
@@ -204,6 +205,48 @@ ENDIF
 ;               MOV             pGreen, A
 ;               MOV             pBlue,  A
 
+                RET
+;-------------------------------------------------------------------------------
+LED_Scroll:
+                MOV             DPTR, #aFrame     ; Start of Frame buffer
+
+                MOV             R7, #nRows        ; Number of rows to scroll
+LED_ScrollRow:
+                MOV             R1, DPL           ; Destination
+                ; Load starting values
+                MOVX            A, @DPTR          ; Get blue value
+                MOV             R3, A
+                INC             DPTR
+                MOVX            A, @DPTR          ; Get green value
+                MOV             R4, A
+                INC             DPTR
+                MOVX            A, @DPTR          ; Get red value
+                MOV             R5, A
+                INC             DPTR
+                MOV             R2, DPL           ; Source
+
+                MOV             R6, #(nColumns-1)*nColours ; Number of raw bytes
+LED_ScrollCol:
+                MOV             DPL, R2           ; Source
+                MOVX            A, @DPTR          ; Get colour value
+                MOV             DPL, R1           ; Destination
+                MOVX            @DPTR, A          ; Store colour value
+                INC             R2                ; Next source
+                INC             R1                ; Next destination
+                DJNZ            R6, LED_ScrollCol ; Next column
+
+                MOV             DPL, R1
+                MOV             A, R3             ; Save away temp values
+                MOVX            @DPTR, A
+                INC             DPTR
+                MOV             A, R4
+                MOVX            @DPTR, A
+                INC             DPTR
+                MOV             A, R5
+                MOVX            @DPTR, A
+                INC             DPTR
+
+                DJNZ            R7, LED_ScrollRow ; Next row
                 RET
 ;-------------------------------------------------------------------------------
 Timer0_Handler:                                   ; PSW and ACC saved

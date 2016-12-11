@@ -81,6 +81,7 @@ $ENDIF
 
                 EXTERN   CODE   (LED_Init)
                 EXTERN   CODE   (LED_Reset)
+                EXTERN   CODE   (LED_Scroll)
                 EXTERN   DATA   (LED_Update)
                 EXTERN   BIT    (LED_NewFrame)
 
@@ -89,6 +90,13 @@ $ENDIF
                 USING           2
                 USING           1
                 USING           0
+
+MainData        SEGMENT         DATA
+                RSEG            MainData
+
+ScrollDelay     EQU             16
+
+ScrollWait:     DSB             1
 ;===============================================================================
 Main            SEGMENT         CODE
                 RSEG            Main
@@ -109,6 +117,7 @@ $IF (DIGIPOT_Enable)
 $ENDIF
                 CALL            LED_Init          ; Initialise LED matrix
 
+                MOV             ScrollWait, #ScrollDelay
                 MOV             A, #UPDATE        ; Starting mode
                 ACALL           SetUpdate
                 SETB            EA                ; Enable all interrupts
@@ -128,6 +137,9 @@ Executive:
 ;-------------------------------------------------------------------------------
 ; Called to generate next frame
 NextFrame:
+                DJNZ            ScrollWait, Executive
+                MOV             ScrollWait, #ScrollDelay
+                CALL            LED_Scroll
                 SJMP            Executive         ; Start again
 
 ;-------------------------------------------------------------------------------
