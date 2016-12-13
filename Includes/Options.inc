@@ -83,71 +83,6 @@ UART_Mode_Mask   EQU                0111b ; Mask for just Mode value
 ;UART_Mode       EQU            UART_Mode_BRG+UART_Mode_8Var ; Examples
 ;UART2_Mode      EQU            UART_Mode_x2+UART_Mode_8Var+UART_Mode_Frame
 
-; There are three boards:
-; * BOARD_PLCC40 has no LED Matrix, and one single DigiPot cascade;
-; * BOARD_DigiPot has digital potentiometers;
-; * BOARD_Resistor has fixed resistors.
-; Other than the obvious, the differences are:
-; * For testing purposes, spare Ports on the PLCC40 version are used for LEDs;
-; * For board layout reasons, Cathodes and Anodes are on different I/O ports;
-; * The different boards use different CPU clocks.
-BOARD_PLCC40    EQU             0
-BOARD_DigiPot   EQU             1
-BOARD_Resistor  EQU             2
-
-BOARD           EQU             BOARD_Resistor
-TIMER0_Mode     EQU             TIMER_Mode_8_Auto ; + TIMER_Mode_x12
-TIMER0_Priority EQU             INT_Priority_3
-BAUD_Rate       EQU             BAUD_115200
-
-IF              (BOARD=BOARD_PLCC40)
-                $INCLUDE        (P1.inc)
-                SFR  pSleep  =  pP1
-DefineBit       Eyes, pSleep, 7
-OpenEyes        MACRO
-                SETB            Eyes
-                ENDM
-CloseEyes       MACRO
-                CLR             Eyes
-                ENDM
-ToggleEyes      MACRO
-                CPL             Eyes
-                ENDM
-ELSE
-OpenEyes        MACRO
-                ENDM
-CloseEyes       MACRO
-                ENDM
-ToggleEyes      MACRO
-                ENDM
-ENDIF
-
-IF     (BOARD=BOARD_PLCC40)
-   SERIAL       LIT             'UART2'
-   $SET     (UART2_Enable)
-;  $SET     (UART2_Alt)
-   $SET     (DIGIPOT_Enable)
-   CPU_Freq          EQU        CPU_11059200
-   {SERIAL}_Priority EQU        INT_Priority_2
-   UART2_Mode        EQU        UART_Mode_8Var
-ELSEIF (BOARD=BOARD_DigiPot)
-   SERIAL       LIT             'UART2'
-   $SET     (UART2_Enable)
-   $SET     (UART2_Alt)
-   $SET     (DIGIPOT_Enable)
-   CPU_Freq          EQU        CPU_33177600
-   {SERIAL}_Priority EQU        INT_Priority_2
-   UART2_Mode        EQU        UART_Mode_8Var
-ELSEIF (BOARD=BOARD_Resistor)
-   SERIAL       LIT             'UART'
-   $SET     (UART_Enable)
-   CPU_Freq          EQU        CPU_11059200
-   {SERIAL}_Priority EQU        INT_Priority_2
-   UART_Mode         EQU        UART_Mode_BRG + UART_Mode_8Var
-ELSE
-   __ERROR__       "BOARD unknown!"
-ENDIF
-
 ; * A "cycle" is a single count downwards of the LED value(s) - one PWM cycle:
 ;   - This is embodied in a single interrupt - whatever the interrupt does.
 ; * A "count" is either a decrement or a shift right:
@@ -160,6 +95,11 @@ ENDIF
 ;   - Depending on colour depth (bits per colour(LED): 1/2/4/6/8), that could be
 ;     1, 4, 16, 64 or 256 cycles (interrupts) per LED per frame (grouped as
 ;     configured).
+FPS_Rate_Row    EQU             8
+FPS_Rate_Colour EQU             8*3
+FPS_Rate_Pixel  EQU             8*8
+FPS_Rate_LED    EQU             8*8*3
+
 FPS             EQU             25 ; Frames Per Second. Sets the interrupt rate.
                                    ; Note that the timer could use x12 mode...
 
@@ -241,11 +181,71 @@ UPDATE_Row_Colour EQU           110b    ; B0.01234567,B1.01234567,...        (8)
 UPDATE_Row_Frame  EQU           111b    ;                                 (192!)
 UPDATE_Row_Last   EQU           UPDATE_Row_Frame
 
-UPDATE          EQU             UPDATE_Row_Pixel
+UPDATE          EQU             UPDATE_Row_LED ; Pixel
 
-FPS_Rate_Row    EQU             8
-FPS_Rate_Colour EQU             8*3
-FPS_Rate_Pixel  EQU             8*8
-FPS_Rate_LED    EQU             8*8*3
+; There are three boards:
+; * BOARD_PLCC40 has no LED Matrix, and one single DigiPot cascade;
+; * BOARD_DigiPot has digital potentiometers;
+; * BOARD_Resistor has fixed resistors.
+; Other than the obvious, the differences are:
+; * For testing purposes, spare Ports on the PLCC40 version are used for LEDs;
+; * For board layout reasons, Cathodes and Anodes are on different I/O ports;
+; * The different boards use different CPU clocks.
+BOARD_PLCC40    EQU             0
+BOARD_DigiPot   EQU             1
+BOARD_Resistor  EQU             2
+
+BOARD           EQU             BOARD_Resistor
+TIMER0_Mode     EQU             TIMER_Mode_8_Auto; + TIMER_Mode_x12
+TIMER0_Priority EQU             INT_Priority_3
+BAUD_Rate       EQU             BAUD_115200
+
+IF              (BOARD=BOARD_PLCC40)
+                $INCLUDE        (P1.inc)
+                SFR  pSleep  =  pP1
+DefineBit       Eyes, pSleep, 7
+OpenEyes        MACRO
+                SETB            Eyes
+                ENDM
+CloseEyes       MACRO
+                CLR             Eyes
+                ENDM
+ToggleEyes      MACRO
+                CPL             Eyes
+                ENDM
+ELSE
+OpenEyes        MACRO
+                ENDM
+CloseEyes       MACRO
+                ENDM
+ToggleEyes      MACRO
+                ENDM
+ENDIF
+
+IF     (BOARD=BOARD_PLCC40)
+   SERIAL       LIT             'UART2'
+   $SET     (UART2_Enable)
+;  $SET     (UART2_Alt)
+   $SET     (DIGIPOT_Enable)
+   CPU_Freq          EQU        CPU_11059200
+   {SERIAL}_Priority EQU        INT_Priority_2
+   UART2_Mode        EQU        UART_Mode_8Var
+ELSEIF (BOARD=BOARD_DigiPot)
+   SERIAL       LIT             'UART2'
+   $SET     (UART2_Enable)
+   $SET     (UART2_Alt)
+   $SET     (DIGIPOT_Enable)
+   CPU_Freq          EQU        CPU_33177600
+   {SERIAL}_Priority EQU        INT_Priority_2
+   UART2_Mode        EQU        UART_Mode_8Var
+ELSEIF (BOARD=BOARD_Resistor)
+   SERIAL       LIT             'UART'
+   $SET     (UART_Enable)
+   CPU_Freq          EQU        CPU_11059200
+   {SERIAL}_Priority EQU        INT_Priority_2
+   UART_Mode         EQU        UART_Mode_BRG + UART_Mode_8Var
+ELSE
+   __ERROR__       "BOARD unknown!"
+ENDIF
 
 $ENDIF ; OPTIONS_INC

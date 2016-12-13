@@ -40,8 +40,7 @@ LEDBank         EQU             3  ; Register bank used in LED interrupt
 LEDIndex        EQU             R0 ; Current pointer into decrement area
                 SFR rLEDIndex = LEDBank*8 + 0
 
-LEDBGRPtr       EQU             R1 ; Pointer to LED Color bit ports/registers
-                SFR rLEDBGRPtr = LEDBank*8 + 1
+LEDBGRPtr       EQU             R1 ; Pointer to LED Color bit registers
 
                 SFR rBGRStart = LEDBank*8 + 2
 LEDBlueRow      EQU             R2 ; Accumulators when doing RGB simultaneously
@@ -56,18 +55,21 @@ LEDAnode        EQU             R5 ; Current Anode
                 SFR rLEDAnode = LEDBank*8 + 5
 
 LEDMask         EQU             R6 ; Current LED Mask to set
+
 LEDCycle        EQU             R7 ; Where we are in the countdown
                 SFR rLEDCycle = LEDBank*8 + 7
+
+NumCycles       EQU             8
 
 ; Different PWM algorithms implemented here
 LED_DoPWM       MACRO           LEDNext
                 MOVX            A, @DPTR          ; Get current LED value
                 JZ              LEDNext           ; Zero? Nothing to do.
 
-;               DEC             A                 ; PWM down one (Arithmetic!)
+                DEC             A                 ; PWM down one (Arithmetic!)
 
-                CLR             C                 ; Need zero here
-                RRC             A                 ; PWM LED value (Logarithmic!)
+;               CLR             C                 ; Need zero here
+;               RRC             A                 ; PWM LED value (Logarithmic!)
 
                 MOVX            @DPTR, A          ; and store back
                 ENDM
@@ -126,6 +128,7 @@ LED             SEGMENT         CODE
                 RSEG            LED
 
 LED_Init:
+                ACALL           InitPWM
                 ACALL           InitFrame
                 MOV             LED_Update, #UPDATE ; Which mechanism to use
 LED_Reset:
@@ -133,6 +136,16 @@ LED_Reset:
                 ACALL           InitIO
                 RET
 
+;-------------------------------------------------------------------------------
+InitPWM:
+                CLR             A
+                MOV             DPTR, #aPWM
+                MOV             R7, #nLEDs
+InitPWMLoop:
+                MOVX            @DPTR, A
+                INC             DPTR
+                DJNZ            R7, InitPWMLoop
+                RET
 ;-------------------------------------------------------------------------------
 InitFrame:
                 MOV             DPTR, #aFrame     ; Store in the Frame area
@@ -193,11 +206,9 @@ nLogoSize       EQU             $-cLogo
 ;...............................................................................
 InitVars:
                 CLR             LED_NewFrame      ; Can't generate new frame yet
+                MOV             rLEDIndex, #aPWM  ; Start at first byte
                 MOV             rLEDAnode, #001h  ; Start at first Anode
-                MOV             rLEDBGRPtr, #rLEDBGRPtr ; Start with (safe) nonsense
-
-                MOV             rLEDIndex, #nLEDs ; Pretend at end of Frame
-                MOV             rLEDCycle, #1     ; Pretend at last Cycle
+                MOV             rLEDCycle, #NumCycles ; Number of cycles
                 RET
 
 ;...............................................................................
@@ -398,35 +409,27 @@ URL_LEDNext:
                 ADD             A, ACC            ; A no-carry-in shift left
                 JNC             URL_LEDLoop       ; Still more to do
 
-                INC             LEDIndex          ; Next colour byte in row
-                CJNE            LEDBGRPtr, #pBlue, URL_CheckGreen ; Currently blue?
-                MOV             A, #pGreen        ; Yes, so now green
-                SJMP            URL_NextRow
-URL_CheckGreen:
-                CJNE            LEDBGRPtr, #pGreen, URL_CheckRed ; Currently green?
-                MOV             A, #pRed          ; Yes, so now red
-                SJMP            URL_NextRow
-URL_CheckRed:
-                CJNE            LEDBGRPtr, #pRed, URL_FirstRow ; Currently red?
                 MOV             A, LEDIndex       ; Index into colour bytes
-                ADD             A, #nLEDsPerRow-3 ; Next block of bytes (-3 INCs)
-                MOV             LEDIndex, A       ; Back into Index
-
+                JBC             ACC.1, URL_SetRed ; Use LEDIndex bit pattern
+                INC             LEDIndex          ; Not Red, so next byte
+                JB              ACC.0, URL_SetGreen ; as selector into action
+URL_SetBlue:
                 MOV             A, LEDAnode       ; Get current LEDAnode
-                MOV             @LEDBGRPtr, #0FFh ; Need to clear row before anode
+                MOV             pRed, #0FFh       ; Need to clear Red before anode
                 MOV             pAnode, A         ; Set new anode
+                MOV             pBlue, LEDRow     ; Set Blue row
                 RL              A                 ; Change which Anode
                 MOV             LEDAnode, A       ; Remember for next time
-
-URL_FirstRow:
-                MOV             A, #pBlue         ; Back to blue
-;               SJMP            URL_NewRow
-URL_NextRow:
-                MOV             @LEDBGRPtr, #0FFh ; Clear old cathodes
-                MOV             LEDBGRPtr, A      ; Set new BGRPtr
-                MOV             A, LEDRow         ; Get row to set
-                MOV             @LEDBGRPtr, A
-
+                AJMP            Timer0_Exit
+URL_SetGreen:
+                MOV             pBlue, #0FFh      ; Clear Blue row
+                MOV             pGreen, LEDRow    ; Set Green row
+                AJMP            Timer0_Exit
+URL_SetRed:
+                ADD             A, #nLEDsPerRow   ; Next block of bytes
+                MOV             LEDIndex, A       ; Back into LEDIndex
+                MOV             pGreen, #0FFh     ; Clear Green row
+                MOV             pRed, LEDRow      ; Set Red row
                 AJMP            Timer0_Exit
 ;...............................................................................
 ; This function copies the Frame buffer into the Decrement Area.
@@ -447,7 +450,7 @@ CopyLoop:
 ;               CLR             EA                ; That's enough!
 
                 SETB            LED_NewFrame      ; Set NewFrame flag
-                MOV             LEDCycle, #8      ; Next cycle
+                MOV             LEDCycle, #NumCycles ; Next cycle
                 RET
 ;===============================================================================
 $ENDIF
