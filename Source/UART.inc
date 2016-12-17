@@ -231,13 +231,13 @@ UART{U}_TX_Code:
                 MOV             DP1H, #BuffersHigh ; Initialise DPTR1 High
                 MOV             DP1L, TXHead      ; Initialise DPTR1 Low
 TXCodeLoop:
-                UseDPTR                           ; Start with DPTR (into CODE)
+                ToggleDPS                         ; Start with DPTR0 (into CODE)
                 CLR             A                 ; Need zero here
                 MOVC            A, @A+DPTR        ; Get byte to store
                 JZ              TXCodeEndLoop     ; NUL? Leave!
-                INC             DPTR              ; Next source byte
+                INC             DPTR0             ; Next source byte
 
-                UseDPTR1                          ; Switch to DPTR1
+                ToggleDPS                         ; Switch to DPTR1
                 MOVX            @DPTR1, A         ; Store in TX buffer
 
 ; DO NOT WrapTX TXHead! It's non-atomic...
@@ -245,7 +245,7 @@ TXCodeLoop:
                 MOV             TXHead, DP1L      ; Save away while available
                 SJMP            TXCodeLoop        ; And keep going
 
-TXCodeEndLoop:                                    ; At this point, back to DPTR
+TXCodeEndLoop:                                    ; At this point, back to DPTR0
                 JBC             TXEmpty, TXCharDPH; Start TX if Empty (& clear)
                 RET
 ;===============================================================================
