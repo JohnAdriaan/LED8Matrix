@@ -258,41 +258,54 @@ ENDIF
                 RET
 ;-------------------------------------------------------------------------------
 LED_Scroll:
+; Scroll Frame buffer one pixel left.
+; Fill new column with bits in A (LSb on top).
+; If bit is a 1, use colour bytes in R2 (blue), R3 (green) and R4 (red)
+; Modifies A, DPTR, R0, R1, R5, R6, R7
                 MOV             DPTR, #aFrame     ; Start of Frame buffer
 
+                MOV             R5, A             ; Save bits to scroll in
                 MOV             R7, #nRows        ; Number of rows to scroll
 LED_ScrollRow:
-                MOV             R1, DPL           ; Destination
-                ; Load starting values
-                MOVX            A, @DPTR          ; Get blue value
-                MOV             R3, A
+                MOV             R0, DPL           ; Destination
                 INC             DPTR
-                MOVX            A, @DPTR          ; Get green value
-                MOV             R4, A
                 INC             DPTR
-                MOVX            A, @DPTR          ; Get red value
-                MOV             R5, A
                 INC             DPTR
-                MOV             R2, DPL           ; Source
+                MOV             R1, DPL           ; Source
 
                 MOV             R6, #(nColumns-1)*nColours ; Number of raw bytes
 LED_ScrollCol:
-                MOV             DPL, R2           ; Source
+                MOV             DPL, R1           ; Source
                 MOVX            A, @DPTR          ; Get colour value
-                MOV             DPL, R1           ; Destination
+                MOV             DPL, R0           ; Destination
                 MOVX            @DPTR, A          ; Store colour value
-                INC             R2                ; Next source
-                INC             R1                ; Next destination
+                INC             R1                ; Next source
+                INC             R0                ; Next destination
                 DJNZ            R6, LED_ScrollCol ; Next column
 
-                MOV             DPL, R1
-                MOV             A, R3             ; Save away temp values
+                MOV             DPL, R0
+                MOV             A, R5             ; Restore bits to scroll in
+                RRC             A                 ; Get bit into Carry
+                MOV             R5, A             ; Save for next time
+
+                CLR             A
+                JNC             LED_ScrollBlue
+                MOV             A, R2
+LED_ScrollBlue:
                 MOVX            @DPTR, A
                 INC             DPTR
+
+                CLR             A
+                JNC             LED_ScrollGreen
+                MOV             A, R3
+LED_ScrollGreen:
+                MOVX            @DPTR, A
+                INC             DPTR
+
+                CLR             A
+                JNC             LED_ScrollRed
                 MOV             A, R4
-                MOVX            @DPTR, A
-                INC             DPTR
-                MOV             A, R5
+LED_ScrollRed:
                 MOVX            @DPTR, A
                 INC             DPTR
 
