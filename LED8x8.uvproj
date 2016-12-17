@@ -453,6 +453,11 @@
               <FileType>2</FileType>
               <FilePath>.\Source\LED8x8.a51</FilePath>
             </File>
+            <File>
+              <FileName>Font7x6.a51</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\Source\Font7x6.a51</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -484,9 +489,9 @@
               <FilePath>.\Listings\UART2.lst</FilePath>
             </File>
             <File>
-              <FileName>Timer0.lst</FileName>
+              <FileName>Font7x6.lst</FileName>
               <FileType>5</FileType>
-              <FilePath>.\Listings\Timer0.lst</FilePath>
+              <FilePath>.\Listings\Font7x6.lst</FilePath>
             </File>
             <File>
               <FileName>LED8x8.lst</FileName>
