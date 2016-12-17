@@ -41,6 +41,10 @@ LEDIndex        EQU             R0 ; Current pointer into decrement area
                 SFR rLEDIndex = LEDBank*8 + 0
 
 LEDBGRPtr       EQU             R1 ; Pointer to LED Color bit registers
+                SFR rLEDBGRPtr = LEDBank*8 + 1
+BGR_Blue        EQU             3
+BGR_Green       EQU             2
+BGR_Red         EQU             1
 
                 SFR rBGRStart = LEDBank*8 + 2
 LEDBlueRow      EQU             R2 ; Accumulators when doing RGB simultaneously
@@ -55,21 +59,26 @@ LEDAnode        EQU             R5 ; Current Anode
                 SFR rLEDAnode = LEDBank*8 + 5
 
 LEDMask         EQU             R6 ; Current LED Mask to set
+                SFR rLEDMask  = LEDBank*8 + 6
 
 LEDCycle        EQU             R7 ; Where we are in the countdown
                 SFR rLEDCycle = LEDBank*8 + 7
 
-NumCycles       EQU             8
+NumCycles       EQU             CYCLE
 
 ; Different PWM algorithms implemented here
 LED_DoPWM       MACRO           LEDNext
                 MOVX            A, @DPTR          ; Get current LED value
                 JZ              LEDNext           ; Zero? Nothing to do.
 
+IF     (CYCLE=CYCLE_Decrement)
                 DEC             A                 ; PWM down one (Arithmetic!)
-
-;               CLR             C                 ; Need zero here
-;               RRC             A                 ; PWM LED value (Logarithmic!)
+ELSEIF (CYCLE=CYCLE_Shift)
+                CLR             C                 ; Need zero here
+                RRC             A                 ; PWM LED value (Logarithmic!)
+ELSE
+__ERROR__ "CYCLE unknown!"
+ENDIF
 
                 MOVX            @DPTR, A          ; and store back
                 ENDM
@@ -163,7 +172,13 @@ InitNibbleLoop:
                 MOV             R2, A             ; Save value away
                 MOV             A, #0FFh          ; Full intensity
                 JC              InitSetNibble     ; Yes!
-                MOV             A, #00Fh          ; No...
+IF     (CYCLE=CYCLE_Decrement)
+                RRC             A                 ; Half intensity
+ELSEIF (CYCLE=CYCLE_Shift)
+                MOV             A, #00Fh          ; Half intensity
+ELSE
+__ERROR__ "CYCLE unknown!"
+ENDIF
 InitSetNibble:
                 XCH             A, R2             ; Swap back, and save intensity
 
@@ -207,7 +222,9 @@ nLogoSize       EQU             $-cLogo
 InitVars:
                 CLR             LED_NewFrame      ; Can't generate new frame yet
                 MOV             rLEDIndex, #aPWM  ; Start at first byte
-                MOV             rLEDAnode, #001h  ; Start at first Anode
+                MOV             rLEDBGRPtr, #BGR_Blue ; Start with Blue
+                MOV             rLEDRow,   #00000001b ; Start at first Cathode
+                MOV             rLEDAnode, #00000001b ; Start at first Anode
                 MOV             rLEDCycle, #NumCycles ; Number of cycles
                 RET
 
@@ -315,6 +332,46 @@ UpdatePixel:
 ;...............................................................................
 UpdateLEDPixel:
 ; One Colour changes per cycle (B0.0,G0.0,R0.0,B0.1,)    (1)
+                CJNE            LEDIndex, #nLEDs, ULP_Cycle ; Past LEDs?
+                MOV             LEDIndex, #aPWM             ; Restart LEDIndex
+                DJNZ            LEDCycle, ULP_Cycle   ; Still in current cycle?
+
+                ; New frame started! Copy frame across
+                ACALL           CopyFrame
+;               SJMP            ULP_Cycle
+ULP_Cycle:
+                MOV             DPH, #000h        ; Decrement area
+                MOV             DPL, LEDIndex     ; Current index into pointer
+                INC             LEDIndex          ; Move to next colour byte
+
+                MOV             LEDMask, 0FFh
+                LED_DoPWM       ULP_LEDNext
+                MOV             A, LEDRow         ; Bit to turn off
+                XRL             rLEDMask, A       ; Turn it off
+
+ULP_LEDNext:
+                DJNZ            LEDBGRPtr, ULP_TestGreen ; Note the Decrement!
+ULP_SetRed:
+                MOV             LEDBGRPtr, #BGR_Blue ; Start from Blue again
+                MOV             pGreen, #0FFh     ; Clear Green LED
+                MOV             pRed, LEDMask     ; Set Red LED
+                MOV             A, LEDRow         ; Where are we in the row?
+                RL              A                 ; Next bit along
+                MOV             LEDRow, A         ; Save back
+                AJMP            Timer0_Exit
+ULP_TestGreen:
+                CJNE            LEDBGRPtr, #BGR_Red, ULP_SetBlue ; Decremented value!
+ULP_SetGreen:
+                MOV             pBlue, #0FFh      ; Clear Blue row
+                MOV             pGreen, LEDMask   ; Set Green row
+                AJMP            Timer0_Exit
+ULP_SetBlue:
+                MOV             A, LEDAnode       ; Get current LEDAnode
+                MOV             pRed, #0FFh       ; Need to clear Red before anode
+                MOV             pAnode, A         ; Set new anode
+                MOV             pBlue, LEDMask    ; Set Blue row
+                RL              A                 ; Change which Anode
+                MOV             LEDAnode, A       ; Remember for next time
                 AJMP            Timer0_Exit
 ;...............................................................................
 UpdateLEDColour:
