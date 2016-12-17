@@ -54,6 +54,7 @@
 
                 $INCLUDE        (IE.inc)          ; Need Interrupt Enable SFRs
                 $INCLUDE        (P1.inc)
+                $INCLUDE        (PSW.inc)
                 $INCLUDE        (PCON.inc)        ; Need Power Control SFRs
 
                 PUBLIC          Reset_ISR         ; Publish this for Vectors
@@ -74,6 +75,7 @@
                 EXTERN   CODE   ({SERIAL}_TX_Code)
 
                 EXTERN   CODE   (Flash_Init)
+                EXTERN   CODE   (Flash_Read)
 
 $IF (DIGIPOT_Enable)
                 EXTERN   CODE   (DigiPot_Init)
@@ -94,7 +96,7 @@ $ENDIF
 MainData        SEGMENT         DATA
                 RSEG            MainData
 
-ScrollDelay     EQU             16
+ScrollDelay     EQU             12
 
 ScrollWait:     DSB             1
 ;===============================================================================
@@ -126,6 +128,15 @@ $ENDIF
 TXPrompt:
                 MOV             DPTR, #cPrompt
                 CALL            {SERIAL}_TX_Code
+
+                SetBank         1
+                MOV             R2, #0000h        ; Text address low
+                MOV             R3, #0000h        ; Text address high
+                MOV             R7, #1            ; Number of cols left in char
+                SetBank         0
+                MOV             R2, #0FFh         ; Default to white (blue)
+                MOV             R3, #0FFh         ; (green)
+                MOV             R4, #0FFh         ; (red)
 Executive:
                 JBC             LED_NewFrame, NextFrame   ; Next frame flag? Clear!
                 JBC             {SERIAL}_RXed, ProcessCmd ; Next command flag? Clear!
@@ -139,6 +150,51 @@ Executive:
 NextFrame:
                 DJNZ            ScrollWait, Executive
                 MOV             ScrollWait, #ScrollDelay
+
+                SetBank         1
+
+                DJNZ            R7, NextFrame_Col ; End of columns?
+                MOV             R7, #8            ; Yes, so start of columns!
+                MOV             DPH, R3           ; Address of text
+                MOV             DPL, R2
+NextFrame_Read:
+                CALL            Flash_Read        ; Get byte
+                INC             DPTR              ; Assume not NUL
+                JNZ             NextFrame_Text    ; Yup!
+                MOV             DPTR, #0          ; Start of text
+                AJMP            NextFrame_Read    ; Try again
+NextFrame_Text:
+                MOV             R3, DPH           ; Save away
+                MOV             R2, DPL
+                CALL            {SERIAL}_TX_Char
+
+                MOV             R1, #HIGH(aFONT_Table)
+                ADD             A, ACC            ; No carry-in shift left
+;               JNC             NextFrame_FontHi
+;               INC             R1
+;               INC             R1
+;               INC             R1
+;               INC             R1
+;NextFrame_FontHi:
+                ADD             A, ACC            ; No carry-in shift left
+                JNC             NextFrame_FontMid
+                INC             R1
+                INC             R1
+NextFrame_FontMid:
+                ADD             A, ACC            ; No carry-in shift left
+                JNC             NextFrame_FontLo
+                INC             R1
+NextFrame_FontLo:
+                MOV             R0, A
+
+NextFrame_Col:
+                MOV             DPH, R1           ; Next column fromm font
+                MOV             DPL, R0
+                INC             R0                ; Column for next time
+                CLR             A                 ; No offset required
+                MOVC            A, @A+DPTR        ; Get next column from font
+
+                SetBank         0
                 CALL            LED_Scroll
                 SJMP            Executive         ; Start again
 
