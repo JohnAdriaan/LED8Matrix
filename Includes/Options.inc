@@ -28,6 +28,10 @@ $SET (FLASH_Enable)             ; Set to enable Flash memory code
 ;$SET (DIGIPOT_Enable)          ; Set to enable DigiPot code
 $SET (LED8X8_Enable)            ; Set to enable LED 8x8 matrix code
 
+$SET (FONT_Enable)             ; Set to enable font programming
+
+aFONT_Table     EQU             4*1024
+
 ; Need to select a CPU Frequency. To avoid 32-bit arithmetic, it's factored down
 CPU_11059200    EQU             21600   ; 11.0592 MHz in 512 Hz steps
 CPU_33177600    EQU             64800   ; 33.1776 MHz in 512 Hz steps
@@ -182,6 +186,11 @@ UPDATE_Row_Frame  EQU           111b    ;                                 (192!)
 UPDATE_Row_Last   EQU           UPDATE_Row_Frame
 
 UPDATE          EQU             UPDATE_Row_LED ; Pixel
+
+CYCLE_Decrement EQU             0       ; Decrement colour byte every cycle
+CYCLE_Shift     EQU             8       ; Shift colour byte every cycle
+
+CYCLE           EQU             CYCLE_Shift
 
 ; There are three boards:
 ; * BOARD_PLCC40 has no LED Matrix, and one single DigiPot cascade;
