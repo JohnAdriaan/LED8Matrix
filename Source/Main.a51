@@ -169,6 +169,9 @@ NextFrame_Text:
                 CALL            {SERIAL}_TX_Char
 
                 MOV             R1, #HIGH(aFONT_Table)
+;               SUBB            A, #' '           ; Requires C to be clear!
+                ADD             A, #-' '          ; First 020h chars not tabled
+                JNC             NextFrame_Read
                 ADD             A, ACC            ; No carry-in shift left
 ;               JNC             NextFrame_FontHi
 ;               INC             R1
@@ -205,11 +208,12 @@ ProcessCmd:
                 CJNE            A, #13, CmdByte
                 SJMP            TXPrompt
 CmdByte:
-                CLR             C                 ; Need zero here
-                SUBB            A, #'0'           ; Convert ASCII to byte
-                JC              Executive         ; Underflow!
-                SUBB            A, #UPDATE_Row_Frame
-                JNC             Executive         ; Too big!
+;               SUBB            A, #'0'           ; Needs C flag clear!
+                ADD             A, #-'0'          ; Convert ASCII to byte
+                JNC             Executive         ; Underflow!
+;               SUBB            A, #UPDATE_Row_Frame ; Needs C flag clear!
+                ADD             A, #-UPDATE_Row_Frame
+                JC              Executive         ; Too big!
                 ADD             A, #UPDATE_Row_Frame
                 ACALL           SetUpdate
                 SJMP            Executive
