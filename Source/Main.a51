@@ -96,7 +96,7 @@ $ENDIF
 MainData        SEGMENT         DATA
                 RSEG            MainData
 
-ScrollDelay     EQU             12
+ScrollDelay     EQU             6
 
 ScrollWait:     DSB             1
 ;===============================================================================

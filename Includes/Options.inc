@@ -185,7 +185,7 @@ UPDATE_Row_Colour EQU           110b    ; B0.01234567,B1.01234567,...        (8)
 UPDATE_Row_Frame  EQU           111b    ;                                 (192!)
 UPDATE_Row_Last   EQU           UPDATE_Row_Frame
 
-UPDATE          EQU             UPDATE_Row_LED ; Pixel
+UPDATE          EQU             UPDATE_Row_LED ; Update_LED_Pixel ; 
 
 CYCLE_Decrement EQU             0       ; Decrement colour byte every cycle
 CYCLE_Shift     EQU             8       ; Shift colour byte every cycle
