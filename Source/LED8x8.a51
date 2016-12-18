@@ -357,7 +357,7 @@ ULP_Cycle:
                 MOV             DPL, LEDIndex     ; Current index into pointer
                 INC             LEDIndex          ; Move to next colour byte
 
-                MOV             LEDMask, 0FFh
+                MOV             LEDMask, #0FFh
                 LED_DoPWM       ULP_LEDNext
                 MOV             A, LEDRow         ; Bit to turn off
                 XRL             rLEDMask, A       ; Turn it off
@@ -368,23 +368,27 @@ ULP_SetRed:
                 MOV             LEDBGRPtr, #BGR_Blue ; Start from Blue again
                 MOV             pGreen, #0FFh     ; Clear Green LED
                 MOV             pRed, LEDMask     ; Set Red LED
+
                 MOV             A, LEDRow         ; Where are we in the row?
                 RL              A                 ; Next bit along
                 MOV             LEDRow, A         ; Save back
+                CJNE            LEDRow, #1, Timer0_Exit ; Gone all the way around?
+
+                MOV             A, LEDAnode       ; Yes. Get current LEDAnode
+                RL              A                 ; Change which Anode
+                MOV             LEDAnode, A       ; Remember for next time
                 AJMP            Timer0_Exit
 ULP_TestGreen:
                 CJNE            LEDBGRPtr, #BGR_Red, ULP_SetBlue ; Decremented value!
 ULP_SetGreen:
-                MOV             pBlue, #0FFh      ; Clear Blue row
-                MOV             pGreen, LEDMask   ; Set Green row
+                MOV             pBlue, #0FFh      ; Clear Blue LED
+                MOV             pGreen, LEDMask   ; Set Green LED
                 AJMP            Timer0_Exit
 ULP_SetBlue:
-                MOV             A, LEDAnode       ; Get current LEDAnode
                 MOV             pRed, #0FFh       ; Need to clear Red before anode
-                MOV             pAnode, A         ; Set new anode
-                MOV             pBlue, LEDMask    ; Set Blue row
-                RL              A                 ; Change which Anode
-                MOV             LEDAnode, A       ; Remember for next time
+                MOV             A, LEDAnode       ; Get current LEDAnode
+                MOV             pAnode, A         ; Set it
+                MOV             pBlue, LEDMask    ; Set Blue LED
                 AJMP            Timer0_Exit
 ;...............................................................................
 UpdateLEDColour:
