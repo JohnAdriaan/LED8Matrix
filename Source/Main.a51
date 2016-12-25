@@ -78,12 +78,14 @@ $ENDIF ; BAUD_Enable
                 EXTERN   CODE   ({SERIAL}_TX_Code)
 $ENDIF ; SERIAL_Enable
 
+$IF     (FLASH_Enable)
                 EXTERN   CODE   (Flash_Init)
                 EXTERN   CODE   (Flash_Read)
+$ENDIF ; FLASH_Enable
 
-$IF (DIGIPOT_Enable)
+$IF     (DIGIPOT_Enable)
                 EXTERN   CODE   (DigiPot_Init)
-$ENDIF
+$ENDIF ; DIGIPOT_Enable
 
                 EXTERN   CODE   (LED_Init)
                 EXTERN   CODE   (LED_Reset)
@@ -123,10 +125,12 @@ $ENDIF ; BAUD_Enable
 $ENDIF ; SERIAL_Enable
 
                 CALL            Timer0_Init       ; Initialise Timer0
+$IF     (FLASH_Enable)
                 CALL            Flash_Init        ; Initialise Flash
-$IF (DIGIPOT_Enable)
+$ENDIF ; FLASH_Enable
+$IF     (DIGIPOT_Enable)
                 CALL            DigiPot_Init      ; Initialise Digital Pots
-$ENDIF
+$ENDIF ; DIGIPOT_Enable
                 CALL            LED_Init          ; Initialise LED matrix
 
                 MOV             ScrollWait, #ScrollDelay
@@ -206,7 +210,7 @@ NextFrame_FontLo:
                 MOV             R0, A
 
 NextFrame_Col:
-                MOV             DPH, R1           ; Next column fromm font
+                MOV             DPH, R1           ; Next column from font
                 MOV             DPL, R0
                 INC             R0                ; Column for next time
                 CLR             A                 ; No offset required
