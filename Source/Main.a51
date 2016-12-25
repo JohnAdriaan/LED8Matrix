@@ -176,10 +176,48 @@ NextFrame:
                 MOV             DPL, R2
 NextFrame_Read:
                 CALL            Flash_Read        ; Get byte
-                INC             DPTR              ; Assume not NUL
-                JNZ             NextFrame_Text    ; Yup!
-                MOV             DPTR, #0          ; Start of text
+                JNZ             NextFrame_Ctrl    ; Check not NUL
+                MOV             DPTR, #0          ; Restart Text
                 AJMP            NextFrame_Read    ; Try again
+NextFrame_Ctrl:
+                INC             DPTR              ; Next byte
+                JNB             ACC.7, NextFrame_Text ; Not a control byte?
+
+; At the moment, the only control byte is for colour selection.
+; Others could include invert or flash - but until then...
+; Colour is stored in four nybbles:
+;    <#0Fh><B><G><R>
+; #0Fh is the Ctrl code for Colour;
+; B, G and R have the values 0-8: the number of bits set in the colour byte.
+                ANL             A, #00Fh          ; Isolate Blue
+                ADD             A, #NextFrame_Map-NextFrame_Blue
+                MOVC            A, @A+PC          ; Map number to bit pattern
+NextFrame_Blue:
+
+                MOV             2, A              ; Save in Bank 0's R2 (Blue)
+
+                CALL            Flash_Read        ; Get next colour byte
+                INC             DPTR              ; Next byte
+                MOV             B, A              ; Save for later
+                SWAP            A                 ; Get upper nybble down
+                ANL             A, #00Fh          ; Isolate (now) Green
+                ADD             A, #NextFrame_Map-NextFrame_Green
+                MOVC            A, @A+PC          ; Map number to bit pattern
+NextFrame_Green:
+
+                MOV             3, A              ; Save to Bank 0's R3 (Green)
+                MOV             A, B              ; Restore saved value
+                ANL             A, #00Fh          ; Isolate Red
+                ADD             A, #NextFrame_Map-NextFrame_Red
+                MOVC            A, @A+PC          ; Map number to bit pattern
+NextFrame_Red:
+
+                MOV             4, A              ; Save to Bank 0's R4 (Red)
+
+                AJMP            NextFrame_Read    ; Go back to read next byte
+NextFrame_Map:
+                DB              000h, 001h, 044h, 094h, 055h, 06Bh, 077h, 0FEh, 0FFh
+
 NextFrame_Text:
                 MOV             R3, DPH           ; Save away
                 MOV             R2, DPL
