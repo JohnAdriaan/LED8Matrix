@@ -73,14 +73,15 @@ LED_DoPWM       MACRO           LEDNext
 
 IF     (CYCLE=CYCLE_Decrement)
                 DEC             A                 ; PWM down one (Arithmetic!)
+                MOVX            @DPTR, A          ; and store back
 ELSEIF (CYCLE=CYCLE_Shift)
-                CLR             C                 ; Need zero here
+;               CLR             C                 ; Need zero here (actually no)
                 RRC             A                 ; PWM LED value (Logarithmic!)
+                MOVX            @DPTR, A          ; and store back
+                JNC             LEDNext           ; Don't display if Carry is 0
 ELSE
 __ERROR__ "CYCLE unknown!"
 ENDIF
-
-                MOVX            @DPTR, A          ; and store back
                 ENDM
 
 IF     (BOARD=BOARD_PLCC40)

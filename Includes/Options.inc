@@ -96,6 +96,8 @@ UART_Mode_Mask   EQU                0111b ; Mask for just Mode value
 ;     shown. However, this won't PWM well.
 ;   - A shift right means that there are only really 9 possible values, with
 ;     ever-greater ranges for larger and larger numbers. Logarithmic, in fact!
+;     Note that the test isn't zero/non-zero, it's whether the bottom bit is 1.
+;     That allows for better modulation of the LED.
 ; * A "frame" is an update of the entire matrix:
 ;   - For persistence of vision, there have to be many Frames Per Second (FPS).
 ;   - Depending on colour depth (bits per colour(LED): 1/2/4/6/8), that could be
