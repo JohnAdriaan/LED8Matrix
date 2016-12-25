@@ -28,7 +28,8 @@ $SET (FLASH_Enable)             ; Set to enable Flash memory code
 ;$SET (DIGIPOT_Enable)          ; Set to enable DigiPot code
 $SET (LED8X8_Enable)            ; Set to enable LED 8x8 matrix code
 
-$SET (FONT_Enable)             ; Set to enable font programming
+$SET (FONT7x6_Enable)           ; Set to enable font programming
+;$SET (FONT8x8_Enable)          ; Set to enable font programming
 
 aFONT_Table     EQU             4*1024
 

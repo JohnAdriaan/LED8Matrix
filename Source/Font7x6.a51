@@ -6,7 +6,7 @@
 
                 $INCLUDE        (Options.inc)
 
-$IF (FONT_Enable)
+$IF (FONT7x6_Enable)
 
 Font7x6         SEGMENT         CODE AT aFONT_Table
                 RSEG            Font7x6
@@ -50,8 +50,8 @@ Font7x6         SEGMENT         CODE AT aFONT_Table
                 DB              000h, 000h, 007h, 000h, 000h, 007h, 000h, 000h ; '"'
                 DB              000h, 014h, 07Fh, 014h, 07Fh, 014h, 000h, 000h ; '#'
                 DB              000h, 024h, 02Ah, 07Fh, 07Fh, 02Ah, 012h, 000h ; '$'
-                DB              000h, 000h, 000h, 000h, 000h, 000h, 000h, 000h ; 'Percent' *
-                DB              000h, 000h, 000h, 000h, 000h, 000h, 000h, 000h ; '&' *
+                DB              000h, 042h, 025h, 015h, 02Ah, 054h, 052h, 021h ; 'Percent'
+                DB              000h, 036h, 07Fh, 049h, 05Fh, 036h, 060h, 000h ; '&'
                 DB              000h, 000h, 004h, 007h, 003h, 000h, 000h, 000h ; '''
                 DB              000h, 000h, 000h, 03Ch, 07Eh, 042h, 000h, 000h ; '('
                 DB              000h, 000h, 042h, 07Eh, 03Ch, 000h, 000h, 000h ; ')'
@@ -77,7 +77,7 @@ Font7x6         SEGMENT         CODE AT aFONT_Table
                 DB              000h, 036h, 036h, 036h, 036h, 036h, 036h, 000h ; '='
                 DB              000h, 000h, 022h, 036h, 01Ch, 008h, 000h, 000h ; '>'
                 DB              000h, 004h, 002h, 053h, 05Bh, 00Eh, 004h, 000h ; '?'
-                DB              000h, 000h, 000h, 000h, 000h, 000h, 000h, 000h ; '@' *
+                DB              000h, 03Ch, 042h, 05Ah, 05Ah, 052h, 01Ch, 000h ; '@'
                 DB              000h, 07Eh, 07Fh, 009h, 009h, 07Fh, 07Eh, 000h ; 'A'
                 DB              000h, 07Fh, 07Fh, 049h, 049h, 07Fh, 036h, 000h ; 'B'
                 DB              000h, 03Eh, 07Fh, 041h, 041h, 063h, 022h, 000h ; 'C'
@@ -110,35 +110,35 @@ Font7x6         SEGMENT         CODE AT aFONT_Table
                 DB              000h, 004h, 006h, 003h, 003h, 006h, 004h, 000h ; '^'
                 DB              000h, 0C0h, 0C0h, 0C0h, 0C0h, 0C0h, 0C0h, 000h ; '_'
                 DB              000h, 000h, 000h, 003h, 007h, 004h, 000h, 000h ; '`'
-                DB              000h, 07Eh, 07Fh, 009h, 009h, 07Fh, 07Eh, 000h ; 'a'
-                DB              000h, 07Fh, 07Fh, 049h, 049h, 07Fh, 036h, 000h ; 'b'
-                DB              000h, 03Eh, 07Fh, 041h, 041h, 063h, 022h, 000h ; 'c'
-                DB              000h, 07Fh, 07Fh, 041h, 041h, 07Fh, 03Eh, 000h ; 'd'
-                DB              000h, 07Fh, 07Fh, 049h, 049h, 049h, 041h, 000h ; 'e'
-                DB              000h, 07Fh, 07Fh, 009h, 009h, 001h, 001h, 000h ; 'f'
-                DB              000h, 03Eh, 07Fh, 041h, 049h, 07Bh, 03Ah, 000h ; 'g'
-                DB              000h, 07Fh, 07Fh, 008h, 008h, 07Fh, 07Fh, 000h ; 'h'
-                DB              000h, 000h, 041h, 07Fh, 07Fh, 041h, 000h, 000h ; 'i'
-                DB              000h, 020h, 060h, 040h, 040h, 07Fh, 03Fh, 000h ; 'j'
-                DB              000h, 07Fh, 07Fh, 01Ch, 036h, 063h, 041h, 000h ; 'k'
-                DB              000h, 07Fh, 07Fh, 040h, 040h, 040h, 040h, 000h ; 'l'
-                DB              07Fh, 07Fh, 006h, 00Ch, 006h, 07Fh, 07Fh, 000h ; 'm'
-                DB              000h, 07Fh, 07Fh, 006h, 00Ch, 07Fh, 07Fh, 000h ; 'n'
-                DB              000h, 03Eh, 07Fh, 041h, 041h, 07Fh, 03Eh, 000h ; 'o'
-                DB              000h, 07Fh, 07Fh, 009h, 009h, 00Fh, 006h, 000h ; 'p'
-                DB              000h, 03Eh, 07Fh, 041h, 021h, 07Fh, 05Eh, 000h ; 'q'
-                DB              000h, 07Fh, 07Fh, 019h, 039h, 06Fh, 046h, 000h ; 'r'
-                DB              000h, 026h, 06Fh, 049h, 049h, 07Bh, 032h, 000h ; 's'
-                DB              000h, 001h, 001h, 07Fh, 07Fh, 001h, 001h, 000h ; 't'
-                DB              000h, 03Fh, 07Fh, 040h, 040h, 07Fh, 03Fh, 000h ; 'u'
-                DB              000h, 01Fh, 03Fh, 060h, 060h, 03Fh, 01Fh, 000h ; 'v'
-                DB              03Fh, 07Fh, 060h, 038h, 060h, 07Fh, 07Fh, 000h ; 'w'
-                DB              000h, 063h, 077h, 01Ch, 01Ch, 077h, 063h, 000h ; 'x'
-                DB              000h, 007h, 00Fh, 078h, 078h, 00Fh, 007h, 000h ; 'y'
-                DB              000h, 061h, 071h, 059h, 04Dh, 047h, 043h, 000h ; 'z'
-                DB              000h, 000h, 000h, 000h, 000h, 000h, 000h, 000h ; '{' *
-                DB              000h, 000h, 000h, 0FFh, 0FFh, 000h, 000h, 000h ; '|'
-                DB              000h, 000h, 000h, 000h, 000h, 000h, 000h, 000h ; '}' *
+                DB              000h, 020h, 074h, 054h, 054h, 07Ch, 078h, 000h ; 'a'
+                DB              000h, 07Fh, 07Fh, 048h, 048h, 078h, 030h, 000h ; 'b'
+                DB              000h, 038h, 07Ch, 044h, 044h, 06Ch, 028h, 000h ; 'c'
+                DB              000h, 030h, 078h, 048h, 048h, 07Fh, 07Fh, 000h ; 'd'
+                DB              000h, 038h, 07Ch, 054h, 054h, 054h, 058h, 000h ; 'e'
+                DB              000h, 07Eh, 07Fh, 009h, 009h, 001h, 000h, 000h ; 'f'
+                DB              000h, 098h, 0BCh, 0A4h, 0A4h, 0FCh, 07Ch, 000h ; 'g'
+                DB              000h, 07Fh, 07Fh, 008h, 008h, 078h, 070h, 000h ; 'h'
+                DB              000h, 000h, 000h, 07Bh, 07Bh, 000h, 000h, 000h ; 'i'
+                DB              000h, 060h, 0C0h, 0C0h, 0FBh, 07Bh, 000h, 000h ; 'j'
+                DB              000h, 07Fh, 07Fh, 018h, 038h, 06Ch, 044h, 000h ; 'k'
+                DB              000h, 000h, 000h, 07Fh, 07Fh, 000h, 000h, 000h ; 'l'
+                DB              000h, 078h, 07Ch, 00Ch, 078h, 00Ch, 07Ch, 078h ; 'm'
+                DB              000h, 07Ch, 07Ch, 004h, 004h, 07Ch, 078h, 000h ; 'n'
+                DB              000h, 038h, 07Ch, 044h, 044h, 07Ch, 038h, 000h ; 'o'
+                DB              000h, 0FCh, 0FCh, 024h, 024h, 03Ch, 018h, 000h ; 'p'
+                DB              000h, 018h, 03Ch, 024h, 024h, 0FCh, 0FCh, 000h ; 'q'
+                DB              000h, 07Ch, 07Ch, 018h, 00Ch, 00Ch, 018h, 000h ; 'r'
+                DB              000h, 058h, 05Ch, 054h, 054h, 074h, 034h, 000h ; 's'
+                DB              000h, 008h, 03Eh, 07Eh, 048h, 000h, 000h, 000h ; 't'
+                DB              000h, 03Ch, 07Ch, 040h, 040h, 07Ch, 07Ch, 000h ; 'u'
+                DB              000h, 01Ch, 03Ch, 060h, 060h, 03Ch, 01Ch, 000h ; 'v'
+                DB              000h, 03Ch, 07Ch, 060h, 078h, 060h, 07Ch, 03Ch ; 'w'
+                DB              000h, 044h, 06Ch, 038h, 038h, 06Ch, 044h, 000h ; 'x'
+                DB              000h, 04Ch, 09Ch, 0B0h, 0A0h, 0FCh, 07Ch, 000h ; 'y'
+                DB              000h, 044h, 064h, 074h, 05Ch, 04Ch, 044h, 000h ; 'z'
+                DB              000h, 008h, 008h, 03Eh, 077h, 041h, 041h, 000h ; '{'
+                DB              000h, 000h, 000h, 077h, 077h, 000h, 000h, 000h ; '|'
+                DB              000h, 041h, 041h, 077h, 03Eh, 008h, 008h, 000h ; '}'
                 DB              000h, 00Ch, 006h, 006h, 00Ch, 00Ch, 006h, 000h ; '~'
                 DB              0FFh, 0FFh, 0FFh, 0FFh, 0FFh, 0FFh, 0FFh, 0FFh ; ' '
 $ENDIF
