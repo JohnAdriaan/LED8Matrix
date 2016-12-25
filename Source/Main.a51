@@ -66,13 +66,17 @@
                 EXTERN   CODE   (Timer0_Set)
                 EXTERN   CODE   (Timer0_Start)
 
+$IF     (SERIAL_Enable)
+$IF     (BAUD_Enable)
                 EXTERN   CODE   (Baud_Init)
+$ENDIF ; BAUD_Enable
                 EXTERN   CODE   ({SERIAL}_Init)
                 EXTERN   BIT    ({SERIAL}_RXed)
                 EXTERN   CODE   ({SERIAL}_RX)
                 EXTERN   CODE   ({SERIAL}_TX_Num)
                 EXTERN   CODE   ({SERIAL}_TX_Char)
                 EXTERN   CODE   ({SERIAL}_TX_Code)
+$ENDIF ; SERIAL_Enable
 
                 EXTERN   CODE   (Flash_Init)
                 EXTERN   CODE   (Flash_Read)
@@ -103,14 +107,20 @@ ScrollWait:     DSB             1
 Main            SEGMENT         CODE
                 RSEG            Main
 
+$IF     (SERIAL_Enable)
 cPrompt:        DB              "LED8x8> ", 0
+$ENDIF ; SERIAL_Enable
 
 Reset_ISR:
                 MOV             SP, #CPU_Stack_Top-1 ; Better (upgoing) Stack addr
                 CALL            CPU_Init          ; Initialise CPU SFRs
                 CloseEyes
+$IF     (SERIAL_Enable)
+$IF     (BAUD_Enable)
                 CALL            Baud_Init         ; Initiaise Baud Rate Timer
+$ENDIF ; BAUD_Enable
                 CALL            {SERIAL}_Init     ; Initialise Serial port
+$ENDIF ; SERIAL_Enable
 
                 CALL            Timer0_Init       ; Initialise Timer0
                 CALL            Flash_Init        ; Initialise Flash
@@ -125,10 +135,11 @@ $ENDIF
                 SETB            EA                ; Enable all interrupts
 
                 CALL            Timer0_Start
+$IF     (SERIAL_Enable)
 TXPrompt:
                 MOV             DPTR, #cPrompt
                 CALL            {SERIAL}_TX_Code
-
+$ENDIF ; SERIAL_Enable
                 SetBank         1
                 MOV             R2, #0000h        ; Text address low
                 MOV             R3, #0000h        ; Text address high
@@ -139,7 +150,9 @@ TXPrompt:
                 MOV             R4, #0FFh         ; (red)
 Executive:
                 JBC             LED_NewFrame, NextFrame   ; Next frame flag? Clear!
+$IF     (SERIAL_Enable)
                 JBC             {SERIAL}_RXed, ProcessCmd ; Next command flag? Clear!
+$ENDIF ; SERIAL_Enable
 ;               CloseEyes
                 GoToSleep               ; Nothing to do until next interrupt
 ;               OpenEyes
@@ -166,7 +179,9 @@ NextFrame_Read:
 NextFrame_Text:
                 MOV             R3, DPH           ; Save away
                 MOV             R2, DPL
+$IF     (SERIAL_Enable)
                 CALL            {SERIAL}_TX_Char
+$ENDIF ; SERIAL_Enable
 
                 MOV             R1, #HIGH(aFONT_Table)
 ;               SUBB            A, #' '           ; Requires C to be clear!
@@ -201,6 +216,7 @@ NextFrame_Col:
                 CALL            LED_Scroll
                 SJMP            Executive         ; Start again
 
+$IF    (SERIAL_Enable)
 ;-------------------------------------------------------------------------------
 ; Called to process next received command
 ProcessCmd:
@@ -217,6 +233,7 @@ CmdByte:
                 ADD             A, #UPDATE_Row_Frame
                 ACALL           SetUpdate
                 SJMP            Executive
+$ENDIF ; SERIAL_Enable
 ;===============================================================================
 SetUpdate:
                 MOV             LED_Update, A

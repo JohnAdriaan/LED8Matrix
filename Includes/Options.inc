@@ -15,7 +15,8 @@ $SET (OPTIONS_INC)
 ;$SET (INT1_Enable)             ; Set to enable External Int 1 code
 $SET (TIMER0_Enable)            ; Set to enable Timer0 code
 ;$SET (TIMER1_Enable)           ; Set to enable Timer1 code
-$SET (BAUD_Enable)              ; Set to enable Baud Rate Generator
+;$SET (SERIAL_Enable)           ; Set to enable all Serial code
+;$SET (BAUD_Enable)             ; Set to enable Baud Rate Generator
 ;$SET (UART_Enable)             ; Set to enable UART code
 ;$SET (UART2_Enable)            ; Set to enable UART2 code
 ;   $SET (UART2_Alt)            ; Set to move UART2 to alternate pins
@@ -233,7 +234,9 @@ ToggleEyes      MACRO
 ENDIF
 
 IF     (BOARD=BOARD_PLCC40)
+   $SET     (SERIAL_Enable)
    SERIAL       LIT             'UART2'
+   $SET     (BAUD_Enable)
    $SET     (UART2_Enable)
 ;  $SET     (UART2_Alt)
    $SET     (DIGIPOT_Enable)
@@ -241,7 +244,9 @@ IF     (BOARD=BOARD_PLCC40)
    {SERIAL}_Priority EQU        INT_Priority_2
    UART2_Mode        EQU        UART_Mode_8Var
 ELSEIF (BOARD=BOARD_DigiPot)
+   $SET     (SERIAL_Enable)
    SERIAL       LIT             'UART2'
+   $SET     (BAUD_Enable)
    $SET     (UART2_Enable)
    $SET     (UART2_Alt)
    $SET     (DIGIPOT_Enable)
@@ -249,11 +254,13 @@ ELSEIF (BOARD=BOARD_DigiPot)
    {SERIAL}_Priority EQU        INT_Priority_2
    UART2_Mode        EQU        UART_Mode_8Var
 ELSEIF (BOARD=BOARD_Resistor)
-   SERIAL       LIT             'UART'
-   $SET     (UART_Enable)
+;  $SET     (SERIAL_Enable)
+;  SERIAL       LIT             'UART'
+;  $SET     (BAUD_Enable)
+;  $SET     (UART_Enable)
    CPU_Freq          EQU        CPU_11059200
-   {SERIAL}_Priority EQU        INT_Priority_2
-   UART_Mode         EQU        UART_Mode_BRG + UART_Mode_8Var
+;  {SERIAL}_Priority EQU        INT_Priority_2
+;  UART_Mode         EQU        UART_Mode_BRG + UART_Mode_8Var
 ELSE
    __ERROR__       "BOARD unknown!"
 ENDIF
