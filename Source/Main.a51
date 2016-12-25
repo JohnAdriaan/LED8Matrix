@@ -171,8 +171,7 @@ NextFrame:
                 SetBank         1
 
                 DJNZ            R7, NextFrame_Col ; End of columns?
-                MOV             R7, #8            ; Yes, so start of columns!
-                MOV             DPH, R3           ; Address of text
+                MOV             DPH, R3           ; Yes, so get address of text
                 MOV             DPL, R2
 NextFrame_Read:
                 CALL            Flash_Read        ; Get byte
@@ -246,6 +245,7 @@ NextFrame_FontMid:
                 INC             R1
 NextFrame_FontLo:
                 MOV             R0, A
+                MOV             R7, #8            ; Restart columns
 
 NextFrame_Col:
                 MOV             DPH, R1           ; Next column from font
