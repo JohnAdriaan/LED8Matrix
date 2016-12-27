@@ -90,7 +90,7 @@ Font7x6_Code    SEGMENT         CODE AT aFONT_Table
                 DB              000h, 020h, 060h, 040h, 040h, 07Fh, 03Fh, 000h ; 'J'
                 DB              000h, 07Fh, 07Fh, 01Ch, 036h, 063h, 041h, 000h ; 'K'
                 DB              000h, 07Fh, 07Fh, 040h, 040h, 040h, 040h, 000h ; 'L'
-                DB              07Fh, 07Fh, 006h, 00Ch, 006h, 07Fh, 07Fh, 000h ; 'M'
+                DB              000h, 07Fh, 07Fh, 006h, 00Ch, 006h, 07Fh, 07Fh ; 'M'
                 DB              000h, 07Fh, 07Fh, 006h, 00Ch, 07Fh, 07Fh, 000h ; 'N'
                 DB              000h, 03Eh, 07Fh, 041h, 041h, 07Fh, 03Eh, 000h ; 'O'
                 DB              000h, 07Fh, 07Fh, 009h, 009h, 00Fh, 006h, 000h ; 'P'
@@ -100,7 +100,7 @@ Font7x6_Code    SEGMENT         CODE AT aFONT_Table
                 DB              000h, 001h, 001h, 07Fh, 07Fh, 001h, 001h, 000h ; 'T'
                 DB              000h, 03Fh, 07Fh, 040h, 040h, 07Fh, 03Fh, 000h ; 'U'
                 DB              000h, 01Fh, 03Fh, 060h, 060h, 03Fh, 01Fh, 000h ; 'V'
-                DB              03Fh, 07Fh, 060h, 038h, 060h, 07Fh, 07Fh, 000h ; 'W'
+                DB              000h, 03Fh, 07Fh, 060h, 038h, 060h, 07Fh, 07Fh ; 'W'
                 DB              000h, 063h, 077h, 01Ch, 01Ch, 077h, 063h, 000h ; 'X'
                 DB              000h, 007h, 00Fh, 078h, 078h, 00Fh, 007h, 000h ; 'Y'
                 DB              000h, 061h, 071h, 059h, 04Dh, 047h, 043h, 000h ; 'Z'
@@ -138,8 +138,8 @@ Font7x6_Code    SEGMENT         CODE AT aFONT_Table
                 DB              000h, 044h, 064h, 074h, 05Ch, 04Ch, 044h, 000h ; 'z'
                 DB              000h, 008h, 008h, 03Eh, 077h, 041h, 041h, 000h ; '{'
                 DB              000h, 000h, 000h, 077h, 077h, 000h, 000h, 000h ; '|'
-                DB              000h, 041h, 041h, 077h, 03Eh, 008h, 008h, 000h ; '}'
-                DB              000h, 00Ch, 006h, 006h, 00Ch, 00Ch, 006h, 000h ; '~'
+                DB              041h, 041h, 077h, 03Eh, 008h, 008h, 000h, 000h ; '}'
+                DB              00Ch, 006h, 006h, 00Ch, 00Ch, 006h, 000h, 000h ; '~'
                 DB              0FFh, 0FFh, 0FFh, 0FFh, 0FFh, 0FFh, 0FFh, 0FFh ; ' '
 $ENDIF
                 END
