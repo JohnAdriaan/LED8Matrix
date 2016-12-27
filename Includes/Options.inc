@@ -108,7 +108,7 @@ UART_Mode_Mask   EQU                0111b ; Mask for just Mode value
 ; * A "frame" is an update of the entire matrix:
 ;   - For persistence of vision, there have to be many Frames Per Second (FPS).
 ;   - Depending on colour depth (bits per colour(LED): 1/2/4/5/8), that could be
-;     1, 4, 16, 64 or 256 cycles (interrupts) per LED per frame (grouped as
+;     1, 4, 16, 32 or 256 cycles (interrupts) per LED per frame (grouped as
 ;     configured).
 FPS_Rate_Row    EQU             8
 FPS_Rate_Colour EQU             8*3
@@ -116,7 +116,6 @@ FPS_Rate_Pixel  EQU             8*8
 FPS_Rate_LED    EQU             8*8*3
 
 FPS             EQU             25 ; Frames Per Second. Sets the interrupt rate.
-                                   ; Note that the timer could use x12 mode...
 
 ; There are five ways to update the individual RGB pixels (some with options):
 ; 0) Each cycle, update the whole frame.
@@ -162,10 +161,6 @@ FPS             EQU             25 ; Frames Per Second. Sets the interrupt rate.
 ;         started;
 ;      c) One colour in all the pixels is updated before the next colour is
 ;         started.
-;
-; Since different options require different LED currents, each option defines
-; its own OHMS, for both Anode and Red - Green and Blue have similar voltage
-; drops, while Red has less.
 
 ; The representation of the different modes is expressed in bits as follows:
 ; * There are three bits: Row, Pixel and LED;

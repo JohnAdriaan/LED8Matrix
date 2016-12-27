@@ -124,6 +124,10 @@ SetBits:
                 RET
 ;===============================================================================
 
+; Since different options require different LED currents, each option defines
+; its own OHMS, for both Anode and Red - Green and Blue have similar voltage
+; drops, while Red has less.
+
 PORT_mA         EQU              20
 BOARD_mA        EQU             120
 

@@ -284,7 +284,7 @@ TimerOffset:
                 RET
 
 ;                                      /512        /256 = *2
-%*DEFINE        (Timer(Rate))   (256 - Clock_Freq/FPS*2/%Rate)
+%*DEFINE        (Timer(Rate))   (256 - CPU_Freq/FPS*2/%Rate)
 cTimer_Table:
 cTimer_Pixel:      DB           %Timer(FPS_Rate_Pixel)  ; 8*8
 cTimer_LED_Pixel:  DB           %Timer(FPS_Rate_LED)    ; 8*8*3
