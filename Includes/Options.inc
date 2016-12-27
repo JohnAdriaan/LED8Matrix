@@ -17,6 +17,11 @@ CPU_STC89       EQU             89
 CPU_Demo        EQU             CPU_STC12 ; Which demo board is in use
 ;CPU            EQU             CPU_STC12 ; Example
 
+; Need to select a Clock Frequency. To avoid 32-bit arithmetic, it's factored
+Clock_11059200  EQU             21600   ; 11.0592 MHz in 512 Hz steps
+Clock_33177600  EQU             64800   ; 33.1776 MHz in 512 Hz steps
+;Clock_Freq     EQU             Clock_33177600 ; Example
+
 ;$SET (INT0_Enable)             ; Set to enable Externel Int 0 code
 ;$SET (INT1_Enable)             ; Set to enable External Int 1 code
 $SET (TIMER0_Enable)            ; Set to enable Timer0 code
@@ -41,10 +46,6 @@ $SET (FONT7x6_Enable)           ; Set to enable font programming
 
 aFONT_Table     EQU             4*1024
 
-; Need to select a CPU Frequency. To avoid 32-bit arithmetic, it's factored down
-CPU_11059200    EQU             21600   ; 11.0592 MHz in 512 Hz steps
-CPU_33177600    EQU             64800   ; 33.1776 MHz in 512 Hz steps
-;CPU_Freq       EQU             CPU_33177600 ; Example
 
 ; Different interrups have different priorities
 INT_Priority_0  EQU             00b     ; Lowest priority
@@ -227,7 +228,8 @@ IF     (BOARD=BOARD_PLCC40)
    $SET     (UART2_Enable)
 ;  $SET     (UART2_Alt)
    $SET     (DIGIPOT_Enable)
-   CPU_Freq          EQU        CPU_11059200
+   CPU               EQU        CPU_STC12
+   Clock_Freq        EQU        Clock_11059200
    {SERIAL}_Priority EQU        INT_Priority_2
    UART2_Mode        EQU        UART_Mode_8Var
 ELSEIF (BOARD=BOARD_DigiPot)
@@ -237,7 +239,8 @@ ELSEIF (BOARD=BOARD_DigiPot)
 ;  $SET     (UART2_Enable)
 ;  $SET     (UART2_Alt)
    $SET     (DIGIPOT_Enable)
-   CPU_Freq          EQU        CPU_33177600
+   CPU               EQU        CPU_STC12
+   Clock_Freq        EQU        Clock_33177600
 ;  {SERIAL}_Priority EQU        INT_Priority_2
 ;  UART2_Mode        EQU        UART_Mode_8Var
 ELSEIF (BOARD=BOARD_Resistor)
@@ -245,11 +248,20 @@ ELSEIF (BOARD=BOARD_Resistor)
 ;  SERIAL       LIT             'UART'
 ;  $SET     (BAUD_Enable)
 ;  $SET     (UART_Enable)
-   CPU_Freq          EQU        CPU_11059200
+   CPU               EQU        CPU_Demo
+   Clock_Freq        EQU        Clock_11059200
 ;  {SERIAL}_Priority EQU        INT_Priority_2
 ;  UART_Mode         EQU        UART_Mode_BRG + UART_Mode_8Var
 ELSE
    __ERROR__       "BOARD unknown!"
+ENDIF
+
+IF     (CPU=CPU_STC12)
+CPU_Freq        EQU             Clock_Freq
+ELSEIF (CPU=CPU_STC89)
+CPU_Freq        EQU             Clock_Freq/6      ; Assumes 6T has been enabled
+ELSE
+__ERROR__ "CPU unknown!"
 ENDIF
 
 $ENDIF ; OPTIONS_INC

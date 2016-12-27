@@ -68,12 +68,26 @@ IAP_WT_3MHz     EQU             101b SHL bWT
 IAP_WT_2MHz     EQU             110b SHL bWT
 IAP_WT_1MHz     EQU             111b SHL bWT
 
-IF     (CPU_Freq=CPU_11059200)
-IAP_WT          EQU             IAP_WT_12MHz
-ELSEIF (CPU_Freq=CPU_33177600)
-IAP_WT          EQU             IAP_WT_30MHz
+IAP_WT_11MHz    EQU             IAP_WT_12MHz
+IAP_WT_33MHz    EQU             IAP_WT_30MHz
+ELSEIF (CPU=CPU_STC89)
+IAP_WT_40MHz    EQU             000b SHL bWT
+IAP_WT_20MHz    EQU             001b SHL bWT
+IAP_WT_10MHz    EQU             010b SHL bWT
+IAP_WT_5MHz     EQU             011b SHL bWT
+
+IAP_WT_11MHz    EQU             IAP_WT_20MHz
+IAP_WT_33MHz    EQU             IAP_WT_40MHz
 ELSE
-__ERROR__ "CPU_Freq unknown!"
+__ERROR__ "CPU unknown!"
+ENDIF
+
+IF     (Clock_Freq=Clock_11059200)
+IAP_WT          EQU             IAP_WT_11MHz
+ELSEIF (Clock_Freq=Clock_33177600)
+IAP_WT          EQU             IAP_WT_33MHz
+ELSE
+__ERROR__ "Clock_Freq unknown!"
 ENDIF
 
 ;===============================================================================
@@ -81,11 +95,12 @@ Flash_Code      SEGMENT         CODE
                 RSEG            Flash_Code
 
 Flash_Init:
-                MOV             rIAP_CONTR, #(mIAPEN + IAP_WT)
+                MOV             rIAP_CONTR, #IAP_WT
                 RET
 ;===============================================================================
 Flash_Read:
 ; This function reads the Flash byte at DPTR, and returns it in A
+                MOV             rIAP_CONTR, #(mIAPEN + IAP_WT) ; Enable flash
                 MOV             A, DPH
                 MOV             rIAP_ADDRH, A
                 MOV             A, DPL
@@ -96,6 +111,7 @@ Flash_Read:
                 NOP                               ; 1 SYSCLK
                 NOP                               ; 2 SYSCLKs
                 MOV             A, rIAP_DATA
+                MOV             rIAP_CONTR, #IAP_WT ; Disable flash
                 RET
 ;===============================================================================
 Flash_Write:
