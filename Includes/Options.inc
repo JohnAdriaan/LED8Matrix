@@ -213,28 +213,6 @@ TIMER0_Mode     EQU             TIMER_Mode_8_Auto; + TIMER_Mode_x12
 TIMER0_Priority EQU             INT_Priority_3
 BAUD_Rate       EQU             BAUD_115200
 
-IF              (BOARD=BOARD_PLCC40)
-                $INCLUDE        (P1.inc)
-                SFR  pSleep  =  pP1
-DefineBit       Eyes, pSleep, 7
-OpenEyes        MACRO
-                SETB            Eyes
-                ENDM
-CloseEyes       MACRO
-                CLR             Eyes
-                ENDM
-ToggleEyes      MACRO
-                CPL             Eyes
-                ENDM
-ELSE
-OpenEyes        MACRO
-                ENDM
-CloseEyes       MACRO
-                ENDM
-ToggleEyes      MACRO
-                ENDM
-ENDIF
-
 IF     (BOARD=BOARD_PLCC40)
    $SET     (SERIAL_Enable)
    SERIAL       LIT             'UART2'

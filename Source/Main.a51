@@ -116,7 +116,6 @@ $ENDIF ; SERIAL_Enable
 Reset_ISR:
                 MOV             SP, #CPU_Stack_Top-1 ; Better (upgoing) Stack addr
                 CALL            CPU_Init          ; Initialise CPU SFRs
-                CloseEyes
 $IF     (SERIAL_Enable)
 $IF     (BAUD_Enable)
                 CALL            Baud_Init         ; Initiaise Baud Rate Timer
@@ -157,9 +156,7 @@ Executive:
 $IF     (SERIAL_Enable)
                 JBC             {SERIAL}_RXed, ProcessCmd ; Next command flag? Clear!
 $ENDIF ; SERIAL_Enable
-;               CloseEyes
                 GoToSleep               ; Nothing to do until next interrupt
-;               OpenEyes
                 SJMP            Executive         ; Start again
 
 ;-------------------------------------------------------------------------------
