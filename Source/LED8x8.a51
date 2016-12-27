@@ -107,7 +107,6 @@ ENDIF
                 PUBLIC          LED_Reset
                 PUBLIC          LED_Scroll
                 PUBLIC          LED_NewFrame
-                PUBLIC          LED_Update
                 PUBLIC          Timer0_Handler
 
 ;===============================================================================
@@ -116,11 +115,6 @@ LED_Bits        SEGMENT         BIT
 
 LED_NewFrame:   DBIT            1                 ; Set when Frame buffer ready
 
-;===============================================================================
-LED_Data        SEGMENT         DATA
-                RSEG            LED_Data
-
-LED_Update:     DSB             1
 ;===============================================================================
 LED_PWM         SEGMENT         XDATA AT 00000h
                 RSEG            LED_PWM
@@ -140,7 +134,6 @@ LED_Code        SEGMENT         CODE
 LED_Init:
                 ACALL           InitPWM
                 ACALL           InitFrame
-                MOV             LED_Update, #UPDATE ; Which mechanism to use
 LED_Reset:
                 ACALL           InitVars
                 ACALL           InitIO
@@ -318,142 +311,6 @@ Timer0_Handler:                                   ; PSW and ACC saved
                 PUSH            DPL               ; Need these registers too...
                 PUSH            DPH
 
-                MOV             A, LED_Update     ; Get UPDATE method
-                ADD             A, ACC            ; AJMP is a two-byte opcode
-                MOV             DPTR, #UpdateTable ; Table of AJMPs
-                JMP             @A+DPTR           ; Do it!
-Timer0_Exit:
-                POP             DPH               ; Restore these
-                POP             DPL
-                RET                               ; And finished!
-;...............................................................................
-UpdateTable:
-                AJMP            UpdatePixel
-                AJMP            UpdateLEDPixel
-                AJMP            UpdateLEDColour
-                AJMP            UpdateLEDRow
-                AJMP            UpdateRowPixel    ; BGR0.01234567,          (24)
-                AJMP            UpdateRowLED      ; B0.01234567,G0.01234567, (8)
-;               AJMP            UpdateRowColour   ; Just being clever...
-;...............................................................................
-UpdateRowColour:
-; One Colour per Row changes per cycle (B0.0-7,B1.0-7,)  (8)
-                AJMP            Timer0_Exit
-;...............................................................................
-UpdatePixel:
-; One Pixel changes per cycle (BGR0.0,BGR0.1,)           (3)
-                AJMP            Timer0_Exit
-;...............................................................................
-UpdateLEDPixel:
-; One Colour changes per cycle (B0.0,G0.0,R0.0,B0.1,)    (1)
-                CJNE            LEDIndex, #nLEDs, ULP_Cycle ; Past LEDs?
-                MOV             LEDIndex, #aPWM             ; Restart LEDIndex
-                DJNZ            LEDCycle, ULP_Cycle   ; Still in current cycle?
-
-                ; New frame started! Copy frame across
-                ACALL           CopyFrame
-;               SJMP            ULP_Cycle
-ULP_Cycle:
-                MOV             DPH, #000h        ; Decrement area
-                MOV             DPL, LEDIndex     ; Current index into pointer
-                INC             LEDIndex          ; Move to next colour byte
-
-                MOV             LEDMask, #0FFh
-                LED_DoPWM       ULP_LEDNext
-                MOV             A, LEDRow         ; Bit to turn off
-                XRL             rLEDMask, A       ; Turn it off
-
-ULP_LEDNext:
-                DJNZ            LEDBGRPtr, ULP_TestGreen ; Note the Decrement!
-ULP_SetRed:
-                MOV             LEDBGRPtr, #BGR_Blue ; Start from Blue again
-                MOV             pGreen, #0FFh     ; Clear Green LED
-                MOV             pRed, LEDMask     ; Set Red LED
-
-                MOV             A, LEDRow         ; Where are we in the row?
-                RL              A                 ; Next bit along
-                MOV             LEDRow, A         ; Save back
-                CJNE            LEDRow, #1, Timer0_Exit ; Gone all the way around?
-
-                MOV             A, LEDAnode       ; Yes. Get current LEDAnode
-                RL              A                 ; Change which Anode
-                MOV             LEDAnode, A       ; Remember for next time
-                AJMP            Timer0_Exit
-ULP_TestGreen:
-                CJNE            LEDBGRPtr, #BGR_Red, ULP_SetBlue ; Decremented value!
-ULP_SetGreen:
-                MOV             pBlue, #0FFh      ; Clear Blue LED
-                MOV             pGreen, LEDMask   ; Set Green LED
-                AJMP            Timer0_Exit
-ULP_SetBlue:
-                MOV             pRed, #0FFh       ; Need to clear Red before anode
-                MOV             A, LEDAnode       ; Get current LEDAnode
-                MOV             pAnode, A         ; Set it
-                MOV             pBlue, LEDMask    ; Set Blue LED
-                AJMP            Timer0_Exit
-;...............................................................................
-UpdateLEDColour:
-; One LED changes per cycle (B0.0,B0.1,..,B1.0,B1.1,)    (1)
-                AJMP            Timer0_Exit
-;...............................................................................
-UpdateLEDRow:
-; One LED changes per cycle (B0.0,B0.1,..,G0.0,G0.1,)    (1)
-                AJMP            Timer0_Exit
-;...............................................................................
-UpdateRowPixel:
-; One whole Row changes per cycle (BGR0.01234567,)     (8*3)
-                CJNE            LEDIndex, #nLEDs, URP_Cycle ; Past LEDs?
-                MOV             LEDIndex, #aPWM             ; Restart LEDIndex
-                DJNZ            LEDCycle, URP_Cycle   ; Still in current cycle?
-
-                ; New frame started! Copy frame across
-                ACALL           CopyFrame
-;               SJMP            URP_Cycle
-URP_Cycle:
-                MOV             DPH, #000h         ; Decrement area
-                MOV             A, #0FFh           ; All bits off (Cathode!)
-                MOV             LEDBlueRow,  A
-                MOV             LEDGreenRow, A
-                MOV             LEDRedRow,   A
-
-                MOV             DPL, LEDIndex     ; Current index into pointer
-
-                MOV             A, #00000001b     ; Start LEDMask value
-URP_PixelLoop:
-                MOV             LEDMask, A
-                MOV             LEDBGRPtr, #rBGRStart
-URP_LEDLoop:
-                LED_DoPWM       URP_LEDNext
-
-                ; Zero bit indicated by LEDMask in current colour register
-                MOV             A, @LEDBGRPtr     ; Get current colour
-                XRL             A, LEDMask        ; XOR with LED Mask
-                MOV             @LEDBGRPtr, A     ; Save back
-URP_LEDNext:
-                INC             DPTR              ; Next LED value
-                INC             LEDBGRPtr         ; Next colour
-                CJNE            LEDBGRPtr, #rBGREnd, URP_LEDLoop
-
-                MOV             A, LEDMask        ; Where are we in the mask?
-                ADD             A, ACC            ; A no-carry-in shift left
-                JNC             URP_PixelLoop     ; Still more to do
-
-                MOV             A, LEDAnode       ; Get current LEDAnode
-                MOV             pAnode, #0        ; Turn off Anodes
-                MOV             pBlue,  LEDBlueRow
-                MOV             pGreen, LEDGreenRow
-                MOV             pRed,   LEDRedRow
-                MOV             pAnode, A         ; Set new Anode
-                RL              A                 ; Change which Anode
-                MOV             LEDAnode, A       ; Remember for next time
-
-                MOV             A, LEDIndex       ; Current row
-                ADD             A, #nLEDsPerRow   ; New position
-                MOV             LEDIndex, A       ; Into index
-
-                AJMP            Timer0_Exit
-;...............................................................................
-UpdateRowLED:
 ; One Colour each Row changes per cycle (B0.0-7,G0.0-7,) (8)
                 CJNE            LEDIndex, #nLEDs, URL_Cycle ; Past LEDs?
                 MOV             LEDIndex, #aPWM             ; Restart LEDIndex
@@ -505,7 +362,10 @@ URL_SetRed:
                 MOV             LEDIndex, A       ; Back into LEDIndex
                 MOV             pGreen, #0FFh     ; Clear Green row
                 MOV             pRed, LEDRow      ; Set Red row
-                AJMP            Timer0_Exit
+Timer0_Exit:
+                POP             DPH               ; Restore these
+                POP             DPL
+                RET                               ; And finished!
 ;...............................................................................
 ; This function copies the Frame buffer into the Decrement Area.
 ; It modifies A, DPTR and LEDCycle (reinitialisng the latter to start again).
