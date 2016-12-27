@@ -224,15 +224,15 @@ IF     (BOARD=BOARD_PLCC40)
    {SERIAL}_Priority EQU        INT_Priority_2
    UART2_Mode        EQU        UART_Mode_8Var
 ELSEIF (BOARD=BOARD_DigiPot)
-   $SET     (SERIAL_Enable)
-   SERIAL       LIT             'UART2'
-   $SET     (BAUD_Enable)
-   $SET     (UART2_Enable)
-   $SET     (UART2_Alt)
+;  $SET     (SERIAL_Enable)
+;  SERIAL       LIT             'UART2'
+;  $SET     (BAUD_Enable)
+;  $SET     (UART2_Enable)
+;  $SET     (UART2_Alt)
    $SET     (DIGIPOT_Enable)
    CPU_Freq          EQU        CPU_33177600
-   {SERIAL}_Priority EQU        INT_Priority_2
-   UART2_Mode        EQU        UART_Mode_8Var
+;  {SERIAL}_Priority EQU        INT_Priority_2
+;  UART2_Mode        EQU        UART_Mode_8Var
 ELSEIF (BOARD=BOARD_Resistor)
 ;  $SET     (SERIAL_Enable)
 ;  SERIAL       LIT             'UART'
