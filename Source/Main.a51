@@ -254,25 +254,6 @@ NextFrame_Col:
                 SetBank         0
                 CALL            LED_Scroll
                 SJMP            Executive         ; Start again
-
-$IF    (SERIAL_Enable)
-;-------------------------------------------------------------------------------
-; Called to process next received command
-ProcessCmd:
-                CALL            {SERIAL}_RX       ; Get received byte
-                CJNE            A, #13, CmdByte
-                SJMP            TXPrompt
-CmdByte:
-;               SUBB            A, #'0'           ; Needs C flag clear!
-                ADD             A, #-'0'          ; Convert ASCII to byte
-                JNC             Executive         ; Underflow!
-;               SUBB            A, #UPDATE_Row_Frame ; Needs C flag clear!
-                ADD             A, #-UPDATE_Row_Frame
-                JC              Executive         ; Too big!
-                ADD             A, #UPDATE_Row_Frame
-                ACALL           SetUpdate
-                SJMP            Executive
-$ENDIF ; SERIAL_Enable
 ;===============================================================================
 SetUpdate:
                 MOV             LED_Update, A
