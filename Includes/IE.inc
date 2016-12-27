@@ -10,8 +10,14 @@
                 SFR   rIE    =  0A8h
 
 DefineBit       EA,   rIE, 7            ; Enable All
+IF     (CPU=CPU_STC12)
 DefineBit       ELVD, rIE, 6            ; Enable Low Voltage Detect
 DefineBit       EADC, rIE, 5            ; Enable Analog-Digital Converter
+ELSEIF (CPU=CPU_STC89)
+DefineBit       ET2,  rIE, 5            ; Enable Timer 2
+ELSE
+__ERROR__ "CPU unknown!"
+ENDIF
 DefineBit       ES,   rIE, 4            ; Enable Serial
 DefineBit       ET1,  rIE, 3            ; Enable Timer 1
 DefineBit       EX1,  rIE, 2            ; Enable eXternal 1

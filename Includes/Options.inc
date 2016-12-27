@@ -11,10 +11,17 @@ $SET (OPTIONS_INC)
 
                 $INCLUDE        (John.inc)
 
+; Need to select which CPU.
+CPU_STC12       EQU             12
+CPU_STC89       EQU             89
+CPU_Demo        EQU             CPU_STC12 ; Which demo board is in use
+;CPU            EQU             CPU_STC12 ; Example
+
 ;$SET (INT0_Enable)             ; Set to enable Externel Int 0 code
 ;$SET (INT1_Enable)             ; Set to enable External Int 1 code
 $SET (TIMER0_Enable)            ; Set to enable Timer0 code
 ;$SET (TIMER1_Enable)           ; Set to enable Timer1 code
+;$SET (TIMER2_Enable)           ; Set to enable Timer2 code
 ;$SET (SERIAL_Enable)           ; Set to enable all Serial code
 ;$SET (BAUD_Enable)             ; Set to enable Baud Rate Generator
 ;$SET (UART_Enable)             ; Set to enable UART code

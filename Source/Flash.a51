@@ -13,25 +13,41 @@ $IF (FLASH_Enable)
                 PUBLIC          Flash_Write
                 PUBLIC          Flash_Erase
 
-                SFR rIAP_DATA  = 0C2h
-                SFR rIAP_ADDRH = 0C3h
-                SFR rIAP_ADDRL = 0C4h
+IF     (CPU=CPU_STC12)
+IAP_Base        EQU             0C0h
+ELSEIF (CPU=CPU_STC89)
+IAP_Base        EQU             0E0h
+ELSE
+__ERROR__ "CPU unknown!"
+ENDIF
 
-                SFR rIAP_CMD   = 0C5h
+                SFR rIAP_DATA  = IAP_Base + 02h
+                SFR rIAP_ADDRH = IAP_Base + 03h
+                SFR rIAP_ADDRL = IAP_Base + 04h
+
+                SFR rIAP_CMD   = IAP_Base + 05h
+DefineBit       MS2, rIAP_CMD, 2
 DefineBit       MS1, rIAP_CMD, 1
 DefineBit       MS0, rIAP_CMD, 0
    bMS          EQU             bMS0    ; Mode shift number
-   mMS          EQU            (mMS1 + mMS0) ; Mode mask
-IAP_CMD_Standby EQU             00b SHL bMS
-IAP_CMD_Read    EQU             01b SHL bMS
-IAP_CMD_Write   EQU             10b SHL bMS
-IAP_CMD_Erase   EQU             11b SHL bMS
+   mMS          EQU            (mMS2 + mMS1 + mMS0) ; Mode mask
+IAP_CMD_Standby EQU             000b SHL bMS
+IAP_CMD_Read    EQU             001b SHL bMS
+IAP_CMD_Write   EQU             010b SHL bMS
+IAP_CMD_Erase   EQU             011b SHL bMS
 
-                SFR rIAP_TRIG  = 0C6h
+                SFR rIAP_TRIG  = IAP_Base + 06h
+IF     (CPU=CPU_STC12)
+IAP_Trig0       EQU             046h
+IAP_Trig1       EQU             0B9h
+ELSEIF (CPU=CPU_STC89)
 IAP_Trig0       EQU             05Ah
 IAP_Trig1       EQU             0A5h
+ELSE
+__ERROR__ "CPU unknown!"
+ENDIF
 
-                SFR rIAP_CONTR = 0C7h
+                SFR rIAP_CONTR = IAP_Base + 07h
 DefineBit       IAPEN,    rIAP_CONTR, 7           ; Global /disable, enable
 DefineBit       SWBS,     rIAP_CONTR, 6           ; Boot /memory, ISP
 DefineBit       SWRST,    rIAP_CONTR, 5           ; Reset MCU
@@ -41,6 +57,8 @@ DefineBit       WT1,      rIAP_CONTR, 1
 DefineBit       WT0,      rIAP_CONTR, 0
    bWT          EQU             bWT0
    mWT          EQU            (mWT2 + mWT1 + mWT0)
+
+IF     (CPU=CPU_STC12)
 IAP_WT_30MHz    EQU             000b SHL bWT
 IAP_WT_24MHz    EQU             001b SHL bWT
 IAP_WT_20MHz    EQU             010b SHL bWT
