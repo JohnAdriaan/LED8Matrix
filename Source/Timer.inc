@@ -65,17 +65,6 @@ ELSEIF ((TIMER{T}_Mode AND TIMER_Mode_Mask)=TIMER_Mode_16)
 ELSE
 __ERROR__ "TIMER_Mode unknown!"
 ENDIF
-
-$IF     (SERIAL_Enable)
-EXTERN CODE ({SERIAL}_TX_Num)
-EXTERN CODE ({SERIAL}_TX_Char)
-
-                CALL            {SERIAL}_TX_Num
-                MOV             A, #13
-                CALL            {SERIAL}_TX_Char
-                MOV             A, #10
-                CALL            {SERIAL}_TX_Char
-$ENDIF ; SERIAL_Enable
                 RET
 ;===============================================================================
 Timer{T}_Start:
