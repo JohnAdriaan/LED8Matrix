@@ -44,8 +44,7 @@ $SET (LED8X8_Enable)            ; Set to enable LED 8x8 matrix code
 $SET (FONT7x6_Enable)           ; Set to enable font programming
 ;$SET (FONT8x8_Enable)          ; Set to enable font programming
 
-aFONT_Table     EQU             4*1024
-
+aFONT_Table     EQU             00500h
 
 ; Different interrups have different priorities
 INT_Priority_0  EQU             00b     ; Lowest priority
@@ -97,7 +96,7 @@ UART_Mode_Mask   EQU                0111b ; Mask for just Mode value
 ;UART_Mode       EQU            UART_Mode_BRG+UART_Mode_8Var ; Examples
 ;UART2_Mode      EQU            UART_Mode_x2+UART_Mode_8Var+UART_Mode_Frame
 
-; * A "cycle" is a single count downwards of the LED value(s) - one PWM cycle:
+; * A "cycle" is a single 'count' downwards of the LED value(s) - one PWM cycle:
 ;   - This is embodied in a single interrupt - whatever the interrupt does.
 ; * A "count" is either a decrement or a shift right:
 ;   - A decrement means that the full 256-count (16+ million colours) can be
@@ -108,7 +107,7 @@ UART_Mode_Mask   EQU                0111b ; Mask for just Mode value
 ;     That allows for better modulation of the LED.
 ; * A "frame" is an update of the entire matrix:
 ;   - For persistence of vision, there have to be many Frames Per Second (FPS).
-;   - Depending on colour depth (bits per colour(LED): 1/2/4/6/8), that could be
+;   - Depending on colour depth (bits per colour(LED): 1/2/4/5/8), that could be
 ;     1, 4, 16, 64 or 256 cycles (interrupts) per LED per frame (grouped as
 ;     configured).
 FPS_Rate_Row    EQU             8
