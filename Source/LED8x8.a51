@@ -134,8 +134,8 @@ LED_Frame       SEGMENT         XDATA AT 00100h
 aFrame:         DSB             nLEDs
 
 ;===============================================================================
-LED             SEGMENT         CODE
-                RSEG            LED
+LED_Code        SEGMENT         CODE
+                RSEG            LED_Code
 
 LED_Init:
                 ACALL           InitPWM

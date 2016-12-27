@@ -8,8 +8,8 @@
 
 $IF (FONT7x6_Enable)
 
-Font7x6         SEGMENT         CODE AT aFONT_Table
-                RSEG            Font7x6
+Font7x6_Code    SEGMENT         CODE AT aFONT_Table
+                RSEG            Font7x6_Code
 
                 ORG             aFONT_Table
 

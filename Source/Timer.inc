@@ -23,8 +23,8 @@
                 PUBLIC          Timer{T}_ISR
 
 ;===============================================================================
-Timer{T}        SEGMENT         CODE
-                RSEG            Timer{T}
+Timer{T}_Code   SEGMENT         CODE
+                RSEG            Timer{T}_Code
 
 Timer{T}_Init:
                 ; Set Timer mode

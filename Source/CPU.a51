@@ -36,8 +36,8 @@ RAM_External    SEGMENT         XDATA AT 00400h
 NonExistent:    DSB             0FC00h            ; Force "overlay" error
 
 ;===============================================================================
-CPU             SEGMENT         CODE
-                RSEG            CPU
+CPU_Code        SEGMENT         CODE
+                RSEG            CPU_Code
 
 CPU_Init:
                 MOV             A, rPCON          ; Read Power Control

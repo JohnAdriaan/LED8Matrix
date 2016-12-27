@@ -59,8 +59,8 @@ nDigiPots       EQU             4
 DigiPotOhms     EQU             49 ; This is the wiper resistance (note min val)
 ENDIF
 ;===============================================================================
-DigiPot         SEGMENT         CODE
-                RSEG            DigiPot
+DigiPot_Code    SEGMENT         CODE
+                RSEG            DigiPot_Code
 
 DigiPot_Init:
 IF     (BOARD=BOARD_Resistor)

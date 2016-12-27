@@ -25,8 +25,8 @@ Baud_BRT        EQU             256 - (CPU_Freq/BAUD_Rate)
 ENDIF
 
 ;===============================================================================
-Baud            SEGMENT         CODE
-                RSEG            Baud
+Baud_Code       SEGMENT         CODE
+                RSEG            Baud_Code
 
 Baud_Init:
                 MOV             rBRT,  #Baud_BRT        ; Baud Rate Timer value

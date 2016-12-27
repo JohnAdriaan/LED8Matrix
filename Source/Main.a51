@@ -106,8 +106,8 @@ ScrollDelay     EQU             6
 
 ScrollWait:     DSB             1
 ;===============================================================================
-Main            SEGMENT         CODE
-                RSEG            Main
+Main_Code       SEGMENT         CODE
+                RSEG            Main_Code
 
 $IF     (SERIAL_Enable)
 cPrompt:        DB              "LED8x8> ", 0

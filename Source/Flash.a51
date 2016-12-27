@@ -59,8 +59,8 @@ __ERROR__ "CPU_Freq unknown!"
 ENDIF
 
 ;===============================================================================
-Flash           SEGMENT         CODE
-                RSEG            Flash
+Flash_Code      SEGMENT         CODE
+                RSEG            Flash_Code
 
 Flash_Init:
                 MOV             rIAP_CONTR, #(mIAPEN + IAP_WT)

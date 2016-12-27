@@ -24,8 +24,8 @@ $ENDIF
                 EXTRN   CODE   (Reset_ISR)
 
 ;===============================================================================
-Vector          SEGMENT         CODE AT 00000h
-                RSEG            Vector
+Vector_Code     SEGMENT         CODE AT 00000h
+                RSEG            Vector_Code
 
                 ORG             00000h
                 JMP             Reset_ISR

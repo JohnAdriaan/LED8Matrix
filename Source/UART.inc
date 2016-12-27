@@ -83,8 +83,8 @@ WrapTX          MACRO           Reg
                 ORL             Reg, #BufferSize
                 ENDM
 ;===============================================================================
-UART{U}         SEGMENT         CODE
-                RSEG            UART{U}
+UART{U}_Code    SEGMENT         CODE
+                RSEG            UART{U}_Code
 
 UART{U}_Init:
                 CLR             UART{U}_RXed      ; No data received
