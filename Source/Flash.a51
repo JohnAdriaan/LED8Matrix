@@ -38,11 +38,11 @@ IAP_CMD_Erase   EQU             011b SHL bMS
 
                 SFR rIAP_TRIG  = IAP_Base + 06h
 IF     (CPU=CPU_STC12)
-IAP_Trig0       EQU             046h
-IAP_Trig1       EQU             0B9h
-ELSEIF (CPU=CPU_STC89)
 IAP_Trig0       EQU             05Ah
 IAP_Trig1       EQU             0A5h
+ELSEIF (CPU=CPU_STC89)
+IAP_Trig0       EQU             046h
+IAP_Trig1       EQU             0B9h
 ELSE
 __ERROR__ "CPU unknown!"
 ENDIF
