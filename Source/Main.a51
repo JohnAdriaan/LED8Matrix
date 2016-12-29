@@ -267,6 +267,7 @@ NextFrame_Col:
                 SJMP            NextFrame_Col     ; Immediately show next column
 
 NextFrame_Spacer:
+                INC             A                 ; Account for Spacer
                 MOV             R7, A             ; Save Length byte into R7
                 CLR             A                 ; Spacing column
 NextFrame_Scroll:
