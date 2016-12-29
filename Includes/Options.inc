@@ -14,7 +14,7 @@ $SET (OPTIONS_INC)
 ; Need to select which CPU.
 CPU_STC12       EQU             12
 CPU_STC89       EQU             89
-CPU_Demo        EQU             CPU_STC12 ; Which demo board is in use
+CPU_Demo        EQU             CPU_STC89 ; Which demo board is in use
 ;CPU            EQU             CPU_STC12 ; Example
 
 ; Need to select a Clock Frequency. To avoid 32-bit arithmetic, it's factored
@@ -208,22 +208,22 @@ BOARD_PLCC40    EQU             0
 BOARD_DigiPot   EQU             1
 BOARD_Resistor  EQU             2
 
-BOARD           EQU             BOARD_Resistor
-TIMER0_Mode     EQU             TIMER_Mode_8_Auto; + TIMER_Mode_x12
+BOARD           EQU             BOARD_PLCC40
+TIMER0_Mode     EQU             TIMER_Mode_8_Auto
 TIMER0_Priority EQU             INT_Priority_3
 BAUD_Rate       EQU             BAUD_115200
 
 IF     (BOARD=BOARD_PLCC40)
-   $SET     (SERIAL_Enable)
-   SERIAL       LIT             'UART2'
-   $SET     (BAUD_Enable)
-   $SET     (UART2_Enable)
+;  $SET     (SERIAL_Enable)
+;  SERIAL       LIT             'UART2'
+;  $SET     (BAUD_Enable)
+;  $SET     (UART2_Enable)
 ;  $SET     (UART2_Alt)
-   $SET     (DIGIPOT_Enable)
+;  $SET     (DIGIPOT_Enable)
    CPU               EQU        CPU_STC12
    Clock_Freq        EQU        Clock_11059200
-   {SERIAL}_Priority EQU        INT_Priority_2
-   UART2_Mode        EQU        UART_Mode_8Var
+;  {SERIAL}_Priority EQU        INT_Priority_2
+;  UART2_Mode        EQU        UART_Mode_8Var
 ELSEIF (BOARD=BOARD_DigiPot)
 ;  $SET     (SERIAL_Enable)
 ;  SERIAL       LIT             'UART2'
