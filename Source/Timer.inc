@@ -32,8 +32,13 @@ Timer{T}_Init:
 ;               ANL             rTMOD, #NOT CT{T} ; Set to Timer mode (vs Count)
                 ORL             rTMOD, #    ((TIMER{T}_Mode AND TIMER_Mode_Mask) SHL bM{T})
 
+IF     (CPU=CPU_STC12)
 IF (TIMER{T}_Mode AND TIMER_Mode_x12)
                 ORL             rAUXR, #mT{T}x12
+ENDIF
+ELSEIF (CPU=CPU_STC89)
+ELSE
+__ERROR__ "CPU unknown!"
 ENDIF
 
                 ; Set interrupt priority
