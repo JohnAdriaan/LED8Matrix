@@ -489,14 +489,14 @@
               <FilePath>.\Listings\Main.lst</FilePath>
             </File>
             <File>
-              <FileName>DigiPot.lst</FileName>
+              <FileName>Flash.lst</FileName>
               <FileType>5</FileType>
-              <FilePath>.\Listings\DigiPot.lst</FilePath>
+              <FilePath>.\Listings\Flash.lst</FilePath>
             </File>
             <File>
-              <FileName>Font7x6.lst</FileName>
+              <FileName>Timer0.lst</FileName>
               <FileType>5</FileType>
-              <FilePath>.\Listings\Font7x6.lst</FilePath>
+              <FilePath>.\Listings\Timer0.lst</FilePath>
             </File>
             <File>
               <FileName>LED8x8.lst</FileName>

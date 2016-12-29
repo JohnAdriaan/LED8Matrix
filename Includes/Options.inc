@@ -205,7 +205,7 @@ BOARD_PLCC40    EQU             0
 BOARD_DigiPot   EQU             1
 BOARD_Resistor  EQU             2
 
-BOARD           EQU             BOARD_PLCC40
+BOARD           EQU             BOARD_Resistor
 TIMER0_Mode     EQU             TIMER_Mode_8_Auto
 TIMER0_Priority EQU             INT_Priority_3
 BAUD_Rate       EQU             BAUD_115200
