@@ -116,7 +116,8 @@ FPS_Rate_Colour EQU             8*3
 FPS_Rate_Pixel  EQU             8*8
 FPS_Rate_LED    EQU             8*8*3
 
-FPS             EQU             25 ; Frames Per Second. Sets the interrupt rate.
+nFPS            EQU             25 ; Frames Per Second. Sets the interrupt rate.
+nCycles         EQU             16 ; Number of cycles per Frame
 
 ; There are five ways to update the individual RGB pixels (some with options):
 ; 0) Each cycle, update the whole frame.

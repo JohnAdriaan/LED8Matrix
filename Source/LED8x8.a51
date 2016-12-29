@@ -65,8 +65,6 @@ LEDAnode        EQU             R6 ; Current Anode
 LEDCycle        EQU             R7 ; Where we are in the countdown
                 SFR rLEDCycle = LEDBank*8 + 7
 
-NumCycles       EQU             16
-
 IF     (BOARD=BOARD_PLCC40)
                 SFR   pAnode  = pP2  ; 0A0h
                 SFR   pBlue   = pP1  ; 090h
@@ -285,10 +283,10 @@ Timer0_Handler:                                   ; PSW and ACC saved
 ; UpdateRowLED (URL_)
 ; One Colour each Row changes per cycle (B0.0-7,G0.0-7,) (8)
                 CJNE            LEDIndex, #nBytes, URL_Cycle ; End PWM buffer?
-                MOV             LEDIndex, #aPWM             ; Restart LEDIndex
+                MOV             LEDIndex, #aPWM              ; Restart LEDIndex
 
-                DJNZ            LEDCycle, URL_Cycle   ; Still in current cycle?
-                MOV             LEDCycle, #NumCycles        ; Next cycle
+                DJNZ            LEDCycle, URL_Cycle  ; Still in current cycle?
+                MOV             LEDCycle, #nCycles   ; Next cycle
 
                 ; New frame started! Copy frame across?
                 JNB             LED_FrameDone, URL_Cycle    ; New frame to copy?

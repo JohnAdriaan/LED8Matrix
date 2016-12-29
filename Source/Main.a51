@@ -126,8 +126,8 @@ $ENDIF ; BAUD_Enable
 $ENDIF ; SERIAL_Enable
 
                 CALL            Timer0_Init       ; Initialise Timer0
-;                                      /512        /256 = *2
-%*DEFINE        (Timer(Rate))   (256 - CPU_Freq/FPS*2/%Rate)
+;                                      /512   =   *8     *16        *4
+%*DEFINE        (Timer(Rate))   (256 - CPU_Freq/12*8/nFPS*16/nCycles*4/%Rate)
                 MOV             A, #%Timer(FPS_Rate_Colour) ; 8*3
                 CALL            Timer0_Set
 $IF     (FLASH_Enable)
