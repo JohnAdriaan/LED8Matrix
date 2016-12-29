@@ -37,6 +37,7 @@ RAM_External    SEGMENT         XDATA AT 00400h
 NonExistent:    DSB             0FC00h            ; Force "overlay" error
 ELSEIF (CPU=CPU_STC89)
 RAM_External    SEGMENT         XDATA AT 00100h
+                RSEG            RAM_External
 
 NonExistent:    DSB             0FF00h            ; Force "overlay" error
 ELSE
@@ -50,7 +51,13 @@ CPU_Init:
                 MOV             A, rPCON          ; Read Power Control
 ;                MOV             DPTR, #aPower     ; Index
 ;                MOVX            @DPTR, A          ; Save in CPUData
+IF     (CPU=CPU_STC12)
                 ANL             A, #NOT (mLVDF+mPOF); Now turn off these bits
+ELSEIF (CPU=CPU_STC89)
+                ANL             A, #NOT mPOF
+ELSE
+__ERROR__ "CPU unknown!"
+ENDIF
                 MOV             rPCON, A
 
                 MOV             A, rWDT_CONTR     ; Get WatchDog timer
