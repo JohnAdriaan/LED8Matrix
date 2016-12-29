@@ -191,11 +191,6 @@ UPDATE_Row_Colour EQU           110b    ; B0.01234567,B1.01234567,...        (8)
 UPDATE_Row_Frame  EQU           111b    ;                                 (192!)
 UPDATE_Row_Last   EQU           UPDATE_Row_Frame
 
-CYCLE_Decrement EQU             0       ; Decrement colour byte every cycle
-CYCLE_Shift     EQU             8       ; Shift colour byte every cycle
-
-CYCLE           EQU             CYCLE_Shift
-
 ; There are three boards:
 ; * BOARD_PLCC40 has no LED Matrix, and one single DigiPot cascade;
 ; * BOARD_DigiPot has digital potentiometers;

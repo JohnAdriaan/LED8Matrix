@@ -310,7 +310,9 @@ Timer0_Handler:                                   ; PSW and ACC saved
                 SetBank         LEDBank           ; Use this register bank
                 PUSH            DPL               ; Need these registers too...
                 PUSH            DPH
+                MOV             DPH, #000h        ; PWM area
 
+; UpdateRowLED (URL_)
 ; One Colour each Row changes per cycle (B0.0-7,G0.0-7,) (8)
                 CJNE            LEDIndex, #nLEDs, URL_Cycle ; Past LEDs?
                 MOV             LEDIndex, #aPWM             ; Restart LEDIndex
@@ -320,7 +322,6 @@ Timer0_Handler:                                   ; PSW and ACC saved
                 ACALL           CopyFrame
 ;               SJMP            URL_Cycle
 URL_Cycle:
-                MOV             DPH, #000h        ; Decrement area
                 MOV             LEDRow, #0FFh     ; All bits off (Cathode!)
                 MOV             DPL, LEDIndex     ; Current index into pointer
 
