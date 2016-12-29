@@ -271,6 +271,7 @@ LED_ScrollGR:
                 INC             DPTR
 
                 DJNZ            R7, LED_ScrollRow ; Next row
+                CLR             LED_NewFrame
                 SETB            LED_FrameDone     ; Mark for copying
                 RET
 ;-------------------------------------------------------------------------------
@@ -290,8 +291,8 @@ Timer0_Handler:                                   ; PSW and ACC saved
 
                 ; New frame started! Copy frame across?
                 JNB             LED_FrameDone, URL_Cycle    ; New frame to copy?
-                CLR             LED_FrameDone
-                ACALL           CopyFrame                   ; Yes, so copy it
+                CLR             LED_FrameDone               ; Yes, so copy it
+                ACALL           CopyFrame
                 SETB            LED_NewFrame                ; Set NewFrame flag
 
 URL_Cycle:
