@@ -201,8 +201,13 @@ NextFrame_Read:
                 JNZ             NextFrame_Ctrl    ; Check not NUL
                 MOV             A, DPH            ; Test if DPTR is zero...
                 ORL             A, DPL
-                JZ              Executive         ; Yup! Nothing to do...
+                JNZ             NextFrame_Restart ; Nope, so restart
+                MOV             R7, #1            ; Yep, so only show Logo
+                SetBank         0
 
+                SJMP            Executive
+
+NextFrame_Restart:
                 MOV             DPTR, #00000h     ; Restart Text
                 SJMP            NextFrame_Read    ; Try again
 
