@@ -153,7 +153,7 @@ $ENDIF ; SERIAL_Enable
                 MOV             R2, #00Fh         ; Default to white (Blue)
                 MOV             R3, #0FFh         ; (Green/Red)
 Executive:
-                JB              LED_NewFrame, NextFrame   ; Next frame flag?
+                JBC             LED_NewFrame, NextFrame   ; Next frame flag?
 $IF     (SERIAL_Enable)
                 JBC             {SERIAL}_RXed, ProcessCmd ; Next command flag? Clear!
 $ENDIF ; SERIAL_Enable
