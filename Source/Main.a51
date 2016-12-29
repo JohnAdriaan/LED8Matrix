@@ -117,6 +117,7 @@ $ENDIF ; SERIAL_Enable
 Reset_ISR:
                 MOV             SP, #CPU_Stack_Top-1 ; Better (upgoing) Stack addr
                 CALL            CPU_Init          ; Initialise CPU SFRs
+                Eye_Init
 $IF     (SERIAL_Enable)
 $IF     (BAUD_Enable)
                 CALL            Baud_Init         ; Initiaise Baud Rate Timer

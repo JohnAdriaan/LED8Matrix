@@ -22,6 +22,7 @@ Clock_11059200  EQU             21600   ; 11.0592 MHz in 512 Hz steps
 Clock_33177600  EQU             64800   ; 33.1776 MHz in 512 Hz steps
 ;Clock_Freq     EQU             Clock_33177600 ; Example
 
+$SET (EYES_Enable)
 ;$SET (INT0_Enable)             ; Set to enable Externel Int 0 code
 ;$SET (INT1_Enable)             ; Set to enable External Int 1 code
 $SET (TIMER0_Enable)            ; Set to enable Timer0 code
@@ -250,5 +251,48 @@ CPU_Freq        EQU             Clock_Freq/6      ; Assumes 6T has been enabled
 ELSE
 __ERROR__ "CPU unknown!"
 ENDIF
+
+$IF (EYES_Enable)
+
+                $INCLUDE        (P4.inc)
+
+IF     (CPU=CPU_STC12)
+DefineBit       LeftEye,  pP4, 5
+DefineBit       RightEye, pP4, 4
+
+Eye_Init        MACRO
+                ORL             rP4SW, #(mALEP45 + mNAP44)
+;               ORL             pP4, #(mLeftEye + mRightEye)
+;               ANL             rP4M1, #NOT (mLeftEye + mRightEye)
+                ORL             rP4M0, #    (mLeftEye + mRightEye)
+                ENDM
+
+Eye_Close       MACRO           Which ; LeftEye or RightEye
+                SETB            Which
+                ENDM
+
+Eye_Open        MACRO           Which ; LeftEye or RightEye
+                CLR             Which
+                ENDM
+
+Eye_Wink        MACRO           Which ; LeftEye or RightEye
+                CPL             Which
+                ENDM
+ELSEIF (CPU=CPU_STC89)
+Eye_Init        MACRO
+                ENDM
+
+Eye_Close       MACRO           Which
+                ENDM
+
+Eye_Open        MACRO           Which
+                ENDM
+
+Eye_Wink        MACRO           Which
+                ENDM
+ELSE
+__ERROR__ "CPU unknown!"
+ENDIF
+$ENDIF
 
 $ENDIF ; OPTIONS_INC
