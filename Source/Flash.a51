@@ -68,24 +68,24 @@ IAP_WT_3MHz     EQU             101b SHL bWT
 IAP_WT_2MHz     EQU             110b SHL bWT
 IAP_WT_1MHz     EQU             111b SHL bWT
 
-IAP_WT_11MHz    EQU             IAP_WT_12MHz
-IAP_WT_33MHz    EQU             IAP_WT_30MHz
+IAP_WT_11059200Hz EQU           IAP_WT_12MHz
+IAP_WT_33177600Hz EQU           IAP_WT_30MHz
 ELSEIF (CPU=CPU_STC89)
 IAP_WT_40MHz    EQU             000b SHL bWT
 IAP_WT_20MHz    EQU             001b SHL bWT
 IAP_WT_10MHz    EQU             010b SHL bWT
 IAP_WT_5MHz     EQU             011b SHL bWT
 
-IAP_WT_11MHz    EQU             IAP_WT_20MHz
-IAP_WT_33MHz    EQU             IAP_WT_40MHz
+IAP_WT_11059200Hz EQU           IAP_WT_20MHz
+IAP_WT_33177600Hz EQU           IAP_WT_40MHz
 ELSE
 __ERROR__ "CPU unknown!"
 ENDIF
 
 IF     (Clock_Freq=Clock_11059200)
-IAP_WT          EQU             IAP_WT_11MHz
+IAP_WT          EQU             IAP_WT_11059200Hz
 ELSEIF (Clock_Freq=Clock_33177600)
-IAP_WT          EQU             IAP_WT_33MHz
+IAP_WT          EQU             IAP_WT_33177600MHz
 ELSE
 __ERROR__ "Clock_Freq unknown!"
 ENDIF
