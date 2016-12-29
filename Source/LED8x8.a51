@@ -292,7 +292,9 @@ Timer0_Handler:                                   ; PSW and ACC saved
 
                 ; New frame started! Copy frame across?
                 JNB             LED_FrameDone, URL_Cycle    ; New frame to copy?
+                CLR             LED_FrameDone
                 ACALL           CopyFrame                   ; Yes, so copy it
+                SETB            LED_NewFrame                ; Set NewFrame flag
 
 URL_Cycle:
                 MOV             DPL, LEDIndex     ; Current index into PWM
@@ -408,7 +410,6 @@ cIntensity:
 ;...............................................................................
 ; This function copies the Build buffer into the PWM buffer.
 ; It modifies A, DPTR and R3.
-; It also sets the LED_NewFrame flag.
 CopyFrame:
 ;               SETB            EA                ; Allow interrupts during copy
                 MOV             DPTR0, #aFrame    ; Source area
@@ -426,8 +427,6 @@ CopyLoop:
                 ToggleDPS
                 DJNZ            R3, CopyLoop
 ;               CLR             EA                ; That's enough!
-
-                SETB            LED_NewFrame      ; Set NewFrame flag
                 RET
 ;===============================================================================
 $ENDIF
