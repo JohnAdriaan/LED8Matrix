@@ -118,6 +118,7 @@ FPS_Rate_LED    EQU             8*8*3
 
 nFPS            EQU             25 ; Frames Per Second. Sets the interrupt rate.
 nCycles         EQU             16 ; Number of cycles per Frame
+ScrollDelay     EQU             4  ; Number of Frames per Scroll
 
 ; There are five ways to update the individual RGB pixels (some with options):
 ; 0) Each cycle, update the whole frame.
@@ -205,7 +206,7 @@ BOARD_PLCC40    EQU             0
 BOARD_DigiPot   EQU             1
 BOARD_Resistor  EQU             2
 
-BOARD           EQU             BOARD_Resistor
+BOARD           EQU             BOARD_PLCC40
 TIMER0_Mode     EQU             TIMER_Mode_8_Auto
 TIMER0_Priority EQU             INT_Priority_3
 BAUD_Rate       EQU             BAUD_115200

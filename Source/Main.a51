@@ -103,8 +103,6 @@ $ENDIF ; DIGIPOT_Enable
 MainData        SEGMENT         DATA
                 RSEG            MainData
 
-ScrollDelay     EQU             6
-
 ScrollWait:     DSB             1
 ;===============================================================================
 Main_Code       SEGMENT         CODE
