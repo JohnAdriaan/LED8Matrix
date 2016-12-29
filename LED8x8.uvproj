@@ -489,9 +489,9 @@
               <FilePath>.\Listings\Main.lst</FilePath>
             </File>
             <File>
-              <FileName>UART2.lst</FileName>
+              <FileName>DigiPot.lst</FileName>
               <FileType>5</FileType>
-              <FilePath>.\Listings\UART2.lst</FilePath>
+              <FilePath>.\Listings\DigiPot.lst</FilePath>
             </File>
             <File>
               <FileName>Font7x6.lst</FileName>
