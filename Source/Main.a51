@@ -148,8 +148,8 @@ TXPrompt:
                 CALL            {SERIAL}_TX_Code
 $ENDIF ; SERIAL_Enable
                 SetBank         1
-                MOV             R2, #0000h        ; Text address low
-                MOV             R3, #0000h        ; Text address high
+                MOV             R2, #000h         ; Text address low
+                MOV             R3, #000h         ; Text address high
                 MOV             R7, #1            ; Number of cols left in char
                 SetBank         0
                 MOV             R2, #00Fh         ; Default to white (Blue)
@@ -167,7 +167,7 @@ $ENDIF ; SERIAL_Enable
 ; This function:
 ; 0) Doesn't always do something - ScrollWait has to count down to zero first.
 ; 1) If in the middle of a character, go to 6)
-; 2) Reads the next byte from the Text in Flash.
+; 2) Read the next byte from the Text area in Flash.
 ; 3) If the byte is NUL:
 ;    a) If the Text table is empty, it does nothing (keeps displaying the logo);
 ;    b) Otherwise it starts the Text table again.
@@ -235,7 +235,7 @@ $ENDIF ; SERIAL_Enable
                 MOV             R1, #HIGH(aFONT_Table)
 ;               SUBB            A, #' '           ; Requires C to be clear!
                 ADD             A, #-' '          ; First 020h chars not tabled
-                JNC             NextFrame_Read
+                JNC             NextFrame_Read    ; Below space! Retry!
                 ADD             A, ACC            ; No carry-in shift left
 ;               JNC             NextFrame_FontHi  ; Note this code isn't needed
 ;               INC             R1                ; The original top bit IS zero
@@ -257,10 +257,10 @@ NextFrame_FontLo:
 NextFrame_Byte:
                 MOV             DPH, R1           ; Pointer to Font table
 NextFrame_Col:
-                MOV             DPL, R0           ; Pointer to Font byte
+                MOV             DPL, R0           ; Pointer to Font entry byte
                 INC             R0                ; Next byte for next time
                 CLR             A                 ; No offset required
-                MOVC            A, @A+DPTR        ; Get Length byte from font
+                MOVC            A, @A+DPTR        ; Get Length byte from Font
                 JNB             F0, NextFrame_Scroll ; Normal column? Use it
 
                 JNZ             NextFrame_Spacer  ; Valid length? Use as Spacer
@@ -274,6 +274,7 @@ NextFrame_Spacer:
 NextFrame_Scroll:
                 SetBank         0
                 CALL            LED_Scroll
+
                 SJMP            Executive         ; Start again
 ;===============================================================================
                 END

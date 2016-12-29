@@ -97,7 +97,7 @@ LED_Bits        SEGMENT         BIT
                 RSEG            LED_Bits
 
 LED_NewFrame:   DBIT            1                 ; Set when Frame buffer ready
-LED_FrameDone:  DBIT            1                 ; Set when Frame bffer full
+LED_FrameDone:  DBIT            1                 ; Set when Frame buffer done
 
 ;===============================================================================
 LED_PWM         SEGMENT         XDATA AT 00000h
@@ -142,9 +142,9 @@ InitSetNybble:
                 MOV             R1, A             ; Save away - need A!
 
                 MOV             A, R2             ; Get intensity
-                JC              InitFrame_Blue
+                JC              InitBlue
                 CLR             A                 ; Nope! Blue is off!
-InitFrame_Blue:
+InitBlue:
                 MOVX            @DPTR, A          ; Store Blue
                 INC             DPTR
 
@@ -153,9 +153,9 @@ InitFrame_Blue:
                 MOV             R1, A             ; Save away - need A!
 
                 MOV             A, R2             ; Get intensity
-                JC              InitFrame_Green
+                JC              InitGreen
                 CLR             A                 ; Nope! Green is off!
-InitFrame_Green:
+InitGreen:
                 SWAP            A                 ; Get nybble high
                 MOV             R3, A             ; Save Green
 
@@ -164,9 +164,9 @@ InitFrame_Green:
                 MOV             R1, A             ; Save away - need A!
 
                 MOV             A, R2             ; Get intensity
-                JC              InitFrame_Red
+                JC              InitRed
                 CLR             A                 ; Nope! Red is off!
-InitFrame_Red:
+InitRed:
                 ORL             A, R3             ; Or in Green
                 MOVX            @DPTR, A          ; Store Green and Red
                 INC             DPTR
@@ -284,7 +284,7 @@ Timer0_Handler:                                   ; PSW and ACC saved
 
 ; UpdateRowLED (URL_)
 ; One Colour each Row changes per cycle (B0.0-7,G0.0-7,) (8)
-                CJNE            LEDIndex, #nBytes, URL_Cycle ; Past LEDs?
+                CJNE            LEDIndex, #nBytes, URL_Cycle ; End PWM buffer?
                 MOV             LEDIndex, #aPWM             ; Restart LEDIndex
 
                 DJNZ            LEDCycle, URL_Cycle   ; Still in current cycle?
@@ -316,7 +316,7 @@ URL_NotGreen:
                 ANL             A, #00Fh          ; Isolate intensity nybble
                 JNB             ACC.3, URL_Low    ; Intensity > 7?
                 XRL             A, #00Fh          ; Yes, so 15-Intensity
-                XRL             rLEDIntense, #0FFh; And complement Intensity
+                XRL             rLEDIntense, #0FFh; And complement mask
 
 URL_Low:
                 ADD             A, #cShift-ShiftOffset
@@ -370,7 +370,8 @@ Timer0_Exit:
 ; Since there's no barrel shifter, counted rotates are expensive!
 ; Use a lookup table instead to get the mask
 cShift:
-                DB              001h, 002h, 004h, 008h, 010h, 020h, 040h, 080h
+                DB              00000001b, 00000010b, 00000100b, 00001000b
+                DB              00010000b, 00100000b, 01000000b, 10000000b
 cIntensity:
 ; This table maps current LEDCycle (16-1) to Intensity (0-F).
 ; If Intensity is >7, use (15-Intensity) and complement the value.
